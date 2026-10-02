@@ -10,7 +10,6 @@ A portable, zero-deps starter pack for [opencode](https://opencode.ai):
 - **skills** — on-demand reference material (patterns, checklists, frameworks)
 - **commands** — slash-commands for common flows (`/plan`, `/prd`, `/code-review`, etc.)
 - **bin scripts** — local CLIs (`context.js`, `instinct.js`, `build-agents-index.js`)
-- **3 example projects** — minimal apps in `.opencode/examples/` (delete after grokking)
 
 No `package.json` at the project root. No build step. Drop the `.opencode/` folder in any repo and it works.
 
