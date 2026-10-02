@@ -39,6 +39,8 @@ task { subagent_type: "prd-agent", prompt: "$ARGUMENTS" }
 
 ## Available Agents (for Phases 1+)
 
+> **Disponibilidad:** los agentes de lenguaje (p. ej. `go-reviewer`, `go-build-resolver`) se instalan solo si coinciden con el stack del proyecto (marcado en `.opencode/.stack`). Si falta alguno, usa `code-reviewer` o `build-error-resolver`.
+
 | Agent | Specialty | Use For |
 |-------|-----------|---------|
 | **prd-agent** | **Intent clarification** | **Phase 0 — always first** |

@@ -131,6 +131,8 @@ For implementation work, ALWAYS layer with `planner` → `tdd-guide` → reviewe
 
 ## Stack-specific Reviewers
 
+> **Antes de despachar:** confirma que el agente existe en `.opencode/agents/<nombre>.md`. El pack se instala con filtro de stack (marcado en `.opencode/.stack`), así que varios agentes de esta tabla pueden no estar instalados. **Si no existe**, usa `code-reviewer` con instrucción específica de ese lenguaje, o `build-error-resolver` para errores de build.
+
 Use these INSTEAD of `code-reviewer` when the stack is known:
 
 | Stack | Agent |
