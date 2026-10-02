@@ -2,14 +2,16 @@
 .SYNOPSIS
     Inicializa un proyecto nuevo con el pack de opencode COMPLETO.
 .DESCRIPTION
-    Copia TODOS los agents (83), commands (68), skills (40), plugins, 
-    scripts, templates, configuración MCPs y estructura de docs.
+    Copia todos los agents, commands y skills del pack, mas plugins,
+    scripts, templates, configuracion MCPs y estructura de docs.
 .PARAMETER ProjectPath
     Ruta del proyecto destino. Si no se especifica, usa el directorio actual.
 .PARAMETER PackPath
-    Ruta del pack base. Default: D:\open
+    Ruta del pack base. Si se omite, se usa la carpeta del propio script,
+    asi funciona en cualquier maquina donde se clone el repositorio.
 .PARAMETER Force
-    Sobreescribe archivos existentes sin preguntar.
+    Mantenido por compatibilidad. El instalador no hace ninguna pregunta y
+    sobreescribe siempre, asi que este interruptor no cambia el comportamiento.
 .PARAMETER SkipInstall
     Omite la instalación de plugins npm.
 .PARAMETER SkipDocs
@@ -32,7 +34,7 @@ param(
     [string]$ProjectPath,
     
     [Parameter(Mandatory=$false)]
-    [string]$PackPath = "D:\open",
+    [string]$PackPath,
     
     [Parameter(Mandatory=$false)]
     [switch]$Force,
@@ -56,9 +58,25 @@ if (-not $ProjectPath) {
     $ProjectPath = (Get-Location).Path
 }
 
+# Si no se especifica el origen del pack, usar la carpeta del propio script.
+# Estaba hardcodeado a D:\open, lo que impedia instalar el pack en cualquier
+# otra maquina que lo clonara desde GitHub.
+if (-not $PackPath) {
+    if ($PSScriptRoot) { $PackPath = $PSScriptRoot }
+    else               { $PackPath = Split-Path -Parent $MyInvocation.MyCommand.Path }
+}
+
 # Verificar que el pack existe
 if (-not (Test-Path $PackPath)) {
     Write-Host "[ERROR] No se encontro el pack en: $PackPath" -ForegroundColor Red
+    exit 1
+}
+
+# Verificar que lo que hay en esa ruta es realmente el pack
+if (-not (Test-Path (Join-Path $PackPath ".opencode"))) {
+    Write-Host "[ERROR] No se encontro el pack en: $PackPath" -ForegroundColor Red
+    Write-Host "        (la ruta existe pero no contiene .opencode/)" -ForegroundColor Red
+    Write-Host "        Indica el origen con: -PackPath <ruta del pack>" -ForegroundColor Yellow
     exit 1
 }
 
@@ -745,7 +763,7 @@ if ($allGood -and $script:errors -eq 0) {
     Write-Host "    - $finCommands slash commands" -ForegroundColor White
     Write-Host "    - $finSkills skills (stripe, clerk, supabase, docker, vercel, etc.)" -ForegroundColor White
     Write-Host "    - $finMcpCount MCPs$(if ($finMcpNames.Count) { ' (' + ($finMcpNames -join ', ') + ')' })" -ForegroundColor White
-    Write-Host "    - 16+ CLI scripts" -ForegroundColor White
+    Write-Host "    - CLI scripts de validacion y utilidades" -ForegroundColor White
     Write-Host "    - Plugins (vibeguard, pty, dcp)" -ForegroundColor White
     Write-Host "    - Manual completo" -ForegroundColor White
     Write-Host "    - Templates y estructura docs" -ForegroundColor White

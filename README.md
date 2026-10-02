@@ -54,24 +54,83 @@ Complementos: `/spec-to-tests` (tests desde la especificación), `/quick-prd` (c
 
 ## Instalación
 
-En la raíz del proyecto destino:
+### Requisitos
+
+- **Windows** con PowerShell 5.1 o superior (incluido en Windows 10 y 11)
+- **Git** para clonar el repositorio
+- **Node.js** en el `PATH` — opcional: sin él el instalador funciona igual, pero omite la regeneración de índices y de los bloques `## Counts`
+
+### Paso 1 — Clona el pack
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File init-opencode.ps1
+git clone https://github.com/miguelalbisortiz/agentes.git
+cd agentes
 ```
 
-| Parámetro | Efecto |
+### Paso 2 — Instálalo en tu proyecto
+
+**Si el proyecto ya existe**, indica su ruta:
+
+```powershell
+.\init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
+```
+
+**O en el directorio actual:**
+
+```powershell
+.\init-opencode.ps1
+```
+
+Si Windows bloquea el script por política de ejecución, lánzalo así:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
+```
+
+El instalador **no pregunta nada**: se lanza y corre solo hasta el final.
+
+### Qué hace el instalador
+
+Antes de copiar nada **detecta el stack** del proyecto mirando sus ficheros de configuración (`pubspec.yaml` → flutter, `package.json` → node, `pyproject.toml` → python, `Cargo.toml` → rust, `go.mod` → go, `pom.xml` → java...) y descarta los agents de lenguajes que no aplican. Si no reconoce el stack, instala la biblioteca completa.
+
+Luego ejecuta 7 fases en orden:
+
+| # | Fase | Qué ocurre |
+|---|---|---|
+| 1 | Archivos raíz | Fusiona `opencode.json`, `skills-lock.json` y `.gitignore` |
+| 2 | `.opencode/` | Agents, commands, plugins, CLIs, manual, `AGENTS.md` y templates |
+| 3 | `.agents/` | Skills y el router que decide cuál se carga |
+| 4 | `docs/` | Crea la estructura de documentación — lo omite con `-SkipDocs` |
+| 5 | Documentación | README y `docs/PROJECT.md` del pack |
+| 6 | Plugins npm | Instala los plugins del pack — lo omite con `-SkipInstall` |
+| 7 | Verificación | Recuenta agents, commands y skills, y comprueba los MCPs |
+
+Termina con un resumen que imprime el **recuento real instalado** y el comando para arrancar:
+
+```text
+cd C:\mi-proyecto
+opencode .
+```
+
+### Qué aparece en tu proyecto
+
+| Ruta | Contenido |
 |---|---|
-| `-ProjectPath <ruta>` | Proyecto destino (por defecto, el directorio actual) |
-| `-Stack <nombre>` | Fuerza el stack; si se omite, se detecta automáticamente |
-| `-AllAgents` | Instala la biblioteca completa sin filtrar por stack |
-| `-PackPath <ruta>` | Origen del pack (por defecto, la carpeta del script) |
-| `-SkipInstall` / `-SkipDocs` | Omite dependencias o la documentación del proyecto |
-| `-Force` | Sobrescribe sin confirmar |
+| `.opencode/agents/` | Agents filtrados por tu stack (o la biblioteca completa con `-AllAgents`) |
+| `.opencode/commands/` | Slash commands |
+| `.opencode/bin/` | CLIs de validación |
+| `.opencode/AGENTS.md` | Reglas globales de comportamiento |
+| `.agents/skills/` | Skills + router |
+| `docs/` | Estructura de documentación |
+| `opencode.json` | **Fusionado**: conserva lo tuyo y añade los MCPs del pack |
+| `.gitignore` | **Fusionado**: conserva tus reglas y añade las del pack |
+| `skills-lock.json` | Estado de las skills |
 
-**El filtrado por stack** poda los agents, comandos y skills que no aplican al proyecto y ajusta el router en consecuencia (por ejemplo, en un proyecto Flutter: 59 agents · 66 commands · 37 skills). La instalación **no pisa** el `.gitignore` ni el `opencode.json` existentes: los fusiona conservando lo propio. Es **idempotente**: repetirla no duplica nada.
+**No se pisa nada**: si ya tienes `opencode.json` o `.gitignore`, el pack solo añade las entradas que faltan. Repetir la instalación es seguro (**idempotente**): no duplica carpetas ni crea anidados.
 
-## Verificación
+### Paso 3 — Verifica
+
+Desde la raíz del proyecto instalado:
 
 | Chequeo | Comando |
 |---|---|
@@ -81,22 +140,52 @@ powershell -ExecutionPolicy Bypass -File init-opencode.ps1
 | El instalador no rompe nada (T1–T7) | `powershell -File .opencode/bin/installer-test.ps1` |
 | Presupuesto de tokens vs baseline | `node .opencode/bin/measure-tokens.js` |
 
-Estado actual: `validate` **479 / 0 warnings / 0 fallos** · `smoke-test` **24/24** · `installer-test` **48/48**.
+Estado actual del pack maestro: `validate` **479 / 0 warnings / 0 fallos** · `smoke-test` **24/24** · `installer-test` **48/48**.
+
+### Paso 4 — Arranca opencode
+
+```powershell
+cd C:\mi-proyecto
+opencode .
+```
+
+Escribe algo como *«Crea una app SaaS con login y pagos»* y el router ya sabe a qué agents y skills llamar.
+
+### Actualizar o reinstalar
+
+Vuelve a ejecutar el mismo comando con la misma ruta. Como la instalación es idempotente, actualiza lo que haya cambiado en el pack sin duplicar nada ni pisar tus archivos.
+
+### Parámetros
+
+| Parámetro | Efecto |
+|---|---|
+| `-ProjectPath <ruta>` | Proyecto destino (por defecto, el directorio actual) |
+| `-PackPath <ruta>` | Origen del pack (por defecto, la carpeta del propio script) |
+| `-Stack <nombre>` | Fuerza el stack; si se omite, se detecta automáticamente |
+| `-AllAgents` | Instala la biblioteca completa sin filtrar por stack |
+| `-SkipInstall` | Omite la instalación de plugins npm |
+| `-SkipDocs` | Omite la estructura de `docs/` |
+
+`-Force` sigue aceptándose por compatibilidad, pero no hace falta: el instalador nunca pregunta y siempre sobreescribe.
 
 ## Estructura
 
 ```text
 .
-├── AGENTS.md                 Reglas globales de comportamiento
+├── README.md                 Este documento
 ├── init-opencode.ps1         Instalador (única vía de instalación/actualización)
 ├── opencode.json             Configuración (plugins, MCPs)
-├── .agents/skills/           40 skills + el router (dispatcher)
+├── skills-lock.json          Estado de las skills
+├── .gitignore                Reglas de exclusión
+├── docs/                     Plantillas y documentación
+├── .agents/skills/           Skills + el router (dispatcher)
 └── .opencode/
-    ├── agents/               85 agents
-    ├── commands/             71 slash commands
-    ├── bin/                  15 CLIs de validación y utilidades
+    ├── AGENTS.md             Reglas globales de comportamiento
+    ├── agents/               Agents
+    ├── commands/             Slash commands
+    ├── bin/                  CLIs de validación y utilidades
     ├── manual/               Documentación de referencia
-    └── examples/             3 proyectos de ejemplo
+    └── examples/             Proyectos de ejemplo
 ```
 
 Los ficheros `AGENTS_INDEX.md`, `skills/INDEX.md` y los bloques `## Counts` son **autogenerados**: se regeneran solos en cada instalación, así que nunca llevan cifras falsas.

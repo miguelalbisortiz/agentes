@@ -142,13 +142,12 @@ if (DRY_RUN) {
 fs.mkdirSync(SKILL_DIR, { recursive: true });
 fs.writeFileSync(SKILL_FILE, CONTENT, 'utf8');
 // Crear el skill desfasa el ## Counts de los README (cuenta ficheros).
+// Refresca TODOS los ficheros con marcadores, igual que hace el scaffolder
+// de agents: una lista fija dejaba stale cualquier otro (p. ej. README.md raiz).
 try {
-  const { compute, renderMarkdown, updateFile } = require('./counts.js');
+  const { compute, renderMarkdown, updateFile, findCountFiles, ROOT } = require('./counts.js');
   const block = renderMarkdown(compute());
-  for (const p of [
-    path.join(__dirname, '..', 'README.md'),
-    path.join(__dirname, '..', 'manual', 'README.md'),
-  ]) { if (fs.existsSync(p)) updateFile(p, block); }
+  for (const p of findCountFiles(ROOT)) updateFile(p, block);
 } catch { /* counts es best-effort */ }
 console.log(`Created: ${path.relative(CWD, SKILL_FILE)} (${CONTENT.split('\n').length} lines)`);
 console.log(`\nNext:`);

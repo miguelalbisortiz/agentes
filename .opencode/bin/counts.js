@@ -210,7 +210,7 @@ function main() {
   process.stdout.write(block + '\n');
 }
 
-module.exports = { compute, renderMarkdown, updateFile };
+module.exports = { compute, renderMarkdown, updateFile, findCountFiles, ROOT };
 
 if (require.main === module) {
   main();

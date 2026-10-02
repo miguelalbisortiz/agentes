@@ -142,14 +142,14 @@ if (DRY_RUN) {
 
 fs.writeFileSync(AGENT_FILE, CONTENT, 'utf8');
 // Crear el agente desfasa el ## Counts de los README (cuenta ficheros).
+// Hay que refrescar TODOS los ficheros con marcadores, no una lista fija:
+// `counts --check` descubre desde la raiz y un fichero no listado quedaria
+// stale (p. ej. el README.md de la raiz del pack).
 // Best-effort: si falla no debe romper el scaffolder.
 try {
-  const { compute, renderMarkdown, updateFile } = require('./counts.js');
+  const { compute, renderMarkdown, updateFile, findCountFiles, ROOT } = require('./counts.js');
   const block = renderMarkdown(compute());
-  for (const p of [
-    path.join(__dirname, '..', 'README.md'),
-    path.join(__dirname, '..', 'manual', 'README.md'),
-  ]) { if (fs.existsSync(p)) updateFile(p, block); }
+  for (const p of findCountFiles(ROOT)) updateFile(p, block);
 } catch (e) { console.error(`[warn] no pude refrescar ## Counts: ${e.message}`); }
 console.log(`Created: ${path.relative(CWD, AGENT_FILE)} (${CONTENT.split('\n').length} lines)`);
 console.log(`\nNext:`);
