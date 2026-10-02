@@ -58,6 +58,8 @@ Also fetch the list of changed files for routing. Detect language and stack from
 
 Run these agents **in the same message** (one tool call block) so they execute concurrently:
 
+> **Fallback de stack:** si el proyecto se instaló con filtro de stack (existe `.opencode/.stack`), un reviewer de la lista puede no estar disponible. En ese caso ejecuta `code-reviewer` pidiéndole revisión específica de ese lenguaje.
+
 1. **`code-reviewer`** — general quality, readability, naming, error handling, immutability, complexity. ALWAYS.
 2. **`security-reviewer`** — secrets, injection, auth, validation, OWASP Top 10. ALWAYS.
 3. **Stack-specific reviewer** — pick from the table above:

@@ -271,6 +271,28 @@ if ($AgentsToDrop.Count -gt 0) {
     Remove-Item $stackMarkerFile -Force -ErrorAction SilentlyContinue
 }
 
+# --- Poda de comandos huerfanos ---
+# Un comando cuyo frontmatter `agent:` apunta a un agente que se filtro por stack
+# quedaria roto: OpenCode no encontraria el agente. Se descarta junto con el.
+# `build` es un agente built-in de OpenCode (no es un archivo .md): no aplica.
+if ($AgentsToDrop.Count -gt 0) {
+    $cmdsDir = Join-Path $ProjectPath ".opencode\commands"
+    $droppedCmds = 0
+    foreach ($f in (Get-ChildItem (Join-Path $cmdsDir "*.md") -ErrorAction SilentlyContinue)) {
+        $hit = Select-String -Path $f.FullName -Pattern '^\s*agent:\s*(\S+)' -ErrorAction SilentlyContinue | Select-Object -First 1
+        if (-not $hit) { continue }
+        $cmdAgent = $hit.Matches[0].Groups[1].Value
+        if ($cmdAgent -eq "build") { continue }
+        if ($AgentsToDrop -contains $cmdAgent) {
+            Remove-Item $f.FullName -Force -ErrorAction SilentlyContinue
+            if (-not (Test-Path $f.FullName)) { $droppedCmds++ }
+        }
+    }
+    if ($droppedCmds -gt 0) {
+        Write-Host "  [OK] Commands: $droppedCmds descartados (su agent se filtro por stack)" -ForegroundColor Green
+    }
+}
+
 # ============================================================
 # FASE 3: .agents/ (SKILLS)
 # ============================================================

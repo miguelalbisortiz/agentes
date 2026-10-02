@@ -100,6 +100,8 @@ Then ask the user to clarify or pick.
 
 ### Domain → Agent
 
+> **Agentes disponibles:** si el proyecto se instaló con filtro de stack (existe `.opencode/.stack`), algunos agentes de esta tabla pueden no estar instalados. En ese caso usa `code-reviewer` (revisión) o `build-error-resolver` (errores de build) como fallback.
+
 | Stack/Domain | Agent |
 |--------------|-------|
 | TS/JS | `typescript-reviewer` |

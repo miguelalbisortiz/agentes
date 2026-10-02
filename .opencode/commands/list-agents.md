@@ -17,6 +17,8 @@ Show the catalog of available agents. `$ARGUMENTS` may be a keyword, category, o
 
 ## Categories
 
+> **Disponibilidad:** esta es la biblioteca completa del pack. El subconjunto instalado depende del filtro de stack del proyecto (existe `.opencode/.stack`); sin ese archivo están todos. Lista real instalada: `node .opencode/bin/counts.js`.
+
 | Category | Agents |
 |----------|--------|
 | **Build / Plan** | architect, code-architect, code-explorer, diagram-generator, migration-planner, planner, prd-agent |

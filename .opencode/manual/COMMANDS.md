@@ -1,6 +1,7 @@
 # COMMANDS
 
-> 71 slash commands, agrupados por intención. Igual que `ROUTE.md` pero para comandos.
+> Slash commands completos, agrupados por intención. Igual que `ROUTE.md` pero para comandos.
+> El total instalado depende del filtro de stack del proyecto — ver `node .opencode/bin/counts.js`.
 > El archivo vive en `.opencode/commands/<nombre>.md` con frontmatter `description` y `agent`.
 
 ## "Quiero clarificar antes de implementar"
