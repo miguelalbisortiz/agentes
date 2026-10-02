@@ -4,6 +4,40 @@ All notable changes to this starter pack are documented here. The format follows
 
 ## [Unreleased]
 
+### Full-stack Builder Agents (2026-09-21)
+
+Added 10 new agents and 10 new skills for complete application building, not just reviewing.
+
+### Added
+- **`fullstack-builder`** agent — generates complete frontend + backend + database stacks (Next.js, React, Vue, Supabase, PostgreSQL)
+- **`auth-builder`** agent — implements authentication systems (NextAuth, Clerk, Auth0, Supabase Auth, Firebase Auth)
+- **`payment-integrator`** agent — integrates payment providers (Stripe, PayPal, MercadoPago) with subscriptions and webhooks
+- **`devops-deploy`** agent — Docker, CI/CD, deployment to Vercel/Railway/AWS
+- **`mobile-builder`** agent — React Native, Expo, Flutter, Swift app creation
+- **`api-integrator`** agent — third-party API integration (Stripe, Twilio, SendGrid, Resend, OpenAI)
+- **`graphql-builder`** agent — GraphQL APIs with Apollo Server, Yoga, Pothos
+- **`realtime-builder`** agent — WebSockets, SSE, live updates, chat
+- **`testing-auto`** agent — automated test generation (unit, integration, E2E)
+- **`legacy-modernizer`** agent — framework/language migration (Angular→React, JS→TS, etc.)
+- **`stripe-integration`** skill — Stripe patterns for payments, subscriptions, webhooks
+- **`clerk-auth`** skill — Clerk authentication patterns
+- **`supabase-patterns`** skill — Supabase database, auth, realtime, storage
+- **`firebase-patterns`** skill — Firebase Firestore, Auth, Storage, Cloud Functions
+- **`docker-patterns`** skill — Docker multi-stage builds, optimization, compose
+- **`github-actions`** skill — CI/CD workflows, testing, deployment
+- **`vercel-deploy`** skill — Vercel deployment, serverless, edge functions
+- **`railway-deploy`** skill — Railway deployment and database setup
+- **`turso-libsql`** skill — Turso/libSQL edge database patterns
+- **`drizzle-patterns`** skill — Drizzle ORM type-safe queries, migrations
+- **Supabase MCP** — database, auth, storage access via MCP
+- **Vercel MCP** — deployment and project management via MCP
+- **Stripe MCP** — payment management via MCP
+
+### Changed
+- **`router`** skill updated with new agent and skill routing rules
+- **`opencode.json`** — added Supabase, Vercel, Stripe MCPs
+- **README.md** — updated counts (83 agents, 40 skills, 4 MCPs)
+
 ### Token consumption optimization (2026-08-12) — PRD: `docs/prds/2026-08-12-optimize-pack-token-consumption.prd.md`
 
 Cut boot/turn token usage for OpenCode Zen free tier: AGENTS.md 61→25 lines (7.2KB→3.0KB, -58%), MCPs closed by default, plugins conservative, `/tone` + `/mcp-on`/`/mcp-off` commands, measurable via `measure-tokens.js` (-71% estimated boot vs baseline).

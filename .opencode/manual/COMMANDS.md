@@ -1,6 +1,6 @@
 # COMMANDS
 
-> 61 slash commands, agrupados por intención. Igual que `ROUTE.md` pero para comandos.
+> 71 slash commands, agrupados por intención. Igual que `ROUTE.md` pero para comandos.
 > El archivo vive en `.opencode/commands/<nombre>.md` con frontmatter `description` y `agent`.
 
 ## "Quiero clarificar antes de implementar"
@@ -8,12 +8,15 @@
 | Comando | Qué hace | Agent |
 |---------|----------|-------|
 | `/prd` | Clarifica intención y escribe el PRD. **Primer paso obligatorio** en tareas no triviales. | build |
+| `/spec-lint` | **Linter preventivo del spec**: palabras vagas, criterios sin `SHALL`, no medibles, `Out of Scope` vacío. Score + fixes. Corre **antes** de `/plan`. | prd-agent |
 | `/plan` | Crea un plan de implementación a partir de un PRD, con archivos, dependencias y orden. | planner |
+| `/tasks` | Desglosa el plan en tareas atómicas con estado (`pending/in_progress/done`), cada una ligada a su AC y su verificación. | planner |
 | `/orchestrate` | Flujo multi-agente completo. Phase 0 invoca automáticamente al `prd-agent`. | planner |
 | `/model-route` | Recomienda el mejor modelo para la complejidad de la tarea. | build |
 | `/harness-audit` | Auditoría determinista del repo y devuelve un scorecard priorizado. | build |
 | `/aside` | Pregunta rápida sin cambiar el contexto de la sesión. | build |
 | `/quick-prd` | Mini-PRD de 10 lineas para bugs, fixes o one-liners. Auto-regenera a PRD completo si crece. | build |
+| `/change-request` | Cambio de spec a mitad de ciclo: impacto sobre ACs/fases, renumeración `[revised]`, `Change Log` en el PRD y propagación al plan. | prd-agent |
 
 ## "Quiero validar cambios"
 
@@ -27,9 +30,11 @@
 | `/test-coverage` | Analiza y mejora la cobertura de tests. | tdd-guide |
 | `/tdd` | Fuerza el workflow TDD con 80%+ de cobertura. | tdd-guide |
 | `/eval` | Ejecuta evaluación contra criterios de aceptación. | build |
-| `/quality-gate` | Ejecuta el pipeline de calidad. | build |
 | `/checkpoint` | Guarda el estado de verificación y checkpoint de progreso. | build |
 | `/audit-report` | Cruza un report contra su PRD origen. Veredicto PASS / PASS-WITH-NITS / FAIL. | report-auditor |
+| `/trace` | **Trazabilidad bidireccional**: de un AC → plan/tasks/tests/archivos, y de un archivo → qué ACs toca. `--matrix` y `--gap`. Responde "¿qué se rompe si cambio esto?". | planner |
+| `/spec-to-tests` | Genera los tests **desde** los Success Criteria del PRD (unit/integration/E2E), nombrados con el id del AC para que `/verify` y `/trace` los vinculen. Marca `MANUAL` lo no automatizable. | testing-auto |
+| `/definition-of-done` | **Gate único de cierre**: cruza `/verify` + `/eval` + `/audit-report` + `/trace` en UN veredicto (READY / READY WITH BLOCKERS / NOT READY) con la lista de bloqueos. | report-auditor |
 
 ## "Quiero revisar por stack"
 
@@ -86,7 +91,7 @@
 |---------|----------|-------|
 | `/session-start` | Lee la Capa 1+2 de memoria y reporta un resumen compacto. Auto en señales de cierre. | build |
 | `/session-end` | Escribe snapshot, actualiza `LATEST.md`, refresca `PROJECT.md`, extrae 1-3 instintos. | build |
-| `/context` | Audita el presupuesto de contexto: skills, agentes, comandos, sessions. | build |
+| `/context-budget` | Audita el presupuesto de contexto: skills, agentes, comandos, sessions. | build |
 | `/project-status` | Check freshness de `docs/PROJECT.md` sin escribir. Exit 0/1 (CI-friendly). | build |
 | `/refresh-project` | Regenera `docs/PROJECT.md` desde los archivos del proyecto. Soporta `--status`, `--auto`, `--dry-run`, `--check`. | build |
 
@@ -126,7 +131,7 @@
 
 | Comando | Qué hace | Agent |
 |---------|----------|-------|
-| `/help` | Overview del pack: comandos principales, agentes, skills, convenciones. | build |
+| `/start-here` | Orientación de 5 minutos: 5 flujos típicos con un ejemplo cada uno. | build |
 | `/list-agents` | Lista los 72 agents con descripción y triggers. Filtros: keyword, categoría. | build |
 | `/list-skills` | Lista las 20 skills con descripción y triggers. Filtros: keyword. | build |
 | `/route` | Sugiere el mejor sub-agente + skills para un request libre. Útil como consulta antes de dispatchar. | build |

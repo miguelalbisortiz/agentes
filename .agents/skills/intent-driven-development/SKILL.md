@@ -187,8 +187,32 @@ For each applicable criterion include:
 - Environment/safety constraint when verification could affect data, services, cost, or secrets.
 - Priority: required, important, or optional.
 
+**Prefer EARS wording** (Easy Approach to Requirements Syntax) — it forces an unambiguous
+trigger and an obligatory modal verb. Pick the pattern that matches the situation:
+
+| Pattern | Form | Example |
+|---|---|---|
+| `WHILE` | WHILE {state}, the system SHALL {action} | WHILE offline, the system SHALL queue the save |
+| `WHERE` | WHERE {context}, the system SHALL {action} | WHERE the plan is free, the system SHALL show the 100-item limit |
+| `IF` | IF {event}, the system SHALL {action} | IF the payment fails, the system SHALL show the error and retry |
+| `WHEN` | WHEN {trigger}, the system SHALL {action} | WHEN a crop is created, the system SHALL assign it an ID |
+| `UNLESS` | UNLESS {exception}, the system SHALL {action} | UNLESS the user is admin, the system SHALL deny access |
+| `SHALL` | the system SHALL {action} | the system SHALL export to CSV |
+| `SHALL NOT` | the system SHALL NOT {action} | the system SHALL NOT store the card number |
+
+Every criterion MUST carry `SHALL` or `SHALL NOT`. A criterion phrased as
+"the system exports..." is a description, not a requirement — rewrite it.
+
 Do not use words such as "correctly", "securely", "fast", "intuitive", or "robust" without
 defining observable evidence or recording them as a human-review judgment.
+
+**Banlist** (these make a criterion unverifiable — replace with a number, a percentage,
+a latency, or a visible state): `fast`, `quick`, `intuitive`, `easy`, `robust`, `scalable`,
+`clean`, `modern`, `nice`, `several`, `some`, `many`, `etc.`, `should`, `probably`,
+`maybe`, `ASAP`, `soon`, `as much as possible`.
+
+Test for every criterion: *"If I ran this right now, could I say yes or no?"*
+If not → it is not an acceptance criterion yet.
 
 ### 5. Cover Only Relevant Boundaries
 
@@ -349,6 +373,8 @@ Before returning the brief, check:
 - The goal describes an outcome rather than an implementation choice.
 - Scope boundaries and assumptions are explicit.
 - Every required criterion is observable or clearly marked for human judgment.
+- Every required criterion uses `SHALL` / `SHALL NOT` (EARS), and none contains a banned
+  vague word (`fast`, `intuitive`, `easy`, `robust`, `should`, `etc.`) without a threshold.
 - Security, privacy, data, compatibility, external-effect, and UX risks were considered only
   where relevant and not silently ignored.
 - Verification methods identify safe environments for risky operations.

@@ -83,6 +83,8 @@ For implementation work, ALWAYS layer with `planner` → `tdd-guide` → reviewe
 | "plan implementation of X" | `planner` | `code-architect`, `architect` |
 | "design the system" / architecture decision | `code-architect` | `architect`, `network-architect` |
 | "explore how Y works" / map codebase | `code-explorer` | `code-architect` |
+| "generate diagram of the system" | `diagram-generator` | `flow-visualizer` (skill) |
+| "show database ERD" | `diagram-generator` | `db-schema-visualizer` (skill) |
 | "review the PRD" | `prd-reviewer` | `planner` |
 | "break down X into tasks" | `planner` | `task-decomposition` (skill) |
 | "migrate X to Y" | `migration-planner` | `planner` |
@@ -93,6 +95,18 @@ For implementation work, ALWAYS layer with `planner` → `tdd-guide` → reviewe
 | Request | Primary agent | Notes |
 |---------|---------------|-------|
 | "implement X" (after PRD/plan) | `build` (primary) | Routes to sub-agents as needed |
+| "build fullstack app" | `fullstack-builder` | Generates complete frontend+backend+DB |
+| "create MVP" / "scaffold project" | `fullstack-builder` | Quick project setup |
+| "add auth" / "login system" | `auth-builder` | OAuth, JWT, sessions, roles |
+| "integrate payments" / "stripe" | `payment-integrator` | Subscriptions, checkout, webhooks |
+| "deploy to production" | `devops-deploy` | Docker, CI/CD, Vercel, Railway |
+| "create mobile app" | `mobile-builder` | React Native, Expo, Flutter |
+| "integrate API" / "connect service" | `api-integrator` | Third-party API integration |
+| "supabase" / "RLS policy" / "migración SQL" | `supabase-builder` | Schema, Row Level Security, Edge Functions, Storage, Realtime, RPC |
+| "graphql api" / "apollo server" | `graphql-builder` | GraphQL schemas and resolvers |
+| "realtime" / "chat" / "websockets" | `realtime-builder` | WebSockets, SSE, live updates |
+| "generate tests" / "write tests" | `testing-auto` | Auto-generate unit/integration/E2E |
+| "migrate framework" / "modernize" | `legacy-modernizer` | Framework/language migration |
 | "fix this build error" | `build-error-resolver` | Falls back to language-specific |
 | Language-specific build error | `{lang}-build-resolver` | cpp, csharp, dart, django, go, java, kotlin, python, pytorch, react, rust, swift |
 | "implement feature via autonomous loop" | `gan-generator` | Pairs with `gan-evaluator` |
@@ -101,13 +115,14 @@ For implementation work, ALWAYS layer with `planner` → `tdd-guide` → reviewe
 
 | Request | Primary agent | Alternates |
 |---------|---------------|------------|
-| "review this code" / "code review" | `code-reviewer` | Stack-specific reviewer |
-| "review this PR" | `code-quality-analyzer` (mode: tests) | `code-reviewer` |
+| "review this code" / "code review" | `code-reviewer` (mode: full) | Stack-specific reviewer |
+| "review this PR" | `code-reviewer` (mode: tests) | `code-reviewer` |
 | "audit report vs PRD" | `report-auditor` | — |
 | "security review" / "is this secure" | `security-reviewer` | `security-review` (skill) |
-| "silent failures" / "error handling review" | `code-quality-analyzer` (mode: silent-failures) | `error-handling` (skill) |
-| "review comments / are docs accurate" | `code-quality-analyzer` (mode: comments) | `doc-updater` |
-| "review types / type design" | `code-quality-analyzer` (mode: types) | Stack reviewer |
+| "silent failures" / "error handling review" | `code-reviewer` (mode: silent-failures) | `error-handling` (skill) |
+| "review comments / are docs accurate" | `code-reviewer` (mode: comments) | `doc-updater` |
+| "review types / type design" | `code-reviewer` (mode: types) | Stack reviewer |
+| "simplify this code" | `code-reviewer` (mode: simplify) | `refactoring-patterns` (skill) |
 | "is this accessible" | `a11y-architect` | — |
 | "review SQL / schema" | `database-reviewer` | — |
 | "review ML code" | `mle-reviewer` | — |
@@ -154,17 +169,30 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | Request | Primary agent | Notes |
 |---------|---------------|-------|
 | "refactor X" / "clean up" | `refactor-cleaner` | Load `coding-standards` skill |
-| "simplify this code" | `code-quality-analyzer` (mode: simplify) | `refactoring-patterns` (skill) |
+| "simplify this code" | `code-reviewer` (mode: simplify) | `refactoring-patterns` (skill) |
 | "find dead code" | `refactor-cleaner` | — |
-| "remove duplicate Y" | `code-quality-analyzer` (mode: simplify) | — |
+| "remove duplicate Y" | `code-reviewer` (mode: simplify) | — |
 
 ## Documentation
 
 | Request | Primary agent | Notes |
 |---------|---------------|-------|
 | "update docs" / "regenerate codemaps" | `doc-updater` | — |
+| "generate user manual" | `manual-writer` | After /verify + /audit-report PASS |
 | "find docs for library X" | `docs-lookup` | Uses Context7 MCP |
 | "find existing skill for X" | `find-skills` (skill) | — |
+
+## Audit & Verification
+
+| Request | Primary agent | Notes |
+|---------|---------------|-------|
+| "run full audit" / "audit everything" | `audit-orchestrator` | Orchestrates all dimensions |
+| "audit report against PRD" | `report-auditor` | Single dimension |
+| "security audit" | `security-reviewer` + `security-review` skill | — |
+| "check compliance" (GDPR, SOC2, HIPAA) | `compliance-checker` (skill) | — |
+| "audit dependencies" | `dependency-audit` (skill) | — |
+| "validate API contract" | `api-contract-tester` (skill) | — |
+| "check performance budget" | `performance-budget` (skill) | — |
 
 ## Domain Specialists
 
@@ -200,6 +228,7 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | React, JSX, TSX, hooks, useState, useEffect, useMemo, useCallback, form, prop drilling, render, component, Suspense, Context | `frontend-patterns` |
 | Express, FastAPI, NestJS, Spring, repository pattern, service layer, DI, dependency injection, transaction, controller, middleware, auth, validation | `backend-patterns` |
 | REST, GraphQL, endpoint, route URL, status code, pagination, API contract, version, rate limit, API design | `api-design` |
+| OpenAPI, swagger, contract, API spec, undocumented endpoint, response schema, status code mismatch | `api-contract-tester` |
 | auth, password, JWT, session, CSRF, XSS, SQL injection, secret, OWASP, vulnerability, sanitize, CORS, encryption | `security-review` |
 | test, TDD, RED, GREEN, REFACTOR, coverage, jest, pytest, vitest, mock, unit test, integration test | `tdd-workflow` |
 | error, exception, try/catch, retry, circuit breaker, error message, log error, throw, error boundary | `error-handling` |
@@ -215,6 +244,22 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | log, logger, pino, winston, structlog, OpenTelemetry, metric, trace, health check, graceful shutdown | `observability` |
 | terse, brief, less tokens, token efficiency, conciso, resumido, "habla menos", "modo caveman" | `caveman` |
 | pack, opencode, agent, command, structure, layout, where does X go, where do PRDs go | `pack-reference` |
+| npm, audit, dependency, dependencies, license, licenses, CVE, supply chain, vulnerable, outdated, abandoned | `dependency-audit` |
+| diagram, flow, diagrama, flujo, sequence diagram, state diagram, architecture diagram, mermaid, flowchart, visual, visualize | `flow-visualizer` |
+| schema, ERD, database, base de datos, tablas, relaciones, foreign key, prisma, drizzle, sequelize, typeorm, sqlalchemy, supabase | `db-schema-visualizer` |
+| manual, usuario, user guide, user manual, handoff, entrega, end user docs, guía, release notes | `user-manual-generator` |
+| performance, budget, LCP, FID, CLS, bundle size, load time, Core Web Vitals, threshold, metric, optimization, speed | `performance-budget` |
+| compliance, GDPR, SOC2, HIPAA, PCI-DSS, CCPA, privacy, PII, PHI, consent, audit log, encrypted | `compliance-checker` |
+| stripe, payment, checkout, subscription, billing, invoice, webhook, payment_intent | `stripe-integration` |
+| clerk, authentication, sign-up, sign-in, user-management, organizations, mfa | `clerk-auth` |
+| supabase, postgres, rls, realtime, storage, edge-functions, row-level-security | `supabase-patterns` |
+| firebase, firestore, firebase-auth, cloud-functions, realtime-database, firebase-storage | `firebase-patterns` |
+| docker, dockerfile, docker-compose, container, image, multi-stage, optimization | `docker-patterns` |
+| github-actions, ci-cd, workflow, automation, deployment, actions | `github-actions` |
+| vercel, deployment, serverless, edge, domain, preview, production | `vercel-deploy` |
+| railway, deployment, paas, database, service, microservice | `railway-deploy` |
+| turso, libsql, edge-database, sqlite, embedded-replica, global-database | `turso-libsql` |
+| drizzle, orm, schema, migration, type-safe, query-builder, database | `drizzle-patterns` |
 | "find a skill", "is there a skill for", extend capabilities, install skill | `find-skills` (global, `~/.agents/skills/`) |
 
 ---
@@ -237,6 +282,13 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | "como se hace X en React" | `frontend-patterns` + `docs-lookup` |
 | "triage my email" | `chief-of-staff` |
 | "open source this app" | `/opensource-pipeline` command (orchestrates `opensource-forker` → `opensource-sanitizer` → `opensource-packager`) |
+| "audit dependencies for CVEs" | `dependency-audit` + `security-reviewer` (agent) |
+| "check if my API matches the OpenAPI spec" | `api-contract-tester` + `api-design` |
+| "generate a diagram of the system" | `flow-visualizer` + `code-explorer` (agent) |
+| "show me the database ERD" | `db-schema-visualizer` |
+| "generate user manual" | `user-manual-generator` + `doc-updater` (agent) |
+| "check GDPR compliance" | `compliance-checker` + `security-reviewer` (agent) |
+| "validate performance budget" | `performance-budget` + `performance-optimizer` (agent) |
 
 ---
 

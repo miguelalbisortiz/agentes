@@ -56,17 +56,28 @@ Si el report NO tiene status `COMPLETADO`:
 
 ### Paso 2 — Verificar criterios del PRD
 
-Para cada checkbox en `## Success Criteria` del PRD, buscar evidencia en el report:
+**Fuente primaria:** si el report tiene la tabla `### Success Criteria del PRD` (que `/verify` genera), usarla como base — es la evaluacion hecha en runtime con evidencia.
+
+**Fuente secundaria:** si no existe esa tabla, derivar los criterios de `## Success Criteria` del PRD y buscar evidencia en el resto del report.
 
 ```
-¿El report documenta cumplimiento de este criterio?
-├── SI con evidencia concreta → PASS
-├── SI pero vago/ambiguo       → NIT
-├── NO                        → FAIL
-└── NO APLICA                  → N/A
+¿El criterio esta evaluado en la tabla SC del report?
+├── PASS          → PASS      (revisar que la evidencia citada exista de verdad)
+├── FAIL          → FAIL      (heredar)
+├── NOT-VERIFIED  → NOT-VERIFIED  → se reporta como NIT de severidad MEDIA
+└── ausente       → buscar evidencia en el resto del report:
+     ├── SI con evidencia concreta → PASS
+     ├── SI pero vago/ambiguo      → NIT
+     ├── NO                       → FAIL
+     └── NO APLICA                 → N/A
 ```
 
-**Regla de evidencia:** un criterio es PASS solo si el report tiene datos verificables (archivos modificados, tests, salida de comando, screenshot, log). "Se implemento" sin evidencia = NIT minimo.
+**Reglas de evidencia (inquebrables):**
+
+- Un criterio es `PASS` solo si hay datos verificables (archivo, test, salida de comando, screenshot, log). `"Se implemento"` sin evidencia = NIT.
+- **`NOT-VERIFIED` NUNCA se convierte en PASS.** Si `/verify` lo dejo sin verificar, tu tampoco lo apruebas: lo emites como NIT (MEDIA) con la accion "ejecutar la verificacion o confirmacion manual del usuario".
+- **Que el build y los tests pasen NO aprueba un criterio de usuario.** Si el unico soporte es "tests passing" pero el criterio es comportamiento visible → NIT, no PASS.
+- Criterio del PRD que **no aparece** en el report → FAIL (no documentado), no NIT.
 
 ### Paso 3 — Cross-check con skills (opcional)
 
@@ -105,9 +116,11 @@ Calcular:
 
 | Veredicto | Condicion |
 |---|---|
-| **PASS** | Todos los criterios PASS o N/A. Sin FAIL. |
-| **PASS-WITH-NITS** | >=1 NIT, ningun FAIL. |
+| **PASS** | Todos los criterios PASS o N/A. Sin FAIL ni NIT. |
+| **PASS-WITH-NITS** | >=1 NIT (incluye criterios `NOT-VERIFIED` heredados de `/verify`), ningun FAIL. |
 | **FAIL** | >=1 FAIL. |
+
+**Regla de cierre honesto:** si al menos un criterio del PRD quedo `NOT-VERIFIED`, el veredicto **nunca puede ser PASS puro** — como minimo `PASS-WITH-NITS`, con ese criterio listado y su accion pendiente. Un PRD cerrado con criterios sin verificar no esta cerrado.
 
 ---
 
@@ -123,15 +136,17 @@ Seccion Markdown breve, ~30-60 lineas. Inyectada al final del report.
 > **Auditado:** YYYY-MM-DD_HHMM
 > **Auditor:** report-auditor
 > **Veredicto global:** PASS | PASS-WITH-NITS | FAIL
-> **Criterios PRD evaluados:** N (X pass, Y nit, Z fail)
+> **Criterios PRD evaluados:** N (X pass, Y nit, Z fail, W not-verified)
 > **Skills cruzadas:** [lista o "ninguna"]
 
 ### Criterios PRD
 
 | # | Criterio | Estado | Evidencia |
 |---|----------|--------|-----------|
-| 1 | [resumen del criterio] | PASS/NIT/FAIL/N/A | [cita corta del report] |
+| 1 | [resumen del criterio] | PASS/NIT/FAIL/NOT-VERIFIED/N/A | [cita corta del report] |
 | 2 | ... | ... | ... |
+
+> `NOT-VERIFIED` = el PRD lo pide pero nadie lo comprobo. Se emite como NIT de severidad MEDIA con su accion pendiente. **Nunca se cuenta como PASS.**
 
 ### Fallas (solo si hay FAIL o NIT)
 

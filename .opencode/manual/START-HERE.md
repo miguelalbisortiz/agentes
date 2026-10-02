@@ -18,7 +18,7 @@ No `package.json` at the project root. No build step. Drop the `.opencode/` fold
 
 | # | What | When |
 |---|------|------|
-| 1 | `/help` | Get an overview of commands and how to use this pack |
+| 1 | `/start-here` | Get an overview of commands and how to use this pack |
 | 2 | `/list-agents` | See the full agent catalog with descriptions |
 | 3 | `/list-skills` | See the full skill catalog with triggers |
 | 4 | `/prd <request>` | Start any non-trivial feature (PRD-first) |

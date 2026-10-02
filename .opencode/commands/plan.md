@@ -1,5 +1,5 @@
 ---
-description: "Create implementation plan with risk assessment (HIGH/MEDIUM/LOW), dependencies, y phases. Use for complex features o refactors que necesitan desglose de tareas antes de implementar. WAIT for confirmation before code."
+description: "Create implementation plan from PRD: hereda los Acceptance Criteria literalmente, mapea cada AC a su fase, evalúa riesgos/dependencias, y actualiza el PRD origen (columna Plan). WAIT for confirmation before code."
 agent: planner
 ---
 
@@ -7,79 +7,178 @@ agent: planner
 
 Create a detailed implementation plan for: $ARGUMENTS
 
-## Your Task
+---
 
-1. **Restate Requirements** - Clarify what needs to be built
-2. **Identify Risks** - Surface potential issues, blockers, and dependencies
-3. **Create Step Plan** - Break down implementation into phases
-4. **Wait for Confirmation** - MUST receive user approval before proceeding
+## PASO 0 — Localizar el PRD origen (OBLIGATORIO)
 
-## Output Format
+1. Si `$ARGUMENTS` es path o nombre de PRD → usarlo.
+2. Si no → buscar `docs/prds/*.prd.md` con `Status != COMPLETADO` (el más reciente).
+3. Si hay PRD → **leerlo entero**. El plan se **deriva** del PRD; no es una interpretación nueva.
+4. Si NO hay PRD → preguntar:
+   > "No encontré un PRD activo. ¿Corro `/prd` primero (recomendado) o armo el plan sin spec (menos confiable, sin criterios verificables)?"
+   y **esperar respuesta**.
 
-### Requirements Restatement
-[Clear, concise restatement of what will be built]
-
-### Implementation Phases
-[Phase 1: Description]
-- Step 1.1
-- Step 1.2
-...
-
-[Phase 2: Description]
-- Step 2.1
-- Step 2.2
-...
-
-### Dependencies
-[List external dependencies, APIs, services needed]
-
-### Risks
-- HIGH: [Critical risks that could block implementation]
-- MEDIUM: [Moderate risks to address]
-- LOW: [Minor concerns]
-
-### Estimated Complexity
-[HIGH/MEDIUM/LOW with time estimates]
-
-**WAITING FOR CONFIRMATION**: Proceed with this plan? (yes/no/modify)
+**Regla anti-deriva**: no re-preguntar al usuario lo que el PRD ya respondió (objetivo, alcance, usuarios, restricciones, fuera de alcance). Eso es precisamente lo que evita que el plan se desvíe del spec.
 
 ---
 
-**CRITICAL**: Do NOT write any code until the user explicitly confirms with "yes", "proceed", or similar affirmative response.
+## PASO 1 — Requirements Restatement
+
+Restate QUÉ se va a construir, **derivado del PRD** (no inventado):
+
+### Requirements Restatement
+[2-4 frases basadas en `## Objective` + `## Out of Scope` del PRD]
+
+Si algo del PRD es ambiguo para planificar → marcar `⚠ NEEDS-CLARIFICATION: {qué}` y preguntar **una sola vez**, agrupando dudas.
+
+---
+
+## PASO 2 — Acceptance Criteria heredados (SECCIÓN OBLIGATORIA)
+
+Copiar **literalmente** desde el PRD (o Acceptance Brief asociado):
+
+- cada checkbox de `## Success Criteria`
+- cada `AC-NNN` si existe
+
+**NO resumir. NO reescribir. NO inventar criterios que no estén en el PRD.**
+
+Luego mapear **dónde se verifica** cada uno:
+
+```markdown
+### Acceptance Criteria (heredados del PRD)
+
+| # | Criterio (literal del PRD) | Fase que lo implementa | Cómo se verifica |
+|---|---|---|---|
+| SC-1 | {texto exacto} | Fase 2 | {test / comando / verificación manual} |
+| SC-2 | {texto exacto} | Fase 3 | {test / comando / verificación manual} |
+| AC-001 | {texto exacto} | Fase 1 | {test / comando} |
+```
+
+**Reglas:**
+- Si un criterio **no puede** mapearse a ninguna fase → `⚠ SIN IMPLEMENTAR` y preguntar antes de continuar.
+- Si un criterio es ambiguo → `⚠ NEEDS-CLARIFICATION`.
+- La columna "Cómo se verifica" es **obligatoria**: es lo que `/verify` usará después. Si no se puede verificar, escribir `manual — requiere confirmación del usuario`.
+
+> **Este mapeo es el eslabón que faltaba**: sin él, `/verify` no sabe qué evidencia buscar para cada criterio.
+
+---
+
+## PASO 3 — Implementation Phases
+
+Desglose en fases. **Cada paso debe referenciar los AC que sirve**:
+
+```markdown
+### Fase 1: {nombre}
+- Step 1.1 — {qué hacer} (File: path/archivo) → sirve a: SC-1, AC-001
+- Step 1.2 — {qué hacer} (File: path/archivo) → sirve a: SC-1
+
+### Fase 2: {nombre}
+- Step 2.1 — {qué hacer} (File: path/archivo) → sirve a: SC-2
+```
+
+Si un paso **no sirve a ningún AC** → es trabajo fuera del spec. Preguntar o moverlo a "Fuera de alcance".
+
+---
+
+## PASO 4 — Dependencies
+
+[Dependencias externas: APIs, servicios, librerías, credenciales necesarias]
+
+---
+
+## PASO 5 — Risks
+
+- **HIGH**: [riesgos críticos que pueden bloquear]
+- **MEDIUM**: [riesgos a addressar]
+- **LOW**: [menores]
+
+---
+
+## PASO 6 — Estimated Complexity
+
+[Alta/Media/Baja con estimación de tiempo]
+
+---
+
+**WAITING FOR CONFIRMATION**: ¿Procedo con este plan? (sí/no/modificar)
+
+---
+
+**CRITICAL**: NO escribir código hasta que el usuario confirme explícitamente con "sí", "proceed" o afirmativo equivalente.
+
+---
+
+## PASO 7 — Tras la aprobación (OBLIGATORIO)
+
+Solo después de que el usuario apruebe:
+
+### 1. Escribir el plan
+
+Guardar en `docs/plans/{YYYY-MM-DD_HHMM}-{name}.plan.md` con este frontmatter **obligatorio**:
+
+```markdown
+---
+prd: docs/prds/{YYYY-MM-DD_HHMM}-{name}.prd.md
+status: APPROVED
+created: YYYY-MM-DD_HHMM
+---
+
+# Implementation Plan: {Feature Name}
+```
+
+> Sin el campo `prd:` el `report-auditor` no puede cruzar criterios contra el spec original.
+
+### 2. Actualizar el PRD origen
+
+En el archivo del PRD, en `## Delivery Milestones`:
+
+| Antes | Después |
+|---|---|
+| `\| 1 \| {name} \| {outcome} \| pending \| — \|` | `\| 1 \| {name} \| {outcome} \| in-progress \| docs/plans/{plan}.plan.md \|` |
+
+- Columna **Plan** ← path del plan recién creado
+- **Status** ← `in-progress` (en el milestone que este plan implementa)
+
+### 3. Confirmar en una línea
+
+```
+Plan creado: docs/plans/{...}.plan.md · PRD actualizado: docs/prds/{...}.prd.md
+Siguiente: implementar → /verify → /audit-report
+```
 
 ---
 
 ## Post-Plan: Audit al Implementar
 
-Despues de que el plan sea aprobado y se implemente, el flujo termina idealmente con `/verify` que auto-genera un report (ver `/verify` command). Si no se corre verify, documentar manualmente:
+Después de que el plan sea aprobado e implementado, el flujo termina con `/verify` que auto-genera un report (ver `/verify`). Si no se corre verify, documentar manualmente:
 
-1. Al cerrar la implementacion, generar `docs/reports/{YYYY-MM-DD_HHMM}-{name}.report.md` referenciando el plan.
+1. Al cerrar la implementación, generar `docs/reports/{YYYY-MM-DD_HHMM}-{name}.report.md` referenciando el plan.
 2. Ofrecer: "¿Audito contra el PRD origen con `/audit-report {name}`? (s/n)".
 
 El auditor verifica que TODOS los milestones del PRD (no solo los del plan) quedaron cumplidos.
 
-**Cuando aplicar**: planes que producen cambios de codigo, especialmente cuando hay un PRD origen.
-**Cuando NO aplicar**: planes de investigacion, planes descartados, planes revertidos.
+**Cuándo aplicar**: planes que producen cambios de código, especialmente cuando hay un PRD origen.
+**Cuándo NO aplicar**: planes de investigación, planes descartados, planes revertidos.
 
 ---
 
 ## State Persistence (REQUIRED)
 
-This flow writes to `docs/state/` so it can be resumed after interruption. See `docs/state/README.md` for the schema.
+Este flujo escribe en `docs/state/` para poder resumirse tras una interrupción. Ver `docs/state/README.md` para el schema.
 
-``bash
-# At flow start
+```bash
+# Al inicio del flujo
 node .opencode/bin/state.js init plan "" [<prd-path>]
-# Capture the printed path as 
+# Capturar el path que imprime
 
-# After each phase
+# Después de cada fase
 node .opencode/bin/state.js update "" <phase> '{"agentsInvoked":["..."],"filesModified":["..."]}'
 
-# On success
+# Al terminar bien
 node .opencode/bin/state.js complete ""
 
-# On error
-node .opencode/bin/state.js fail "" "<error message>"
-``
+# En error
+node .opencode/bin/state.js fail "" "<mensaje de error>"
+```
 
-The flow is resumable: if interrupted, `/session-start` detects active states in `docs/state/` and offers to resume from `currentPhase`.
+El flujo es reanudable: si se interrumpe, `/session-start` detecta states activos en `docs/state/` y ofrece resumir desde `currentPhase`.

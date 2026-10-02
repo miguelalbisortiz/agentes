@@ -31,11 +31,15 @@ Auditar el report: $ARGUMENTS
 
 > Auto-generated. Ultima actualizacion: YYYY-MM-DD_HHMM
 
-| Report | Status | Criterios | Veredicto | Skill gaps | Fecha |
-|--------|--------|-----------|-----------|------------|-------|
-| ex006-csv-import | COMPLETADO | 11/11 | PASS | 0 | 2026-06-29 |
-| auth-refactor | BLOQUEADO | 3/8 | FAIL | 1 | 2026-06-28 |
-| ... | ... | ... | ... | ... | ... |
+| Report | Status | Criterios PRD | Checks tec. | Veredicto | Skill gaps | Fecha |
+|--------|--------|---------------|-------------|-----------|------------|-------|
+| ex006-csv-import | COMPLETADO | 10/11 (1 not-verified) | 8/8 | PASS-WITH-NITS | 0 | 2026-06-29 |
+| auth-refactor | BLOQUEADO | 3/8 | 5/8 | FAIL | 1 | 2026-06-28 |
+| ... | ... | ... | ... | ... | ... | ... |
+
+> **Criterios PRD** = los Success Criteria del PRD (los `SC-*`/`AC-*` que pide el spec).
+> **Checks tec.** = analyze/lint/test/build (los que corre `/verify`).
+> Son columnas distintas a proposito: 8/8 tecnicos con 3/8 criterios de usuario **es un FAIL**, no un PASS. Antes se reportaba una sola columna `Criterios` y ese matiz se perdia.
 
 ## Sin auditar
 

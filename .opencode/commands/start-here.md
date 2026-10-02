@@ -95,9 +95,6 @@ When: "como esta el pack" / "que tengo disponible" / "se comporta raro"
 
 /list-skills
 # → 17 skills con trigger map
-
-/help
-# → overview, o ruta libre si decis que queres hacer
 ```
 
 ## How to Pick
@@ -110,7 +107,7 @@ Si es tu primera vez con el pack, lee `.opencode/manual/START-HERE.md` (5-min de
 
 - This command is read-only. No files modified.
 - Pure orientation. Pick a flow, run its example, come back if you need to switch.
-- If you don't see your use case here, run `/route "<intent>"` or `/help`.
+- If you don't see your use case here, run `/route "<intent>"`.
 - After you pick a flow, the primary will auto-offer relevant sub-agents and skills.
 
 ## When to Use

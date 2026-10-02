@@ -88,7 +88,7 @@ Then ask the user to clarify or pick.
 | "review codigo" | `/code-review` o `/pr-review <num>` si es PR |
 | "security audit" | `/flow-security` o `/security` para review ad-hoc |
 | "verificar / validar" | `/verify` |
-| "no se que hacer" / "como uso el pack" | `/help` o `/start-here` |
+| "no se que hacer" / "como uso el pack" | `/start-here` |
 | "documentar cambios" | `/update-docs` o `/update-codemaps` |
 | "limpiar codigo" | `/refactor-clean` |
 | "test coverage" | `/test-coverage` |
@@ -165,7 +165,7 @@ Then ask the user to clarify or pick.
 
 ## Integration
 
-- `/help <section>` — for overview of commands/agents/skills
+- `/list-agents` / `/list-skills` / `/list-mcps` — inventory drill-down
 - `/list-agents <keyword>` — for browsing agent catalog
 - `/list-skills <keyword>` — for browsing skill catalog
 - `router` skill — for skill-only routing (use when the request clearly maps to one skill and you don't need an agent)

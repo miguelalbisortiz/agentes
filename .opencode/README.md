@@ -8,12 +8,12 @@ Pack portable de opencode. Cópialo a cualquier proyecto, reinicia opencode y em
 > Auto-managed by `.opencode/bin/counts.js`. Do not edit by hand.
 > Regenerate: `node .opencode/bin/counts.js --update <files...>`
 
-- **72** agents (.opencode/agents)
-- **64** commands (.opencode/commands)
-- **20** skills (.agents/skills)
+- **83** agents (.opencode/agents)
+- **68** commands (.opencode/commands)
+- **40** skills (.agents/skills)
 - **13** native CLIs (.opencode/bin)
 - **3** npm plugins + **1** local plugin(s)
-- **2** active MCPs + **10** optional MCP(s)
+- **4** active MCPs + **10** optional MCP(s)
 <!-- COUNTS-END -->
 
 > Las cifras exactas (agentes, commands, skills, plugins, MCPs, CLIs) están en el bloque `## Counts` de abajo. Se regenera con `node .opencode/bin/counts.js --update .opencode/README.md .opencode/manual/README.md .agents/skills/INDEX.md`.

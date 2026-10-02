@@ -1,5 +1,19 @@
 # AGENTS.md
 Reglas core del pack. Boot via `instructions:`. Detalle on-demand → skills. Reference → `pack-reference`.
+
+## Compaction Recovery (CRITICAL)
+If you are reading this after a compaction or at session start:
+1. Re-read this file completely
+2. Load router skill
+3. Confirm you have all 9 mandatory behaviors active
+4. Do NOT proceed without confirming understanding
+
+### Post-Compaction Checklist
+- [ ] Prompt Defense Baseline active
+- [ ] 9 mandatory behaviors loaded
+- [ ] Coordination rules loaded
+- [ ] Security rules loaded
+
 ## Core
 ### Prompt Defense Baseline (GLOBAL — all agents)
 Every agent inherits this baseline. No own copy — reference this section. Extend via `## Prompt Defense Extensions`; never duplicate bullets.
@@ -24,3 +38,89 @@ Security secrets/OWASP → `security-review`. Tool truncation >200 líneas → `
 
 ## Security (CRITICAL)
 Secrets SIEMPRE env vars, nunca hardcoded; issue → STOP → `security-reviewer`.
+
+## Agent Coordination Rules
+### Execution Order (mandatory for multi-agent flows)
+Cada agente que produce output lo guarda en `docs/` con timestamp. El siguiente agente en la cadena LEE el output del anterior antes de empezar.
+```
+PRD → Plan → Implement → Review → Audit → Deliver
+prd-agent → planner → build → code-reviewer → audit-orchestrator → manual-writer
+```
+### Handoff Protocol
+- Cada agente escribe su output a `docs/{type}/{timestamp}-{name}.{ext}`
+- El siguiente agente en la cadena busca archivos recientes en `docs/`
+- Si no encuentra output del anterior, LO PIDE antes de proceder
+- `audit-orchestrator` es el ÚNICO que puede marcar un proyecto como "entregable"
+### Diagram Generation
+- Diagramas (Mermaid) se generan DESPUÉS de toda la implementación
+- Usar `diagram-generator` para flowcharts, sequence, state
+- Usar `db-schema-visualizer` para ERD
+- Guardar en `docs/diagrams/` con timestamp
+### Manual Generation
+- El manual se genera DESPUÉS de que `/verify` pase Y `/audit-report` dé PASS
+- Usar `manual-writer` que compila todo
+- Guardar en `docs/MANUAL.md`
+### Session Continuity
+- Cada sesión arranca leyendo `docs/PROJECT.md` + archivos recientes en `docs/`
+- Si hay `docs/state/*.json` activos, ofrecer continuar desde donde se quedó
+- Al finalizar sesión, guardar snapshot en `docs/sessions/`
+
+## Session Memory (Enhanced)
+### Session Start
+1. Read docs/PROJECT.md
+2. Read docs/LEARNING.md (if exists)
+3. Read docs/sessions/LATEST.md
+4. Apply learnings to current task
+
+### Session End
+1. Save snapshot to docs/sessions/
+2. Run project-learning skill to extract new learnings
+3. Update docs/LEARNING.md
+
+## Plan Persistence (CRITICAL)
+### Save Plan
+When starting a multi-step feature or project:
+1. Create `docs/plans/{feature-name}.plan.md`
+2. Include: objective, acceptance criteria, task breakdown, dependencies, status
+3. Use checkbox format: `- [ ] task` / `- [x] completed task`
+4. Reference plan in `docs/sessions/LATEST.md`
+
+### Resume Plan
+On session start:
+1. Check `docs/plans/` for active plans (status: in-progress)
+2. If found, show: "Plan '{name}' encontrado. ¿Continuar?"
+3. Resume from last incomplete task
+
+### Update Plan
+After completing a task:
+1. Mark task with `[x]`
+2. Add completion date
+3. Update status field
+4. Save with new timestamp
+
+## Checkpoint Mode (CRITICAL)
+### Auto-Checkpoint
+Every 10 minutes of active coding:
+1. Stage all modified files
+2. Commit with prefix "WIP: "
+3. Include brief description of changes
+4. Continue working seamlessly
+
+### Manual Checkpoint
+On "checkpoint" or "guarda":
+1. Stage all modified files
+2. Commit with user-provided message or "WIP: manual checkpoint"
+3. Confirm: "Checkpoint guardado: {commit-hash}"
+
+### Before Risky Operations
+Auto-checkpoint before:
+- Major refactors
+- Migrations
+- Deleting files
+- Commit message: "WIP: pre-{operation} checkpoint"
+
+### Recovery
+If session crashes:
+1. Check `git log --oneline -10` for WIP commits
+2. `git revert HEAD` to undo last WIP
+3. Or `git reset HEAD~1` to uncommit but keep changes

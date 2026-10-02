@@ -70,7 +70,7 @@ cd /ruta/a/tu/proyecto && opencode .
 | `/security` | Auditoría de seguridad puntual |
 | `/project-status` | Check freshness de `docs/PROJECT.md` sin escribir |
 | `/session-start` / `/session-end` | Memoria entre sessions (automática al cerrar) |
-| `/context` | Audita el presupuesto de contexto (skills, agentes, sessions) |
+| `/context-budget` | Audita el presupuesto de contexto (skills, agentes, sessions) |
 
 Lista completa: `node .opencode/bin/context.js` o explora `.opencode/commands/`.
 

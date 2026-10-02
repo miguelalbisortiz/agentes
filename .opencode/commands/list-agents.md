@@ -19,12 +19,13 @@ Show the catalog of available agents. `$ARGUMENTS` may be a keyword, category, o
 
 | Category | Agents |
 |----------|--------|
-| **Build / Plan** | architect, code-architect, code-explorer, migration-planner, planner, prd-agent |
-| **Review (General)** | code-quality-analyzer, code-reviewer, refactor-cleaner, security-reviewer |
+| **Build / Plan** | architect, code-architect, code-explorer, diagram-generator, migration-planner, planner, prd-agent |
+| **Domain Builders** | api-integrator, auth-builder, devops-deploy, fullstack-builder, graphql-builder, legacy-modernizer, mobile-builder, payment-integrator, realtime-builder, supabase-builder, testing-auto |
+| **Review (General)** | code-reviewer (6 modes), refactor-cleaner, security-reviewer |
 | **Language Reviewers** | angular-reviewer, cpp-reviewer, csharp-reviewer, flutter-reviewer, fsharp-reviewer, go-reviewer, java-reviewer, kotlin-reviewer, php-reviewer, python-reviewer, react-reviewer, rust-reviewer, swift-reviewer, typescript-reviewer |
-| **Build Resolvers** | angular-build-resolver, build-error-resolver, cpp-build-resolver, dart-build-resolver, django-build-resolver, go-build-resolver, java-build-resolver, kotlin-build-resolver, pytorch-build-resolver, react-build-resolver, rust-build-resolver, swift-build-resolver |
+| **Build Resolvers** | angular-build-resolver, build-error-resolver (fallback), cpp-build-resolver, dart-build-resolver, django-build-resolver, go-build-resolver, java-build-resolver, kotlin-build-resolver, pytorch-build-resolver, react-build-resolver, rust-build-resolver, swift-build-resolver |
 | **Specialized** | a11y-architect, database-reviewer, docs-lookup, fastapi-reviewer, harmonyos-app-resolver, healthcare-reviewer, homelab-architect, incident-responder, marketing-agent, mle-reviewer, network-architect, network-config-reviewer, network-troubleshooter, performance-optimizer, seo-specialist |
-| **Quality / Process** | chief-of-staff, conversation-analyzer, doc-updater, e2e-runner, harness-optimizer, loop-operator, opensource-forker, opensource-packager, opensource-sanitizer, report-auditor, tdd-guide |
+| **Quality / Process** | audit-orchestrator, chief-of-staff, conversation-analyzer, doc-updater, e2e-runner, harness-optimizer, loop-operator, manual-writer, opensource-forker, opensource-packager, opensource-sanitizer, report-auditor, tdd-guide |
 | **Meta / Harness** | gan-evaluator, gan-generator, gan-planner |
 
 ## Your Task

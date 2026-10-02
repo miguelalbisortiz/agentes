@@ -132,6 +132,29 @@ Riesgo: BAJO | MEDIO | ALTO  ·  Reversibilidad: alta | media | baja
 
 ---
 
+## PHASE 5 — Self-lint the spec (OBLIGATORY, before handing off)
+
+After writing the PRD, run `/spec-lint {path}` on your own output. This is **preventive** —
+catch vague criteria while the spec is still cheap to fix, before `/plan` estimates work from it.
+
+| Lint result | Action |
+|---|---|
+| **FAIL** (1+ blocking rule: empty Out of Scope, `TBD`, contradictory or unmeasurable criteria) | Fix it yourself, re-lint, then show the result. **Do not** declare the PRD ready. |
+| **PASS-WITH-NITS** | Show the lint table to the user with the PRD. Offer to apply the fixes. |
+| **PASS** | Show: `Spec lint: PASS (N/100) — listo para /plan`. |
+
+Report the lint score in your final message alongside the PRD path:
+
+```
+PRD creado: docs/prds/{...}.prd.md
+Spec lint: PASS (94/100) · 0 FAIL · 2 WARN
+Siguiente: /spec-lint (si quieres revisar) → /plan
+```
+
+> A spec that reaches `/plan` with a FAIL lint is a spec that will waste implementation work.
+
+---
+
 ## PRD Output
 
 Use this template (single markdown file):
@@ -153,10 +176,32 @@ DRAFT — awaiting /plan handoff
 {1-2 sentences. Concrete, testable, observable from outside the system.}
 
 ## Success Criteria
-The work is complete when ALL of the following are true (each independently verifiable):
-- [ ] {criterion 1 — observable behavior or measurable metric}
-- [ ] {criterion 2}
-- [ ] {criterion N}
+The work is complete when ALL of the following are true (each independently verifiable).
+
+**Format: EARS** (Easy Approach to Requirements Syntax). Every criterion MUST carry a
+`SHALL` / `SHALL NOT` modal verb — no bare "the system exports..." sentences.
+
+| Pattern | When to use | Example |
+|---|---|---|
+| `WHILE {situation}, the system SHALL {action}` | during a state | WHILE the user is offline, the system SHALL queue the save |
+| `WHERE {context}, the system SHALL {action}` | under a condition | WHERE the plan is free, the system SHALL show the 100-item limit |
+| `IF {event}, the system SHALL {action}` | on a trigger | IF the payment fails, the system SHALL show the error and retry |
+| `WHEN {trigger}, the system SHALL {action}` | on completion | WHEN a crop is created, the system SHALL assign it an ID |
+| `UNLESS {exception}, the system SHALL {action}` | exclusions | UNLESS the user is admin, the system SHALL deny access |
+| `the system SHALL {action}` | generic requirement | the system SHALL export to CSV |
+| `the system SHALL NOT {action}` | prohibition | the system SHALL NOT store the card number |
+
+- [ ] {SC-1 — WHILE/WHERE/IF/WHEN + the system SHALL + **measurable threshold**}
+- [ ] {SC-2 — ...}
+- [ ] {SC-N — ...}
+
+**Banlist inside Success Criteria** (they make the criterion unverifiable):
+`fast / quick / intuitive / easy / robust / scalable / clean / modern / nice / several /
+some / many / etc. / should / probably / maybe / ASAP / soon / as much as possible`
+→ replace with a number, a percentage, a latency, or a visible state.
+
+Every criterion must answer: *"If I ran this right now, could I say yes or no?"*
+If not → it is not a criterion yet.
 
 ## Out of Scope
 - {item 1} — {why deferred or excluded}

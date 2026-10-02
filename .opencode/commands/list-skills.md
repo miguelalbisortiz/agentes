@@ -19,11 +19,18 @@ Show the catalog of available skills. `$ARGUMENTS` may be a keyword, category, o
 
 | Category | Skills |
 |----------|--------|
-| **Code patterns** | coding-standards, frontend-patterns, backend-patterns, observability |
-| **API / Design** | api-design, error-handling |
-| **Process** | git-workflow, tdd-workflow, verification-loop, intent-driven-development, task-decomposition |
+| **API / Design** | api-contract-tester, api-design, error-handling |
+| **Code patterns** | backend-patterns, coding-standards, frontend-patterns |
+| **Compliance / Audit** | compliance-checker |
+| **Data / Visualization** | db-schema-visualizer |
+| **Dependencies** | dependency-audit |
+| **Documentation** | user-manual-generator |
+| **Other** | caveman, debugging-patterns, observability, pack-reference, refactoring-patterns, router, testing-patterns |
+| **Performance** | performance-budget |
+| **Process** | git-workflow, intent-driven-development, task-decomposition, tdd-workflow, verification-loop |
 | **Security** | security-review |
 | **Tools** | documentation-lookup, mcp-server-patterns |
+| **Visualization** | flow-visualizer |
 
 ## Your Task
 
