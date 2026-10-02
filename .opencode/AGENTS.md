@@ -51,6 +51,15 @@ prd-agent → planner → build → code-reviewer → audit-orchestrator → man
 - El siguiente agente en la cadena busca archivos recientes en `docs/`
 - Si no encuentra output del anterior, LO PIDE antes de proceder
 - `audit-orchestrator` es el ÚNICO que puede marcar un proyecto como "entregable"
+
+### Agent Availability (CRITICAL - stack-filtered installs)
+- El pack se instala con filtro de stack: si existe `.opencode/.stack`, solo se instalaron los agents de **ese** lenguaje
+- Antes de invocar a un agente **por nombre**, confirma que existe: `.opencode/agents/<nombre>.md`
+- **Si no existe → NO lo inventes y NO te detengas.** Asume tú esa responsabilidad o baja al genérico:
+  - revisión de código → `code-reviewer` con instrucción explícita del lenguaje
+  - error de compilación → `build-error-resolver`
+  - nunca rutear a un resolver de un lenguaje distinto al del proyecto
+- Los agents de proceso (`prd-agent`, `planner`, `report-auditor`, `security-reviewer`, `tdd-guide`) **siempre** están instalados: el ciclo SDD nunca queda a medias
 ### Diagram Generation
 - Diagramas (Mermaid) se generan DESPUÉS de toda la implementación
 - Usar `diagram-generator` para flowcharts, sequence, state

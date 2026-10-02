@@ -18,6 +18,8 @@ This is a **fallback resolver** for projects where no language-specific resolver
 
 Check if a specific resolver matches your stack:
 
+> **Disponibilidad:** solo se instalan los resolvers del stack del proyecto (marcador `.opencode/.stack`). Si el de la tabla no existe en `.opencode/agents/`, **resuelve tú el error** — no te detengas esperando a un agente que no está.
+
 | Stack | Use instead |
 |-------|-------------|
 | React / Next.js / Vite | `react-build-resolver` |

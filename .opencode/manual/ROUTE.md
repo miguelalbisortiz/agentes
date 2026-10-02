@@ -35,6 +35,8 @@
 
 ### Revisores por stack (OBLIGATORIOS cuando el stack coincide)
 
+> **Disponibilidad:** el pack se instala con filtro de stack (marcador `.opencode/.stack`), así que varios revisores de esta tabla pueden no estar instalados. **Antes de invocar uno, confirma que existe** en `.opencode/agents/`. Si no, aplica `code-reviewer` con instrucción específica del lenguaje.
+
 | Stack | Agente | Se dispara con |
 |-------|--------|----------------|
 | TypeScript/JS | `typescript-reviewer` | cambios en `.ts`/`.tsx`/`.js` |
