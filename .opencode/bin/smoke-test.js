@@ -105,7 +105,15 @@ const skills = fs.existsSync('.agents/skills') ? fs.readdirSync('.agents/skills'
 const commands = countFiles('.opencode/commands', '.md');
 const binScripts = countFiles('.opencode/bin', '.js');
 
-check(`agents (got ${agents}, expected 64-65)`, () => agents >= 64);
+// Instalaciones filtradas por stack (-Stack flutter|node|...) traen menos agents
+// que el pack maestro. `.opencode/.stack` lo marca (lo escribe init-opencode.ps1).
+const stackMarker = (() => {
+  try { return fs.readFileSync('.opencode/.stack', 'utf8').trim(); } catch { return null; }
+})();
+const minAgents = stackMarker ? 45 : 64;
+const scope = stackMarker ? `stack=${stackMarker}` : 'full pack';
+
+check(`agents (got ${agents}, min ${minAgents} for ${scope})`, () => agents >= minAgents);
 check(`skills (got ${skills}, expected 10+)`, () => skills >= 10);
 check(`commands (got ${commands}, expected 47+)`, () => commands >= 47);
 check(`bin scripts (got ${binScripts}, expected 2+)`, () => binScripts >= 2);

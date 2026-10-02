@@ -130,7 +130,7 @@ $StackKeep = @{
 if ($AllAgents) {
     $DetectedStack = "all"
     $AgentsToDrop = @()
-    Write-Host "[INFO] -AllAgents: se copian los 83 agentes (sin filtro de stack)." -ForegroundColor Yellow
+    Write-Host "[INFO] -AllAgents: se copian todos los agentes (sin filtro de stack)." -ForegroundColor Yellow
 } else {
     if (-not $Stack) { $Stack = Detect-Stack -Path $ProjectPath }
     $DetectedStack = if ($Stack) { $Stack } else { "unknown" }
@@ -261,6 +261,16 @@ if ($AgentsToDrop.Count -gt 0) {
     Write-Host "  [OK] Agentes: $remaining en el proyecto (sin filtro)" -ForegroundColor Green
 }
 
+# --- Marcador de stack instalado ---
+# Lo lee smoke-test.js para exigir el umbral de agents correcto:
+# filtrado por stack (~50) vs pack maestro (~85).
+$stackMarkerFile = Join-Path $ProjectPath ".opencode\.stack"
+if ($AgentsToDrop.Count -gt 0) {
+    Set-Content -Path $stackMarkerFile -Value $DetectedStack -NoNewline -Encoding ascii
+} elseif (Test-Path $stackMarkerFile) {
+    Remove-Item $stackMarkerFile -Force -ErrorAction SilentlyContinue
+}
+
 # ============================================================
 # FASE 3: .agents/ (SKILLS)
 # ============================================================
@@ -270,6 +280,28 @@ Write-Host "[3/7] Carpeta .agents/ (40 skills)..." -ForegroundColor Yellow
 Write-Host "----------------------------------------------------" -ForegroundColor DarkGray
 
 Copy-ItemSafe -Source (Join-Path $PackPath ".agents") -Destination (Join-Path $ProjectPath ".agents") -Description ".agents/ (40 skills incluyendo: stripe, clerk, supabase, firebase, docker, github-actions, vercel, railway, turso, drizzle)"
+
+# --- Junctions de compatibilidad (opencode 1.17.x) ---
+# Se crean DESPUES de copiar .agents/ porque .opencode/skill apunta ahi.
+# No se trackean en git (ver .gitignore): indexarlos hace que `git add -A`
+# traverse el junction y duplice todo el arbol de agents/skills.
+function Ensure-Junction {
+    param([string]$LinkPath, [string]$TargetPath)
+    if (-not (Test-Path $TargetPath)) { return $false }
+    $item = Get-Item $LinkPath -Force -ErrorAction SilentlyContinue
+    if ($item -and $item.LinkType) { return $true }          # ya es junction/symlink
+    if (Test-Path $LinkPath) { Remove-Item $LinkPath -Recurse -Force -ErrorAction SilentlyContinue }
+    try {
+        New-Item -ItemType Junction -Path $LinkPath -Target $TargetPath -ErrorAction Stop | Out-Null
+        return $true
+    } catch {
+        Write-Host "  [WARN] No pude crear junction $LinkPath -> $($_.Exception.Message.Split("`n")[0])" -ForegroundColor Yellow
+        return $false
+    }
+}
+$okAgent = Ensure-Junction -LinkPath (Join-Path $ProjectPath ".opencode\agent") -TargetPath (Join-Path $ProjectPath ".opencode\agents")
+$okSkill = Ensure-Junction -LinkPath (Join-Path $ProjectPath ".opencode\skill") -TargetPath (Join-Path $ProjectPath ".agents\skills")
+Write-Host "  [$(if($okAgent -and $okSkill){'OK'}else{'WARN'})] Junctions compat 1.17.x: agent=$(if($okAgent){'ok'}else{'no'}) skill=$(if($okSkill){'ok'}else{'no'})" -ForegroundColor $(if($okAgent -and $okSkill){'Green'}else{'Yellow'})
 
 # ============================================================
 # FASE 4: ESTRUCTURA DOCS
