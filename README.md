@@ -52,6 +52,46 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 
 Complementos: `/spec-to-tests` (tests desde la especificación), `/quick-prd` (cambios pequeños), `/pack-reference` (manual completo).
 
+## El equipo se adapta a tu proyecto
+
+SDD es un **estándar**, no una plantilla con el mismo equipo para todos: el proceso es idéntico en cualquier proyecto, y **quién trabaja en él se decide según el stack**. Eso es exactamente lo que hace el filtro al instalar.
+
+**Siempre entra** — el núcleo spec-driven, que no depende de ningún lenguaje:
+
+`/prd` · `/spec-lint` · `/plan` · `/tasks` · `/verify` · `/eval` · `/audit-report` · `/trace` · `/definition-of-done` · `/change-request`
+
+y con ellos los agents de proceso: `prd-agent`, `planner`, `tdd-guide`, `code-reviewer`, `security-reviewer`, `doc-updater`, `report-auditor`... **Estos nunca se podan**: son los que sostienen las 9 fases de arriba.
+
+**Se adapta** — los reviewers y resolvers atados a un lenguaje:
+
+| Tu proyecto | Entran | Se descartan |
+|---|---|---|
+| Flutter | `flutter-reviewer`, `dart-build-resolver` | los de Rust, Go, Java, JS/TS... |
+| Node / React / Vue | `react-reviewer`, `vue-reviewer`, `typescript-reviewer`... | los de Python, PHP, Swift... |
+| Python | `python-reviewer`, `django-build-resolver`, `fastapi-reviewer`... | los de JS/TS, Go, Rust... |
+| Go, Rust, Java, Kotlin, C#, C++, PHP, Swift | los de su lenguaje | el resto |
+
+Los skills también se ajustan, pero con criterio conservador: solo los estrictamente JS/TS (`drizzle-patterns`, `turso-libsql`, `clerk-auth`) se descartan fuera de Node. El resto son multi-stack (`docker-patterns`, `github-actions`) o los usan agents de otros procesos (`supabase-patterns` y `firebase-patterns` sirven también a Flutter).
+
+### Nada queda suelto
+
+Descartar un agente puede dejar referencias colgando. El instalador las limpia **en el mismo paso**, no después:
+
+| Riesgo | Qué ocurre |
+|---|---|
+| Un comando apunta con `agent:` a un agente descartado | Se descarta también el comando |
+| El router despacha a un skill que ya no está | Se borra su fila en `router/SKILL.md` |
+| Un punto de despacho no sabe qué hacer si falta el agente | Cada punto documenta el fallback |
+
+Y no se deja a la buena fe. El `smoke-test` lo comprueba en **cada** instalación con la batería `[Stack filter integrity]`:
+
+- **`no orphan commands`** — el `agent:` de cada comando apunta a un agente instalado (o a los built-in de opencode).
+- **`dispatch points document the stack fallback`** — todos los puntos de despacho (`/route`, `/orchestrate`, `/pr-review`, `/list-agents`, `router/SKILL.md`, `AGENTS.md`...) explican qué hacer cuando un agente no existe.
+
+`installer-test` lo repite además en los escenarios reales de instalación (T1 con filtro y T6 sin filtro de skills). **Si algo quedara suelto, el test falla** en lugar de dejarlo pasar.
+
+Ese es el resultado: no una carpeta de piezas sueltas, sino un equipo que trabaja conjunto desde el primer mensaje y bajo el mismo ciclo SDD.
+
 ## Instalación
 
 ### Requisitos
