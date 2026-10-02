@@ -150,23 +150,21 @@ function renderMarkdown(skills) {
   lines.push('');
 
   // Counts block (auto-managed by counts.js) — see also .opencode/README.md + manual/README.md
+  // renderMarkdown() ya emite los marcadores <!-- COUNTS-START/END -->. Bloques
+  // escritos a mano van SIN marcadores y counts.js los ignora, asi que el pie
+  // se quedaba congelado en la version con la que se genero el indice.
   const countsPath = path.join(__dirname, 'counts.js');
   let counts = null;
-  try { counts = require(countsPath).compute ? require(countsPath).compute() : null; } catch {}
-  if (counts) {
+  let renderCounts = null;
+  try {
+    const c = require(countsPath);
+    counts = c.compute ? c.compute() : null;
+    renderCounts = c.renderMarkdown || null;
+  } catch {}
+  if (counts && renderCounts) {
     lines.push('---');
     lines.push('');
-    lines.push('## Counts');
-    lines.push('');
-    lines.push('> Auto-managed by `.opencode/bin/counts.js`. Do not edit by hand.');
-    lines.push('> Regenerate: `node .opencode/bin/counts.js --update .agents/skills/INDEX.md`');
-    lines.push('');
-    lines.push(`- **${counts.agents}** agents`);
-    lines.push(`- **${counts.commands}** commands`);
-    lines.push(`- **${counts.skills}** skills (this file)`);
-    lines.push(`- **${counts.clis}** native CLIs`);
-    lines.push(`- **${counts.plugins_npm}** npm plugins + **${counts.plugins_local}** local plugin(s)`);
-    lines.push(`- **${counts.mcps_active}** active MCPs + **${counts.mcps_optional}** optional MCP(s)`);
+    lines.push(renderCounts(counts));
     lines.push('');
   }
 

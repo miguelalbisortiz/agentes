@@ -1,6 +1,6 @@
 ---
 name: stripe-integration
-description: Stripe integration patterns for payments, subscriptions, billing portal, and webhooks. Use when working with Stripe API, checkout sessions, customer portal, or payment processing.
+description: Use when working with the Stripe API: checkout sessions, subscriptions, billing portal, customer portal, webhooks, or payment processing.
 triggers: [stripe, payment, checkout, subscription, billing, invoice, webhook, payment_intent, customer, portal]
 ---
 

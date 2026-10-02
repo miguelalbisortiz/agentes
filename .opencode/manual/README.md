@@ -10,12 +10,12 @@
 > Auto-managed by `.opencode/bin/counts.js`. Do not edit by hand.
 > Regenerate: `node .opencode/bin/counts.js --update <files...>`
 
-- **72** agents (.opencode/agents)
-- **64** commands (.opencode/commands)
-- **20** skills (.agents/skills)
-- **13** native CLIs (.opencode/bin)
+- **85** agents (.opencode/agents)
+- **71** commands (.opencode/commands)
+- **40** skills (.agents/skills)
+- **15** native CLIs (.opencode/bin)
 - **3** npm plugins + **1** local plugin(s)
-- **2** active MCPs + **10** optional MCP(s)
+- **4** active MCPs + **12** optional MCP(s)
 <!-- COUNTS-END -->
 
 Detalles:
@@ -74,7 +74,7 @@ cd /ruta/a/tu/proyecto && opencode .
 
 Lista completa: `node .opencode/bin/context.js` o explora `.opencode/commands/`.
 
-## 13 CLIs nativos (cero dependencias, solo Node stdlib)
+## CLIs nativos (cero dependencias, solo Node stdlib)
 
 ```bash
 node .opencode/bin/smoke-test.js              # 20 comprobaciones estructurales
@@ -123,7 +123,7 @@ node .opencode/bin/refresh-project.js --status
 ## Documentación adicional
 
 - **[ROUTE.md](./ROUTE.md)** — elige el sub-agente correcto según la intención (legacy; el `router` skill es la nueva forma automática)
-- **[COMMANDS.md](./COMMANDS.md)** — los 64 slash commands agrupados por intención
+- **[COMMANDS.md](./COMMANDS.md)** — los slash commands agrupados por intención
 - **[EXAMPLES.md](./EXAMPLES.md)** — 6 flujos completos de proyectos reales
 - **[ARCH.md](./ARCH.md)** — 4 capas, flujo PRD, ciclo de instintos, estructura de archivos
 - **[SURFACES.md](./SURFACES.md)** — cuándo usar regla vs skill vs MCP vs agente vs CLI

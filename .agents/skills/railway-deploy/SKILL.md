@@ -1,6 +1,6 @@
 ---
 name: railway-deploy
-description: Railway deployment patterns for full-stack apps, databases, and microservices. Use when deploying to Railway, setting up databases, or configuring services.
+description: Use when deploying to Railway, provisioning databases, configuring services, or shipping full-stack apps and microservices on Railway.
 triggers: [railway, deployment, paas, database, service, microservice]
 ---
 

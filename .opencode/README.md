@@ -8,12 +8,12 @@ Pack portable de opencode. Cópialo a cualquier proyecto, reinicia opencode y em
 > Auto-managed by `.opencode/bin/counts.js`. Do not edit by hand.
 > Regenerate: `node .opencode/bin/counts.js --update <files...>`
 
-- **83** agents (.opencode/agents)
-- **68** commands (.opencode/commands)
+- **85** agents (.opencode/agents)
+- **71** commands (.opencode/commands)
 - **40** skills (.agents/skills)
-- **13** native CLIs (.opencode/bin)
+- **15** native CLIs (.opencode/bin)
 - **3** npm plugins + **1** local plugin(s)
-- **4** active MCPs + **10** optional MCP(s)
+- **4** active MCPs + **12** optional MCP(s)
 <!-- COUNTS-END -->
 
 > Las cifras exactas (agentes, commands, skills, plugins, MCPs, CLIs) están en el bloque `## Counts` de abajo. Se regenera con `node .opencode/bin/counts.js --update .opencode/README.md .opencode/manual/README.md .agents/skills/INDEX.md`.
@@ -57,7 +57,7 @@ Toda la documentación del pack vive dentro de `.opencode/manual/`, así se copi
 
 - **[.opencode/manual/README.md](./.opencode/manual/README.md)** — punto de entrada, instalación, comandos principales
 - **[.opencode/manual/ROUTE.md](./.opencode/manual/ROUTE.md)** — qué sub-agente usar según la intención
-- **[.opencode/manual/COMMANDS.md](./.opencode/manual/COMMANDS.md)** — los 64 slash commands por intención
+- **[.opencode/manual/COMMANDS.md](./.opencode/manual/COMMANDS.md)** — los slash commands por intención
 - **[.opencode/manual/EXAMPLES.md](./.opencode/manual/EXAMPLES.md)** — 5 flujos completos de proyectos reales
 - **[.opencode/manual/ARCH.md](./.opencode/manual/ARCH.md)** — 4 capas de memoria, flujo PRD, ciclo de instintos
 - **[.opencode/manual/SURFACES.md](./.opencode/manual/SURFACES.md)** — cuándo usar regla vs skill vs MCP vs agente vs CLI

@@ -76,7 +76,7 @@ These demos are intentionally small and contrived. They are NOT:
 
 - Production-grade code (no auth, no real DB, no observability)
 - A starter template for your app (they exist to demo the pack, not to fork)
-- A comprehensive reference of every pack feature (each covers ~5 of the 72 agents)
+- A comprehensive reference of every pack feature (each covers ~5 pack agents)
 
 For real projects, install the pack directly and use the `router` skill to pick the right agent + skill for your stack.
 

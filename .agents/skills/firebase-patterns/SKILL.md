@@ -1,6 +1,6 @@
 ---
 name: firebase-patterns
-description: Firebase patterns for Firestore, Auth, Storage, Cloud Functions, and Realtime Database. Use when working with Firebase SDK, security rules, or serverless functions.
+description: Use when working with Firebase (Firestore, Auth, Storage, Cloud Functions, Realtime Database), the Firebase SDK, security rules, or serverless functions.
 triggers: [firebase, firestore, firebase-auth, cloud-functions, realtime-database, firebase-storage, security-rules]
 ---
 

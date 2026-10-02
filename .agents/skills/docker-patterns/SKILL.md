@@ -1,6 +1,6 @@
 ---
 name: docker-patterns
-description: Docker patterns for multi-stage builds, docker-compose, optimization, and production-ready containers. Use when containerizing apps, optimizing images, or setting up development environments.
+description: Use when containerizing apps, writing multi-stage builds or docker-compose files, optimizing image size, or setting up production-ready containers and dev environments.
 triggers: [docker, dockerfile, docker-compose, container, image, multi-stage, optimization]
 ---
 

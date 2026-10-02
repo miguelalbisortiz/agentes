@@ -37,7 +37,7 @@ function arg(name, def) {
 }
 
 const TRIGGERS_STR = arg('--triggers', '');
-const DESCRIPTION = arg('--description', `> `);
+const DESCRIPTION = arg('--description', 'Use when <describe what this skill covers and the situations that should trigger it>.');
 
 if (HELP || !SKILL_NAME) {
   console.log(`Usage: node .opencode/bin/scaffold-new-skill.js <name> [--triggers "t1,t2,t3"] [--description "..."] [--force] [--dry-run]
@@ -141,6 +141,15 @@ if (DRY_RUN) {
 
 fs.mkdirSync(SKILL_DIR, { recursive: true });
 fs.writeFileSync(SKILL_FILE, CONTENT, 'utf8');
+// Crear el skill desfasa el ## Counts de los README (cuenta ficheros).
+try {
+  const { compute, renderMarkdown, updateFile } = require('./counts.js');
+  const block = renderMarkdown(compute());
+  for (const p of [
+    path.join(__dirname, '..', 'README.md'),
+    path.join(__dirname, '..', 'manual', 'README.md'),
+  ]) { if (fs.existsSync(p)) updateFile(p, block); }
+} catch { /* counts es best-effort */ }
 console.log(`Created: ${path.relative(CWD, SKILL_FILE)} (${CONTENT.split('\n').length} lines)`);
 console.log(`\nNext:`);
 console.log(`  1. Edit the description and triggers in the frontmatter`);

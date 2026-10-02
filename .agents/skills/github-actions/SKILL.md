@@ -1,6 +1,6 @@
 ---
 name: github-actions
-description: GitHub Actions patterns for CI/CD, testing, deployment, and automation. Use when setting up workflows, automating builds, or deploying to cloud providers.
+description: Use when setting up GitHub Actions workflows for CI/CD, testing, automated builds, deployment, or cloud provider automation.
 triggers: [github-actions, ci-cd, workflow, automation, deployment, actions]
 ---
 

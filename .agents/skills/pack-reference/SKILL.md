@@ -17,7 +17,7 @@ Quick reference for opencode pack structure, conventions, and standards. Loaded 
 
 ## Que es esto
 
-Starter pack portable de opencode. El "producto" son los 72 agentes, 64 slash commands y 20 skills. No es codigo de aplicacion — es config + prompts + CLIs en `.opencode/bin/`.
+Starter pack portable de opencode. El "producto" son los agentes, los slash commands y los skills (conteo exacto: `node .opencode/bin/counts.js --json`). No es codigo de aplicacion — es config + prompts + CLIs en `.opencode/bin/`.
 
 ## Estructura
 
@@ -25,10 +25,10 @@ Starter pack portable de opencode. El "producto" son los 72 agentes, 64 slash co
 .
 ├── opencode.json          Config principal
 ├── .opencode/             PACK template (portable)
-│   ├── agents/            72 subagentes (description + mode + permission)
-│   ├── commands/          64 slash commands
+│   ├── agents/            subagentes (description + mode + permission)
+│   ├── commands/          slash commands
 │   ├── plugins/           Local plugins (hookify.js = 2 hooks)
-│   ├── bin/               10 CLIs nativos
+│   ├── bin/               CLIs nativos
 │   ├── examples/          3 downstream demos (node-api, python-data, react-app)
 │   ├── manual/            PACK docs (info del pack, NO del proyecto)
 │   ├── package.json       Plugin deps (npm install on first clone)
@@ -54,7 +54,7 @@ Starter pack portable de opencode. El "producto" son los 72 agentes, 64 slash co
 ## Que NO hacer
 
 - No crear `tsconfig.json` ni archivos de build en el pack.
-- No incluir `model` ni `small_model` en opencode.json (cada usuario configura el suyo). Si lo agregas, sera el default para los 72 agentes — avisar antes.
+- No incluir `model` ni `small_model` en opencode.json (cada usuario configura el suyo). Si lo agregas, sera el default para todos los agentes — avisar antes.
 
 ## Plugins
 

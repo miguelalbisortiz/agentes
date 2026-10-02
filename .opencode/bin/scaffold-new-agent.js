@@ -37,7 +37,7 @@ function arg(name, def) {
 
 const MODE = arg('--mode', 'subagent');
 const PERMISSION = arg('--permission', 'bash: allow, read: allow, write: allow, edit: allow, glob: allow, grep: allow, webfetch: allow, task: allow, skill: allow');
-const DESCRIPTION = arg('--description', '> ');
+const DESCRIPTION = arg('--description', 'Use when <describe the request patterns that should route to this agent>.');
 
 if (HELP || !AGENT_NAME) {
   console.log(`Usage: node .opencode/bin/scaffold-new-agent.js <name> [--mode MODE] [--permission "..."] [--force] [--dry-run]
@@ -75,8 +75,13 @@ if (!['subagent', 'primary'].includes(MODE)) {
 const AGENTS_DIR = path.join(CWD, '.opencode', 'agents');
 const AGENT_FILE = path.join(AGENTS_DIR, `${AGENT_NAME}.md`);
 
+// Escalar plegado con contenido indentado: `description: >` SIN lineas
+// indentadas se parsea como cadena vacia y validate-frontmatter lo reporta
+// como "missing required field: description". El default anterior era literal
+// `> `, o sea exactamente eso.
 const FRONTMATTER = `---
-description: ${DESCRIPTION}
+description: >
+  ${DESCRIPTION}
 mode: ${MODE}
 permission:
   ${PERMISSION.split(',').map(p => p.trim()).join('\n  ')}
@@ -136,6 +141,16 @@ if (DRY_RUN) {
 }
 
 fs.writeFileSync(AGENT_FILE, CONTENT, 'utf8');
+// Crear el agente desfasa el ## Counts de los README (cuenta ficheros).
+// Best-effort: si falla no debe romper el scaffolder.
+try {
+  const { compute, renderMarkdown, updateFile } = require('./counts.js');
+  const block = renderMarkdown(compute());
+  for (const p of [
+    path.join(__dirname, '..', 'README.md'),
+    path.join(__dirname, '..', 'manual', 'README.md'),
+  ]) { if (fs.existsSync(p)) updateFile(p, block); }
+} catch (e) { console.error(`[warn] no pude refrescar ## Counts: ${e.message}`); }
 console.log(`Created: ${path.relative(CWD, AGENT_FILE)} (${CONTENT.split('\n').length} lines)`);
 console.log(`\nNext:`);
 console.log(`  1. Edit the description (this drives the router skill matching)`);

@@ -1,6 +1,6 @@
 ---
 name: supabase-patterns
-description: Supabase patterns for database, auth, realtime, storage, and Edge Functions. Use when working with Supabase client, Row Level Security, subscriptions, or file storage.
+description: Use when working with Supabase (database, auth, realtime, storage, Edge Functions), the Supabase client, Row Level Security, subscriptions, or file storage.
 triggers: [supabase, postgres, rls, realtime, storage, edge-functions, row-level-security, subscription]
 ---
 

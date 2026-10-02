@@ -91,10 +91,10 @@ When: "como esta el pack" / "que tengo disponible" / "se comporta raro"
 # → 10 health checks (frontmatter, orphans, size, junctions)
 
 /list-agents
-# → 72 agentes agrupados por categoria, con triggers
+# → agentes agrupados por categoria, con triggers
 
 /list-skills
-# → 17 skills con trigger map
+# → skills con trigger map
 ```
 
 ## How to Pick

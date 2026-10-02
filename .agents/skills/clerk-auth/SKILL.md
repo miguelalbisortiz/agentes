@@ -1,6 +1,6 @@
 ---
 name: clerk-auth
-description: Clerk authentication patterns for Next.js, React, and backend apps. Use when implementing sign-up, sign-in, user management, organizations, or multi-factor authentication with Clerk.
+description: Use when implementing sign-up, sign-in, user management, organizations, or multi-factor authentication with Clerk in Next.js, React, or backend apps.
 triggers: [clerk, authentication, sign-up, sign-in, user-management, organizations, mfa, session, jwt]
 ---
 

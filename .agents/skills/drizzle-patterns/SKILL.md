@@ -1,6 +1,6 @@
 ---
 name: drizzle-patterns
-description: Drizzle ORM patterns for type-safe database queries, migrations, and schema design. Use when working with Drizzle, writing database queries, or managing schema changes.
+description: Use when working with Drizzle ORM: writing type-safe database queries, creating migrations, or managing schema changes.
 triggers: [drizzle, orm, schema, migration, type-safe, query-builder, database]
 ---
 

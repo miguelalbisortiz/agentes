@@ -127,9 +127,33 @@ $StackKeep = @{
     swift   = @("swift-build-resolver","swift-reviewer")
 }
 
+# --- Skills filtrados por stack ---
+# Solo 3 de 40 skills son estrictamente del ecosistema JS/TS: se descartan en
+# cualquier stack que no sea node. Los demas se copian SIEMPRE porque son
+# multi-stack (docker, github-actions) o estan referenciados por agentes:
+#   devops-deploy.md -> vercel-deploy / railway-deploy
+#   supabase-patterns y firebase-patterns sirven tambien a Flutter/mobile
+# Descartar el skill obliga a podar su fila en router/SKILL.md, o el router
+# despacharia a algo inexistente (lo hace el instalador tras copiar .agents/).
+$JsOnlySkills = @("drizzle-patterns", "turso-libsql", "clerk-auth")
+$StackSkills = @{
+    flutter = $JsOnlySkills
+    python  = $JsOnlySkills
+    rust    = $JsOnlySkills
+    go      = $JsOnlySkills
+    java    = $JsOnlySkills
+    kotlin  = $JsOnlySkills
+    csharp  = $JsOnlySkills
+    cpp     = $JsOnlySkills
+    php     = $JsOnlySkills
+    swift   = $JsOnlySkills
+    node    = @()   # el ecosistema JS es exactamente donde encajan
+}
+
 if ($AllAgents) {
     $DetectedStack = "all"
     $AgentsToDrop = @()
+    $SkillsToDrop = @()
     Write-Host "[INFO] -AllAgents: se copian todos los agentes (sin filtro de stack)." -ForegroundColor Yellow
 } else {
     if (-not $Stack) { $Stack = Detect-Stack -Path $ProjectPath }
@@ -141,6 +165,13 @@ if ($AllAgents) {
     } else {
         # Stack desconocido -> conservar todo antes que filtrar de mas
         $AgentsToDrop = @()
+    }
+
+    # Skills: mismo criterio conservador. Stack desconocido o node -> todo.
+    if ($Stack -and $StackSkills.ContainsKey($Stack)) {
+        $SkillsToDrop = @($StackSkills[$Stack])
+    } else {
+        $SkillsToDrop = @()
     }
 
     if ($AgentsToDrop.Count -gt 0) {
@@ -206,7 +237,19 @@ function Copy-ItemSafe {
             Copy-Item -Path $Source -Destination $Destination -Force -ErrorAction Stop
         }
         else {
-            Copy-Item -Path $Source -Destination $Destination -Recurse -Force:$Force -ErrorAction Stop
+            # NUNCA copiar la carpeta completa contra un destino ya existente:
+            #   Copy-Item D:\pack\.opencode  D:\proj\.opencode -Recurse
+            # crea D:\proj\.opencode\.opencode  (y .agents/.agents/). El destino
+            # existe siempre en una actualizacion, asi que el bug se disparaba
+            # en cada re-instalacion. Se copian los HIJOS contra el padre.
+            if (-not (Test-Path $Destination)) {
+                New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+            }
+            foreach ($child in (Get-ChildItem -LiteralPath $Source -Force)) {
+                # -Force sin condicion: hace falta para arrastrar ocultos
+                # (p.ej. .opencode/.gitignore) y para sobreescribir.
+                Copy-Item -LiteralPath $child.FullName -Destination $Destination -Recurse -Force -ErrorAction Stop
+            }
         }
         Write-Host "  [OK] $Description" -ForegroundColor Green
         $script:copied++
@@ -381,6 +424,97 @@ Write-Host "----------------------------------------------------" -ForegroundCol
 
 Copy-ItemSafe -Source (Join-Path $PackPath ".agents") -Destination (Join-Path $ProjectPath ".agents") -Description ".agents/ (40 skills incluyendo: stripe, clerk, supabase, firebase, docker, github-actions, vercel, railway, turso, drizzle)"
 
+# --- Poda de skills que no aplican al stack ---
+# 1) se borra la carpeta del skill
+# 2) se borra su fila en router/SKILL.md (si no, el router despacha a algo
+#    inexistente). Se reescriben bytes para respetar el BOM del original:
+#    meter/quitar el BOM haria fallar el parser de frontmatter.
+if ($SkillsToDrop.Count -gt 0) {
+    $skillsDir = Join-Path $ProjectPath ".agents\skills"
+    $droppedSkills = 0
+    foreach ($s in $SkillsToDrop) {
+        $dir = Join-Path $skillsDir $s
+        if (Test-Path $dir) {
+            Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
+            if (-not (Test-Path $dir)) { $droppedSkills++ }
+        }
+    }
+
+    if ($droppedSkills -gt 0) {
+        $routerSkill = Join-Path $skillsDir "router\SKILL.md"
+        if (Test-Path $routerSkill) {
+            $bytes = [System.IO.File]::ReadAllBytes($routerSkill)
+            $hadBom = ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF)
+            $raw = [System.Text.Encoding]::UTF8.GetString($bytes)
+            if ($hadBom) { $raw = $raw.Substring(1) }
+            foreach ($s in $SkillsToDrop) {
+                # solo filas cuyo destino es ese skill (entre backticks)
+                $raw = [regex]::Replace($raw, '(?m)^[^\r\n]*`' + [regex]::Escape($s) + '`[^\r\n]*(\r?\n|$)', '')
+            }
+            [System.IO.File]::WriteAllText($routerSkill, $raw, (New-Object System.Text.UTF8Encoding($hadBom)))
+        }
+        Write-Host "  [OK] Skills: $droppedSkills descartados por stack (JS/TS): $($SkillsToDrop -join ', ')" -ForegroundColor Green
+    }
+}
+
+# --- Auto-limpieza de anidados ---
+# El bug anterior (`Copy-Item <dir> -Dest <dir existente> -Recurse`) dejo
+# `.opencode/.opencode/` (~360 archivos) y `.agents/.agents/` en proyectos ya
+# instalados. El pack nunca contiene esas rutas, asi que siempre son restos:
+# un `git status` limpio no los escondia y solo los crecian en cada corrida.
+foreach ($nested in @(".opencode\.opencode", ".agents\.agents")) {
+    $junk = Join-Path $ProjectPath $nested
+    if (Test-Path $junk) {
+        $n = @(Get-ChildItem $junk -Recurse -File -Force -ErrorAction SilentlyContinue).Count
+        Remove-Item $junk -Recurse -Force -ErrorAction SilentlyContinue
+        if (-not (Test-Path $junk)) {
+            Write-Host "  [OK] Limpieza: $nested eliminado ($n archivos residuales del bug de copia)" -ForegroundColor Green
+        }
+    }
+}
+
+# --- Refresca los bloques ## Counts del proyecto instalado ---
+# Los README se copian del pack ya con los numeros del MAESTRO (85/71/40).
+# Sin regenerarlos, un proyecto filtrado diria "85 agents" cuando tiene 59.
+# counts.js --update solo toca los archivos que traen marcadores en su propia
+# linea, asi que un README sin bloque queda intacto.
+$countsScript = Join-Path $ProjectPath ".opencode\bin\counts.js"
+$countTargets = @(
+    (Join-Path $ProjectPath ".opencode\README.md"),
+    (Join-Path $ProjectPath ".opencode\manual\README.md")
+) | Where-Object { $_ -and (Test-Path $_) }
+if ((Test-Path $countsScript) -and $countTargets -and (Get-Command node -ErrorAction SilentlyContinue)) {
+    Push-Location $ProjectPath
+    try {
+        & node $countsScript --update @countTargets 6>&1 | Out-Null
+        Write-Host "  [OK] Conteos (## Counts) regenerados para este proyecto" -ForegroundColor Green
+    } catch {
+        Write-Host "  [WARN] No pude regenerar los conteos: $($_.Exception.Message.Split("`n")[0])" -ForegroundColor Yellow
+    } finally {
+        Pop-Location
+    }
+}
+
+# --- Regenera los indices generados ---
+# AGENTS_INDEX.md y .agents/skills/INDEX.md los escanean en disco: su pie
+# `**Total**: N agents` es un numero real, no una cita. Copiados desde el
+# pack traerian el total del MAESTRO y mentirian en un proyecto filtrado.
+$indexBuilders = @(
+    (Join-Path $ProjectPath ".opencode\bin\build-agents-index.js"),
+    (Join-Path $ProjectPath ".opencode\bin\build-skills-index.js")
+) | Where-Object { $_ -and (Test-Path $_) }
+if ($indexBuilders -and (Get-Command node -ErrorAction SilentlyContinue)) {
+    Push-Location $ProjectPath
+    try {
+        foreach ($b in $indexBuilders) { & node $b 6>&1 | Out-Null }
+        Write-Host "  [OK] Indices regenerados (AGENTS_INDEX, skills/INDEX)" -ForegroundColor Green
+    } catch {
+        Write-Host "  [WARN] No pude regenerar los indices: $($_.Exception.Message.Split("`n")[0])" -ForegroundColor Yellow
+    } finally {
+        Pop-Location
+    }
+}
+
 # --- Junctions de compatibilidad (opencode 1.17.x) ---
 # Se crean DESPUES de copiar .agents/ porque .opencode/skill apunta ahi.
 # No se trackean en git (ver .gitignore): indexarlos hace que `git add -A`
@@ -548,7 +682,7 @@ $agentsMin = if ($AgentsToDrop.Count -gt 0) { 50 } else { 80 }
 $checks = @(
     @{ Path = ".opencode\agents"; Name = "Agents"; MinCount = $agentsMin },
     @{ Path = ".opencode\commands"; Name = "Commands"; MinCount = 60 },
-    @{ Path = ".agents\skills"; Name = "Skills"; MinCount = 35 },
+    @{ Path = ".agents\skills"; Name = "Skills"; MinCount = 35; CountDir = $true },
     @{ Path = ".opencode\plugins"; Name = "Plugins"; MinCount = 1 },
     @{ Path = ".opencode\bin"; Name = "CLI Scripts"; MinCount = 10 },
     @{ Path = ".opencode\manual"; Name = "Manual"; MinCount = 5 },
@@ -560,7 +694,13 @@ $allGood = $true
 foreach ($check in $checks) {
     $fullPath = Join-Path $ProjectPath $check.Path
     if (Test-Path $fullPath) {
-        $count = (Get-ChildItem -Path $fullPath -Recurse -File -ErrorAction SilentlyContinue).Count
+        # Skills se cuentan por carpeta: -Recurse -File incluye los assets de
+        # cada skill y pinta un numero mayor que el de skills reales.
+        if ($check.CountDir) {
+            $count = (Get-ChildItem -Path $fullPath -Directory -ErrorAction SilentlyContinue).Count
+        } else {
+            $count = (Get-ChildItem -Path $fullPath -Recurse -File -ErrorAction SilentlyContinue).Count
+        }
         $icon = if ($count -ge $check.MinCount) { "[OK]" } else { "[WARN]" }
         $color = if ($count -ge $check.MinCount) { "Green" } else { "Yellow" }
         Write-Host "  $icon $($check.Name): $count archivos (min: $($check.MinCount))" -ForegroundColor $color

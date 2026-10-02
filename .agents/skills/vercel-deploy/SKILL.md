@@ -1,6 +1,6 @@
 ---
 name: vercel-deploy
-description: Vercel deployment patterns for Next.js, static sites, and serverless functions. Use when deploying to Vercel, configuring domains, or setting up environment variables.
+description: Use when deploying to Vercel, configuring domains, setting environment variables, or shipping Next.js, static sites, and serverless functions.
 triggers: [vercel, deployment, serverless, edge, domain, preview, production]
 ---
 

@@ -150,6 +150,74 @@ check('SKILL.md files have name:', () => {
 check('validate-frontmatter.js runs', () => testScript('.opencode/bin/validate-frontmatter.js', '--quiet'));
 
 console.log('');
+console.log('[Counts]');
+// Los bloques ## Counts de los README cuentan ficheros en disco. Si se crean
+// o borran archivos sin regenerarlos, las cifras publicadas mienten.
+check('bloques ## Counts frescos (counts.js --check)', () => {
+  try {
+    execSync('node ".opencode/bin/counts.js" --check', { encoding: 'utf8', stdio: 'pipe' });
+    return true;
+  } catch (e) {
+    const stale = ((e.stdout || '') + '').trim();
+    throw new Error(
+      `${stale || 'conteos desactualizados'} -> node .opencode/bin/counts.js --update <archivo>`
+    );
+  }
+});
+
+console.log('');
+console.log('[Stack filter integrity]');
+// Estos checks cubren los dos bugs que el filtro de stack provoca si nadie
+// los vigila: (1) comandos cuyo `agent:` apunta a un agente descartado y
+// (2) puntos de despacho sin fallback cuando el agente no esta instalado.
+const BUILTIN_AGENTS = ['build', 'plan', 'general', 'explore', 'compaction', 'title', 'task', 'session'];
+
+function commandAgent(file) {
+  const raw = readFile(file);
+  if (!raw) return null;
+  const fm = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
+  if (!fm) return null;
+  const a = fm[1].match(/^\s*agent:\s*(\S+)/m);
+  return a ? a[1].trim() : null;
+}
+
+check('no orphan commands (each agent: must exist)', () => {
+  if (!fs.existsSync('.opencode/agents') || !fs.existsSync('.opencode/commands')) {
+    return { warn: 'agents/ or commands/ missing' };
+  }
+  const agents = new Set(
+    fs.readdirSync('.opencode/agents').filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''))
+  );
+  const orphans = [];
+  for (const f of fs.readdirSync('.opencode/commands').filter((f) => f.endsWith('.md'))) {
+    const a = commandAgent(path.join('.opencode/commands', f));
+    if (a && !BUILTIN_AGENTS.includes(a) && !agents.has(a)) orphans.push(`${f} -> ${a}`);
+  }
+  if (orphans.length) throw new Error(orphans.join(', '));
+  return true;
+});
+
+check('dispatch points document the stack fallback', () => {
+  const DISPATCH = [
+    '.opencode/commands/route.md',
+    '.opencode/commands/pr-review.md',
+    '.opencode/commands/orchestrate.md',
+    '.opencode/commands/list-agents.md',
+    '.opencode/manual/ROUTE.md',
+    '.agents/skills/router/SKILL.md',
+    '.opencode/agents/build-error-resolver.md',
+    '.opencode/AGENTS.md',
+  ];
+  const MARKER = /filtro de stack|\.opencode\/\.stack|Agent Availability|Antes de despachar|no existe|Disponibilidad|Availability/;
+  const missing = DISPATCH.filter((f) => {
+    if (!fs.existsSync(f)) return true;
+    return !MARKER.test(readFile(f) || '');
+  });
+  if (missing.length) throw new Error(`sin nota de fallback: ${missing.join(', ')}`);
+  return true;
+});
+
+console.log('');
 console.log('[No broken paths in pack]');
 function findBrokenRefs() {
   if (!fs.existsSync('.opencode')) return [];

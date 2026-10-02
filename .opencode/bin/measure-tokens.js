@@ -106,6 +106,16 @@ function buildReport(cur) {
       bootTokens: baseBootTokens,
     },
     savingsPct: savings,
+    mcpCount: cur.mcpCount,
+    mcpNames: cur.mcpNames,
+    // Delta por linea: explica QUE mueve el % para que no sea un numero sin contexto
+    delta: {
+      agentsTokens: agentsTokens - baseAgentsTokens,
+      mcpTokens: mcpTokens - baseMcpTokens,
+      pluginTokens: pluginTokens - basePluginTokens,
+      total: bootTokens - baseBootTokens,
+    },
+    mcpAdded: cur.mcpNames,
   }
 }
 
@@ -158,7 +168,20 @@ function main() {
   console.log(`  vibeguard      : ${rep.baseline.vibeguardOn ? "ON" : "off"}`)
   console.log(`  estimated boot : ~${rep.baseline.bootTokens} tokens`)
   console.log("")
+  console.log("DELTA vs baseline (+ = mas caro)")
+  const sign = (n) => (n > 0 ? "+" : "") + n
+  console.log(`  AGENTS.md      : ${sign(rep.delta.agentsTokens)} tokens`)
+  console.log(`  MCPs           : ${sign(rep.delta.mcpTokens)} tokens  <- ${rep.mcpCount} activos vs ${BASELINE.mcpCount} en la baseline`)
+  console.log(`  plugins        : ${sign(rep.delta.pluginTokens)} tokens`)
+  console.log(`  TOTAL          : ${sign(rep.delta.total)} tokens`)
+  console.log("")
   console.log(`SAVINGS: ${rep.savingsPct}% (goal >= 40%)`)
+  console.log(`  Baseline = snapshot historico del PRD 2026-08-12-optimize-pack-token-consumption.`)
+  console.log(`  No se re-escribe: actualizarla haria que el goal fuera auto-cumplible.`)
+  if (rep.savingsPct < 40) {
+    console.log(`  Mayor palanca para bajar boot: el numero de MCPs activos (~400 tokens c/u).`)
+    console.log(`  Hoy: ${rep.mcpCount} activos (${rep.mcpNames.join(", ") || "ninguno"}).`)
+  }
   console.log("")
 
   if (scenario === "greeting") {

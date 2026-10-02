@@ -1,6 +1,6 @@
 ---
 name: turso-libsql
-description: Turso/libSQL patterns for edge databases, embedded replicas, and global distribution. Use when working with Turso, libSQL, or needing a SQLite-compatible edge database.
+description: Use when working with Turso or libSQL, or when you need a SQLite-compatible edge database with embedded replicas and global distribution.
 triggers: [turso, libsql, edge-database, sqlite, embedded-replica, global-database]
 ---
 

@@ -110,20 +110,51 @@ function renderMarkdown(c) {
   return lines.join('\n');
 }
 
+// Los marcadores SOLO cuentan si estan solos en su linea. El CHANGELOG cita
+// `<!-- COUNTS-START -->` dentro de una frase: con indexOf() generico,
+// --update inyectaba el bloque en mitad del texto y --check lo marcaba
+// STALE para siempre. Anclar a la linea elimina ambos falsos positivos.
+function findMarkers(text) {
+  const startMatch = /^<!-- COUNTS-START -->[ \t]*\r?$/m.exec(text);
+  if (!startMatch) return null;
+  const startIdx = startMatch.index;
+  const endMatch = /^<!-- COUNTS-END -->[ \t]*\r?$/m.exec(text.slice(startIdx));
+  if (!endMatch) return null;
+  return {
+    startIdx,
+    endIdx: startIdx + endMatch.index,
+    endLen: endMatch[0].length,
+  };
+}
+
 function updateFile(file, block) {
   const text = fs.readFileSync(file, 'utf8');
-  const start = '<!-- COUNTS-START -->';
-  const end = '<!-- COUNTS-END -->';
-  const startIdx = text.indexOf(start);
-  const endIdx = text.indexOf(end);
-  if (startIdx === -1 || endIdx === -1) {
+  const m = findMarkers(text);
+  if (!m) {
     return { ok: false, reason: 'no markers' };
   }
-  const before = text.slice(0, startIdx);
-  const after = text.slice(endIdx + end.length);
-  const next = before + block + after;
-  fs.writeFileSync(file, next, 'utf8');
+  const before = text.slice(0, m.startIdx);
+  const after = text.slice(m.endIdx + m.endLen);
+  fs.writeFileSync(file, before + block + after, 'utf8');
   return { ok: true };
+}
+
+function findCountFiles(dir, out = []) {
+  let entries;
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return out; }
+  for (const e of entries) {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) {
+      if (e.name === 'node_modules' || e.name === '.git') continue;
+      findCountFiles(full, out);
+    } else if (e.name.endsWith('.md')) {
+      try {
+        const t = fs.readFileSync(full, 'utf8');
+        if (findMarkers(t)) out.push(full);
+      } catch { /* unreadable */ }
+    }
+  }
+  return out;
 }
 
 function main() {
@@ -155,13 +186,19 @@ function main() {
   }
 
   if (check) {
-    // Verify each candidate file matches what counts.js would emit
-    const files = args.filter(a => !a.startsWith('--') && fs.existsSync(a));
+    // Verify each candidate file matches what counts.js would emit.
+    // Sin archivos explicitos hay que DESCUBRIRLOS: con `files = []` el
+    // `bad = 0` devolvia siempre exit 0, o sea un falso verde que no
+    // valido absolutamente nada.
+    let files = args.filter(a => !a.startsWith('--') && fs.existsSync(a));
+    if (files.length === 0) files = findCountFiles(ROOT);
     let bad = 0;
+    // normalize: el bloque se emite con \n, un archivo en CRLF no es "stale"
+    const norm = (s) => s.replace(/\r\n/g, '\n');
     for (const f of files) {
       const text = fs.readFileSync(f, 'utf8');
-      if (!text.includes('<!-- COUNTS-START -->') || !text.includes('<!-- COUNTS-END -->')) continue;
-      if (!text.includes(block)) {
+      if (!findMarkers(text)) continue;
+      if (!norm(text).includes(norm(block))) {
         process.stdout.write(`STALE: ${f}\n`);
         bad++;
       }

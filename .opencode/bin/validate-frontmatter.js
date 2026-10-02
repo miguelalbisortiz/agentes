@@ -71,7 +71,11 @@ function parseFrontmatter(content) {
   const end = stripped.indexOf('\n---', 3);
   if (end === -1) return null;
   const block = stripped.substring(3, end);
-  const lines = block.split(/\r?\n/);
+  // CRLF: la ultima linea del bloque conserva el \r final. Como el regex de
+  // key/value usa `.` (que NO matchea \r) y `$` sin flag `m`, esa linea se
+  // descartaba en silencio y se perdia el ULTIMO campo del frontmatter
+  // (normalmente `agent:`). Se normaliza el fin de linea antes de parsear.
+  const lines = block.split(/\r?\n/).map((l) => l.replace(/\r+$/, ''));
   const fm = {};
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -218,7 +222,16 @@ function validateCommand(file) {
   }
 
   if (fm.agent) {
-    log('ok', `command/${base} agent: ${fm.agent}`);
+    const a = String(fm.agent).trim();
+    // `build`, `plan`, `explore`... son built-ins de OpenCode: no son archivos .md
+    const BUILTIN = ['build', 'plan', 'general', 'explore', 'compaction', 'title', 'task', 'session'];
+    const isBuiltin = BUILTIN.includes(a);
+    const exists = fs.existsSync(path.join(CWD, '.opencode', 'agents', `${a}.md`));
+    if (isBuiltin || exists) {
+      log('ok', `command/${base} agent: ${a}${isBuiltin ? ' (builtin)' : ''}`);
+    } else {
+      log('fail', `command/${base}`, `agent: "${a}" not found in .opencode/agents/ -> orphan command`);
+    }
   } else {
     log('warn', `command/${base}`, 'no `agent:` in frontmatter (will run in primary agent context)');
   }
