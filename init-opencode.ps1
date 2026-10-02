@@ -217,6 +217,83 @@ function Copy-ItemSafe {
     }
 }
 
+# --- Fusion conservadora de archivos raiz ---
+# Regla: el proyecto MANDA. Solo se añaden del pack las entradas que faltan.
+# Nunca se pisa lo que el proyecto ya tenia (perderia .env, build/, MCPs propios...).
+function Merge-Gitignore {
+    param([string]$Source, [string]$Destination)
+    if (-not (Test-Path $Source)) { $script:skipped++; return }
+    if (-not (Test-Path $Destination)) {
+        Copy-ItemSafe -Source $Source -Destination $Destination -Description ".gitignore" -IsFile
+        return
+    }
+    try {
+        $dest = @(Get-Content $Destination -ErrorAction Stop)
+        $pack = @(Get-Content $Source -ErrorAction Stop)
+        $missing = @($pack | Where-Object { $_.Trim().Length -gt 0 -and ($dest -cnotcontains $_) })
+        if ($missing.Count -eq 0) {
+            Write-Host "  [OK] .gitignore (sin cambios: $($dest.Count) entradas propias ya cubren el pack)" -ForegroundColor Green
+            $script:copied++
+            return
+        }
+        Add-Content -Path $Destination -Value "" -Encoding UTF8
+        Add-Content -Path $Destination -Value $missing -Encoding UTF8
+        Write-Host "  [OK] .gitignore (fusionado: +$($missing.Count) del pack, $($dest.Count) propias conservadas)" -ForegroundColor Green
+        $script:copied++
+    } catch {
+        Write-Host "  [ERROR] .gitignore - $($_.Exception.Message)" -ForegroundColor Red
+        $script:errors++
+    }
+}
+
+function Merge-JsonConservative {
+    param([string]$Source, [string]$Destination, [string]$Description)
+    if (-not (Test-Path $Source)) { $script:skipped++; return }
+    if (-not (Test-Path $Destination)) {
+        Copy-ItemSafe -Source $Source -Destination $Destination -Description $Description -IsFile
+        return
+    }
+    try {
+        $dstRaw = Get-Content $Destination -Raw -ErrorAction Stop
+        $srcRaw = Get-Content $Source -Raw -ErrorAction Stop
+        $dst = $dstRaw | ConvertFrom-Json -ErrorAction Stop
+        $src = $srcRaw | ConvertFrom-Json -ErrorAction Stop
+        $changed = $false
+        foreach ($p in $src.PSObject.Properties) {
+            if (-not $dst.PSObject.Properties[$p.Name]) {
+                $dst | Add-Member -NotePropertyName $p.Name -NotePropertyValue $p.Value
+                $changed = $true
+                continue
+            }
+            # Objetos anidados que crecen por claves: mcp / skills / plugin
+            if ($p.Value -is [System.Management.Automation.PSCustomObject] -and
+                $dst.$($p.Name) -is [System.Management.Automation.PSCustomObject]) {
+                foreach ($k in $p.Value.PSObject.Properties) {
+                    if (-not $dst.$($p.Name).PSObject.Properties[$k.Name]) {
+                        $dst.$($p.Name) | Add-Member -NotePropertyName $k.Name -NotePropertyValue $k.Value
+                        $changed = $true
+                    }
+                }
+            }
+        }
+        if (-not $changed) {
+            Write-Host "  [OK] $Description (sin cambios: lo del proyecto ya lo cubre)" -ForegroundColor Green
+            $script:copied++
+            return
+        }
+        $newJson = $dst | ConvertTo-Json -Depth 32
+        # Comprobacion de integridad antes de escribir
+        $null = $newJson | ConvertFrom-Json
+        Set-Content -Path $Destination -Value $newJson -Encoding UTF8
+        Write-Host "  [OK] $Description (fusionado conservador: solo claves nuevas del pack)" -ForegroundColor Green
+        $script:copied++
+    } catch {
+        # Si algo no parsea, no toco el archivo del proyecto
+        Write-Host "  [WARN] $Description ilegible -> se conserva el del proyecto (no se sobreescribe)" -ForegroundColor Yellow
+        $script:skipped++
+    }
+}
+
 # Contadores
 $script:copied = 0
 $script:skipped = 0
@@ -229,9 +306,10 @@ Write-Host "----------------------------------------------------" -ForegroundCol
 Write-Host "[1/7] Archivos raiz..." -ForegroundColor Yellow
 Write-Host "----------------------------------------------------" -ForegroundColor DarkGray
 
-Copy-ItemSafe -Source (Join-Path $PackPath "opencode.json") -Destination (Join-Path $ProjectPath "opencode.json") -Description "opencode.json (MCPs: context7, supabase, vercel, stripe)" -IsFile
-Copy-ItemSafe -Source (Join-Path $PackPath "skills-lock.json") -Destination (Join-Path $ProjectPath "skills-lock.json") -Description "skills-lock.json" -IsFile
-Copy-ItemSafe -Source (Join-Path $PackPath ".gitignore") -Destination (Join-Path $ProjectPath ".gitignore") -Description ".gitignore" -IsFile
+# Fusion conservadora: el proyecto manda, el pack solo aporta lo que falta.
+Merge-JsonConservative -Source (Join-Path $PackPath "opencode.json") -Destination (Join-Path $ProjectPath "opencode.json") -Description "opencode.json (MCPs: context7, supabase, vercel, stripe)"
+Merge-JsonConservative -Source (Join-Path $PackPath "skills-lock.json") -Destination (Join-Path $ProjectPath "skills-lock.json") -Description "skills-lock.json"
+Merge-Gitignore -Source (Join-Path $PackPath ".gitignore") -Destination (Join-Path $ProjectPath ".gitignore")
 
 # ============================================================
 # FASE 2: .opencode/ COMPLETO
