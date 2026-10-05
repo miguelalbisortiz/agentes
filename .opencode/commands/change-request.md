@@ -156,16 +156,17 @@ Siguiente: /verify → /audit-report
 
 ```bash
 # Al iniciar
-node .opencode/bin/state.js init change-request "" [<prd-path>]
+STATE="$(node .opencode/bin/state.js init change-request "$ARGUMENTS" [<prd-path>])"
+# $STATE guarda la ruta que imprime init; se reutiliza en las llamadas siguientes
 
 # Tras capturar impacto
-node .opencode/bin/state.js update "" impact '{"agentsInvoked":["prd-agent"],"filesModified":[]}'
+node .opencode/bin/state.js update "$STATE" impact '{"agentsInvoked":["prd-agent"],"filesModified":[]}'
 
 # Al aplicar
-node .opencode/bin/state.js update "" applied '{"agentsInvoked":["prd-agent"],"filesModified":["<prd>","<plan>"]}'
+node .opencode/bin/state.js update "$STATE" applied '{"agentsInvoked":["prd-agent"],"filesModified":["<prd>","<plan>"]}'
 
 # Fin
-node .opencode/bin/state.js complete ""
+node .opencode/bin/state.js complete "$STATE"
 # Error
-node .opencode/bin/state.js fail "" "<mensaje>"
+node .opencode/bin/state.js fail "$STATE" "<mensaje>"
 ```

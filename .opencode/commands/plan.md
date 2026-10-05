@@ -168,17 +168,17 @@ Este flujo escribe en `docs/state/` para poder resumirse tras una interrupción.
 
 ```bash
 # Al inicio del flujo
-node .opencode/bin/state.js init plan "" [<prd-path>]
-# Capturar el path que imprime
+STATE="$(node .opencode/bin/state.js init plan "$ARGUMENTS" [<prd-path>])"
+# $STATE guarda la ruta que imprime init; se reutiliza en las llamadas siguientes
 
 # Después de cada fase
-node .opencode/bin/state.js update "" <phase> '{"agentsInvoked":["..."],"filesModified":["..."]}'
+node .opencode/bin/state.js update "$STATE" <phase> '{"agentsInvoked":["..."],"filesModified":["..."]}'
 
 # Al terminar bien
-node .opencode/bin/state.js complete ""
+node .opencode/bin/state.js complete "$STATE"
 
 # En error
-node .opencode/bin/state.js fail "" "<mensaje de error>"
+node .opencode/bin/state.js fail "$STATE" "<mensaje de error>"
 ```
 
 El flujo es reanudable: si se interrumpe, `/session-start` detecta states activos en `docs/state/` y ofrece resumir desde `currentPhase`.

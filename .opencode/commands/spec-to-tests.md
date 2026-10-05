@@ -123,9 +123,9 @@ Tras escribir:
 ## State Persistence (REQUIRED)
 
 ```bash
-node .opencode/bin/state.js init spec-to-tests "" [<prd-path>]
-node .opencode/bin/state.js update "" generated '{"agentsInvoked":["testing-auto"],"filesModified":[]}'
-node .opencode/bin/state.js update "" executed '{"agentsInvoked":["testing-auto"],"filesModified":["<tests>"]}'
-node .opencode/bin/state.js complete ""
-node .opencode/bin/state.js fail "" "<mensaje>"
+STATE="$(node .opencode/bin/state.js init spec-to-tests "$ARGUMENTS" [<prd-path>])"
+node .opencode/bin/state.js update "$STATE" generated '{"agentsInvoked":["testing-auto"],"filesModified":[]}'
+node .opencode/bin/state.js update "$STATE" executed '{"agentsInvoked":["testing-auto"],"filesModified":["<tests>"]}'
+node .opencode/bin/state.js complete "$STATE"
+node .opencode/bin/state.js fail "$STATE" "<mensaje>"
 ```

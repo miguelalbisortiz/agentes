@@ -137,9 +137,9 @@ Y en `/verify`, la columna de evidencia debe apuntar a estas tareas.
 ## State Persistence (REQUIRED)
 
 ```bash
-node .opencode/bin/state.js init tasks "" [<plan-path>]
-node .opencode/bin/state.js update "" breakdown '{"agentsInvoked":["planner"],"filesModified":[]}'
-node .opencode/bin/state.js update "" executing '{"agentsInvoked":["planner"],"filesModified":["<tasks>"]}'
-node .opencode/bin/state.js complete ""
-node .opencode/bin/state.js fail "" "<mensaje>"
+STATE="$(node .opencode/bin/state.js init tasks "$ARGUMENTS" [<plan-path>])"
+node .opencode/bin/state.js update "$STATE" breakdown '{"agentsInvoked":["planner"],"filesModified":[]}'
+node .opencode/bin/state.js update "$STATE" executing '{"agentsInvoked":["planner"],"filesModified":["<tasks>"]}'
+node .opencode/bin/state.js complete "$STATE"
+node .opencode/bin/state.js fail "$STATE" "<mensaje>"
 ```
