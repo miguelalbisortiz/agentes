@@ -42,7 +42,7 @@
         "@upstash/context7-mcp@3.2.3"
       ],
       "env": {},
-      "use_when": "Library/framework questions where training data may be stale (React, Next.js, Prisma, etc.) — prefer `/docs-lookup` skill."
+      "use_when": "Library/framework questions where training data may be stale (React, Next.js, Prisma, etc.) — prefer the `documentation-lookup` skill."
     },
     {
       "name": "playwright",

@@ -50,7 +50,7 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 8. **`/definition-of-done`** — cierre formal.
 9. **`/change-request`** — cualquier cambio de alcance vuelve a pasar por la especificación.
 
-Complementos: `/spec-to-tests` (tests desde la especificación), `/quick-prd` (cambios pequeños), `/pack-reference` (manual completo).
+Complementos: `/spec-to-tests` (tests desde la especificación), `/quick-prd` (cambios pequeños), `pack-reference` (skill con el manual completo).
 
 ## El equipo se adapta a tu proyecto
 
