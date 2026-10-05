@@ -92,6 +92,8 @@
 | `/session-start` | Lee la Capa 1+2 de memoria y reporta un resumen compacto. Auto en señales de cierre. | build |
 | `/session-end` | Escribe snapshot, actualiza `LATEST.md`, refresca `PROJECT.md`, extrae 1-3 instintos. | build |
 | `/context-budget` | Audita el presupuesto de contexto: skills, agentes, comandos, sessions. | build |
+| `/tone` | Densidad de comunicación del agente primario: `/tone lite` (por defecto, sobrio) o `/tone full` (caveman ultra-comprimido). Para controlar el consumo de tokens por turno. | build |
+| `/project-init` | Inicializa, refresca o comprueba `docs/PROJECT.md`. Útil al empezar un proyecto, si está obsoleto o antes de una tarea no trivial. | build |
 | `/project-status` | Check freshness de `docs/PROJECT.md` sin escribir. Exit 0/1 (CI-friendly). | build |
 | `/refresh-project` | Regenera `docs/PROJECT.md` desde los archivos del proyecto. Soporta `--status`, `--auto`, `--dry-run`, `--check`. | build |
 
@@ -126,6 +128,10 @@
 |---------|----------|-------|
 | `/setup-pm` | Configura la preferencia de package manager. | build |
 | `/skill-create` | Genera skills a partir del análisis de git history. | build |
+| `/list-mcps` | Lista los MCPs del proyecto: activos (en `opencode.json`) y opcionales (en `mcp.optional.json`), con guía de cuándo usar cada uno. | build |
+| `/setup-mcp` | Activa o desactiva MCPs opcionales (GitHub, Postgres…). Solo opt-in: **no** se cargan por defecto. Recoge los secretos y parchea `opencode.json`. | build |
+| `/mcp-on` | Activa un MCP opcional para este proyecto (context7, playwright, github…). Parchea `opencode.json` y requiere reinicio. | build |
+| `/mcp-off` | Desactiva un MCP activo (p. ej. `/mcp-off context7`). Inverso exacto de `/mcp-on`. | build |
 
 ## "Quiero descubrir el pack"
 
