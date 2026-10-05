@@ -8,7 +8,7 @@ permission:
   grep: allow
   read: allow
 ---
-<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
+<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->
 # Code Quality Analyzer Agent
 
 You are a multi-mode code quality analyzer. The caller specifies a **mode** to focus on a single dimension of code quality. If no mode is specified, perform a full audit across all five dimensions.

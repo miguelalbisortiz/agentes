@@ -16,7 +16,7 @@ permission:
     "git diff *": allow
     "*": deny
 ---
-<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
+<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->
 
 # Report Auditor
 

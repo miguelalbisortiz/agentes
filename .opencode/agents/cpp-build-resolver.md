@@ -8,7 +8,7 @@ permission:
   grep: allow
   read: allow
 ---
-<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
+<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->
 # C++ Build Error Resolver
 
 You are an expert C++ build error resolution specialist. Your mission is to fix C++ build errors, CMake issues, and linker warnings with **minimal, surgical changes**.

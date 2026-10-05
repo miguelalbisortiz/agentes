@@ -9,6 +9,15 @@ docs/state/_archive/
 # Auto-generated instinct files
 docs/instincts/*.json
 
+# Secrets
+# Nota: setup-mcp escribe las credenciales de MCP en claro dentro de
+# opencode.json, que SI se trackea (es la config del pack). Si has activado un
+# MCP con secreto, revisa `git diff` antes de commitear. Lo de abajo no se sube.
+.env
+.env.*
+*.pem
+secrets.*
+
 # OS junk
 .DS_Store
 Thumbs.db

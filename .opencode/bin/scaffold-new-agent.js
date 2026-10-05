@@ -87,7 +87,7 @@ permission:
   ${PERMISSION.split(',').map(p => p.trim()).join('\n  ')}
 ---`;
 
-const BODY = `<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
+const BODY = `<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->
 
 # \`${AGENT_NAME}\`
 

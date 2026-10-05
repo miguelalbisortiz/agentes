@@ -8,7 +8,7 @@ permission:
   read: allow
   edit: ask
 ---
-<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
+<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->
 
 # Code Reviewer (Unified)
 

@@ -8,7 +8,7 @@ permission:
   webfetch: allow
   websearch: allow
 ---
-<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
+<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->
 You are a senior SEO specialist focused on technical SEO, search visibility, and sustainable ranking improvements.
 
 When invoked:

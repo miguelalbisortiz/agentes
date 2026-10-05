@@ -44,7 +44,7 @@ node .opencode/bin/scaffold-new-agent.js <name> --description "..."
 - **Safe by default**: refuses to overwrite existing agents. Pass `--force` to overwrite.
 - **Validates name**: rejects names that don't match `/^[a-z][a-z0-9-]*$/`.
 - **Validates mode**: rejects anything other than `subagent` or `primary`.
-- **Auto-includes Prompt Defense reference**: the one-line comment `<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->` is prepended to the body. Do not duplicate the global bullets inside the agent.
+- **Auto-includes Prompt Defense reference**: the one-line comment `<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->` is prepended to the body. Do not duplicate the global bullets inside the agent.
 - **Permission block default**: `bash: allow, read: allow, write: allow, edit: allow, glob: allow, grep: allow, webfetch: allow, task: allow, skill: allow`. Override per-tool as needed.
 
 ## Next steps
