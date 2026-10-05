@@ -180,7 +180,7 @@ Desde la raíz del proyecto instalado:
 | El instalador no rompe nada (T1–T7) | `powershell -File .opencode/bin/installer-test.ps1` |
 | Presupuesto de tokens vs baseline | `node .opencode/bin/measure-tokens.js` |
 
-Estado actual del pack maestro: `validate` **479 / 0 warnings / 0 fallos** · `smoke-test` **24/24** · `installer-test` **48/48**.
+Estado actual del pack maestro: `validate` **477 / 0 warnings / 0 fallos** · `smoke-test` **31/31** · `installer-test` **48/48**.
 
 ### Paso 4 — Arranca opencode
 
