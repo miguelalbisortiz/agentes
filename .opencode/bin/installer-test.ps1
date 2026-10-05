@@ -137,13 +137,19 @@ try {
     foreach ($need in @('build/', '.dart_tool/', 'reportes/')) {
         if ($g -contains $need) { Ok ".gitignore conserva '$need'" } else { Bad ".gitignore PERDIO '$need'" }
     }
-    if (($g -join '|') -match '\.opencode/agent') { Ok '.gitignore añade el bloque de junctions del pack' } else { Bad 'falta el bloque de junctions' }
+    if (($g -join '|') -match '\.opencode/agent') { Ok '.gitignore anade el bloque de junctions del pack' } else { Bad 'falta el bloque de junctions' }
 
     $j = Get-Content (Join-Path $t2 'opencode.json') -Raw | ConvertFrom-Json
     if ($j.theme -eq 'mi-tema') { Ok 'opencode.json conserva theme propio' } else { Bad 'opencode.json PERDIO theme propio' }
     if ($j.model -eq 'mi-modelo') { Ok 'opencode.json conserva model propio' } else { Bad 'opencode.json PERDIO model propio' }
     if ($null -ne $j.mcp.'mi-mcp') { Ok 'opencode.json conserva MCP propio' } else { Bad 'opencode.json PERDIO MCP propio' }
-    if ($null -ne $j.mcp.context7 -and $null -ne $j.mcp.stripe) { Ok 'opencode.json añade los MCPs del pack' } else { Bad 'faltan MCPs del pack' }
+    $packMcpNames = @((Get-Content (Join-Path $pack 'opencode.json') -Raw | ConvertFrom-Json).mcp.PSObject.Properties.Name)
+    $missingMcp = @($packMcpNames | Where-Object { $j.mcp.PSObject.Properties.Name -notcontains $_ })
+    if ($packMcpNames.Count -gt 0 -and $missingMcp.Count -eq 0) {
+        Ok "opencode.json anade los $($packMcpNames.Count) MCP(s) del pack: $($packMcpNames -join ', ')"
+    } else {
+        Bad "faltan MCPs del pack (faltan: $($missingMcp -join ', ') / pack declara: $($packMcpNames -join ', '))"
+    }
 } catch { Bad "excepcion: $($_.Exception.Message)" }
 
 # ---------------------------------------------------------------- T3

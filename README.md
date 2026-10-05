@@ -15,7 +15,7 @@ No es una aplicación: es configuración + prompts + herramientas que se copian 
 - **40** skills (.agents/skills)
 - **16** native CLIs (.opencode/bin)
 - **3** npm plugins + **1** local plugin(s)
-- **4** active MCPs + **12** optional MCP(s)
+- **1** active MCP + **14** optional MCP(s)
 <!-- COUNTS-END -->
 
 ## Qué hace
@@ -189,7 +189,7 @@ Desde la raíz del proyecto instalado:
 
 Estado actual del pack maestro: `validate` **477 / 0 warnings / 0 fallos** · `lint-docs` **0 hallazgos en 223 .md** · `smoke-test` **31/31** · `installer-test` **48/48**.
 
-> `measure-tokens` sale hoy en rojo (**-22%** frente a una meta de ≥40% de ahorro): el arranque subió por tener 4 MCPs activos. No es un fallo del pack, es la palanca que queda por tirar.
+> `measure-tokens` sale en rojo (**+19%** frente a una meta de ≥40%): `AGENTS.md` pesa hoy 7570 bytes frente a los 7192 de la baseline, y nunca se ha recortado. La palanca de los MCPs ya está tirada — queda solo `context7`, y con **0** MCPs el techo sería +32% —, así que llegar al 40% exige reducir `AGENTS.md`. La baseline no se reescribe (actualizarla haría la meta auto-cumplible), de modo que el rojo es deliberado y honesto.
 
 ### Paso 4 — Arranca opencode
 

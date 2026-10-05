@@ -34,23 +34,29 @@ Activate an optional MCP from `.opencode/mcp.optional.json` and add it to `openc
 - **Secrets** — GitHub PATs and DB connection strings should not be in a portable pack that gets copied to other projects.
 - **Security** — active MCPs expand the agent's tool surface. Less is more by default.
 
-The pack ships with 2 MCPs always active (`context7`, `playwright`) because they have no secrets and are universally useful. The opt-ins require a user choice to enable.
+The pack ships with 1 MCP always active (`context7`) because it has no secrets and is universally useful. The opt-ins require a user choice to enable.
 
 ## Default active MCPs (do not touch via this command)
 
 | Name | Why default |
 |------|-------------|
 | `context7` | Library docs lookup, no secrets, useful for 90% of tasks |
-| `playwright` | E2E browser automation, no secrets, useful for testing/verification |
 
-## Available optional MCPs (in this version of the pack)
+## Available optional MCPs
 
-| Name | Purpose | Requires |
-|------|---------|----------|
-| `github` | Issues, PRs, code search across the org | `GITHUB_PERSONAL_ACCESS_TOKEN` |
-| `postgres` | Read-only SQL against a PostgreSQL DB | `POSTGRES_CONNECTION_STRING` |
+The catalog lives in `.opencode/mcp.optional.json`, grouped in its `_meta.categories`.
+The authoritative — and always current — list is:
 
-(More can be added by editing `.opencode/mcp.optional.json`.)
+```
+node .opencode/bin/setup-mcp.js --list
+```
+
+Roughly: code-hosting (`github`, `gitlab`) · data (`postgres`, `filesystem`, `supabase`) · observability (`sentry`) · productivity (`linear`, `notion`, `slack`) · web (`brave-search`, `fetch`) · deploy (`vercel`) · payments (`stripe`) · browser (`playwright`).
+
+All of them except `playwright` need a secret you provide at activation time.
+
+> This table used to enumerate the catalog by hand and silently went stale.
+> Do not re-expand it: `--list` reads the file, so it cannot rot.
 
 ## Reversal
 
@@ -95,11 +101,10 @@ or manually delete the entry from `opencode.json > mcp`. Backups of previous ver
 
   === MCP Status ===
 
-  Active MCPs (2):
+  Active MCPs (1):
     • context7  (local)
-    • playwright  (local)
 
-  Optional MCPs (2):
+  Optional MCPs (14):
     [ ]  github
     [x]  postgres
 ```
@@ -121,7 +126,7 @@ or manually delete the entry from `opencode.json > mcp`. Backups of previous ver
 
 ## When NOT to Use
 
-- You want to change the always-active MCPs (`context7`, `playwright`). Edit `opencode.json` manually.
+- You want to change the always-active MCP (`context7`). Edit `opencode.json` manually.
 - You want to add a brand new MCP that isn't in the template. Edit `.opencode/mcp.optional.json` first, then run this command.
 - You're unsure whether the MCP needs secrets. Read the template, then decide.
 

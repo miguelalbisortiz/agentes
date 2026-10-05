@@ -31,39 +31,6 @@
                 "-y",
                 "@upstash/context7-mcp@3.2.3"
             ]
-        },
-        "supabase": {
-            "type": "local",
-            "command": [
-                "npx",
-                "-y",
-                "@supabase/mcp-server@latest"
-            ],
-            "env": {
-                "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
-            }
-        },
-        "vercel": {
-            "type": "local",
-            "command": [
-                "npx",
-                "-y",
-                "@vercel/mcp-server@latest"
-            ],
-            "env": {
-                "VERCEL_TOKEN": "${VERCEL_TOKEN}"
-            }
-        },
-        "stripe": {
-            "type": "local",
-            "command": [
-                "npx",
-                "-y",
-                "@stripe/mcp-server@latest"
-            ],
-            "env": {
-                "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}"
-            }
         }
     }
 }

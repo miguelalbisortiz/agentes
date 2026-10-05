@@ -1,7 +1,7 @@
 {
   "_meta": {
     "description": "Optional MCPs (NOT loaded by default). Run `/setup-mcp` to activate any of these. Activation patches `opencode.json` and restarts opencode to take effect.",
-    "rationale": "100% value when needed, 0% cost (no boot slowdown, no leaked tokens) when not. context7 and playwright moved here from opencode.json on 2026-08-12 (token consumption opt-in); every MCP is now user-triggered. This file is only read by `node .opencode/bin/setup-mcp.js` (manual command); opencode itself never parses it.",
+    "rationale": "100% value when needed, 0% cost (no boot slowdown, no leaked tokens) when not. `playwright` moved here from opencode.json on 2026-08-12 (token consumption opt-in). `context7` stays default-active (library docs, no secrets) and is therefore NOT listed here. Every other MCP is user-triggered. This file is only read by `node .opencode/bin/setup-mcp.js` (manual command); opencode itself never parses it.",
     "schema_version": 2,
     "discoverable_via": "/setup-mcp --list",
     "categories": {
@@ -11,7 +11,8 @@
       ],
       "data": [
         "postgres",
-        "filesystem"
+        "filesystem",
+        "supabase"
       ],
       "observability": [
         "sentry"
@@ -24,26 +25,19 @@
       "web": [
         "brave-search",
         "fetch"
+      ],
+      "deploy": [
+        "vercel"
+      ],
+      "payments": [
+        "stripe"
       ]
     },
     "defaults": {
       "type": "local"
-    },
-    "_active_context7": "2026-08-12T16:45:47.570Z"
+    }
   },
   "optional_mcps": [
-    {
-      "name": "context7",
-      "description": "Up-to-date documentation for libraries/frameworks/APIs (live docs via Context7 MCP). Previously loaded by default; moved to opt-in on 2026-08-12 to cut boot tokens.",
-      "package": "@upstash/context7-mcp",
-      "command": [
-        "npx",
-        "-y",
-        "@upstash/context7-mcp@3.2.3"
-      ],
-      "env": {},
-      "use_when": "Library/framework questions where training data may be stale (React, Next.js, Prisma, etc.) — prefer the `documentation-lookup` skill."
-    },
     {
       "name": "playwright",
       "description": "Browser automation for E2E tests and web scraping (Playwright MCP). Previously loaded by default; moved to opt-in on 2026-08-12 to cut boot tokens.",
@@ -250,6 +244,60 @@
         }
       },
       "use_when": "Working on a GitLab-hosted project, fetching MRs for review, searching code across a GitLab org, releasing from a GitLab CI pipeline."
+    },
+    {
+      "name": "supabase",
+      "description": "Query and manage a Supabase project: list tables, run SQL, inspect schema, read auth users and storage objects. Requires a Supabase access token.",
+      "package": "@supabase/mcp-server",
+      "command": [
+        "npx",
+        "-y",
+        "@supabase/mcp-server@latest"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": {
+          "description": "Supabase access token. Create one at https://supabase.com/dashboard/account/tokens. Lets the agent read schema and run queries against your projects.",
+          "secret": true,
+          "required": true
+        }
+      },
+      "use_when": "Debugging a Supabase backend, inspecting tables or RLS policies, validating migrations, checking auth or storage data during development."
+    },
+    {
+      "name": "vercel",
+      "description": "Manage Vercel projects, deployments, domains and environment variables from the agent. Requires a Vercel access token.",
+      "package": "@vercel/mcp-server",
+      "command": [
+        "npx",
+        "-y",
+        "@vercel/mcp-server@latest"
+      ],
+      "env": {
+        "VERCEL_TOKEN": {
+          "description": "Vercel access token. Create one at https://vercel.com/account/tokens. Scope decides whether the agent can read or also mutate deployments.",
+          "secret": true,
+          "required": true
+        }
+      },
+      "use_when": "Checking deployment status after a push, reading build logs from a failed deploy, listing environment variables, promoting or rolling back a release."
+    },
+    {
+      "name": "stripe",
+      "description": "Read Stripe customers, subscriptions, invoices, payments and events. Requires a Stripe secret key.",
+      "package": "@stripe/mcp-server",
+      "command": [
+        "npx",
+        "-y",
+        "@stripe/mcp-server@latest"
+      ],
+      "env": {
+        "STRIPE_SECRET_KEY": {
+          "description": "Stripe secret key (sk_...). Prefer a TEST-mode key unless there is a specific reason not to. Create one at https://dashboard.stripe.com/test/apikeys.",
+          "secret": true,
+          "required": true
+        }
+      },
+      "use_when": "Debugging a failed payment, inspecting a subscription state, correlating webhooks with app data, verifying what a customer was actually charged."
     }
   ]
 }

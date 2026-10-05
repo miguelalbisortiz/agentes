@@ -105,7 +105,7 @@ function renderMarkdown(c) {
   lines.push(`- **${c.skills}** skills (.agents/skills)`);
   lines.push(`- **${c.clis}** native CLIs (.opencode/bin)`);
   lines.push(`- **${c.plugins_npm}** npm plugins + **${c.plugins_local}** local plugin(s)`);
-  lines.push(`- **${c.mcps_active}** active MCPs + **${c.mcps_optional}** optional MCP(s)`);
+  lines.push(`- **${c.mcps_active}** active MCP${c.mcps_active === 1 ? '' : 's'} + **${c.mcps_optional}** optional MCP(s)`);
   lines.push('<!-- COUNTS-END -->');
   return lines.join('\n');
 }

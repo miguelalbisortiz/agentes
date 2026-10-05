@@ -13,7 +13,7 @@ Pack portable de opencode. Cópialo a cualquier proyecto, reinicia opencode y em
 - **40** skills (.agents/skills)
 - **16** native CLIs (.opencode/bin)
 - **3** npm plugins + **1** local plugin(s)
-- **4** active MCPs + **12** optional MCP(s)
+- **1** active MCP + **14** optional MCP(s)
 <!-- COUNTS-END -->
 
 > Las cifras exactas (agentes, commands, skills, plugins, MCPs, CLIs) están en el bloque `## Counts` de abajo. Se regenera con `node .opencode/bin/counts.js --update .opencode/README.md .opencode/manual/README.md .agents/skills/INDEX.md`.
