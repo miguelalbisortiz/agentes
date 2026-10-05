@@ -27,7 +27,7 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 | **Agents** | *Quién* hace el trabajo: roles especializados (`code-reviewer`, `security-reviewer`, `build-error-resolver`, `tdd-guide`, revisores por lenguaje...). Cada uno con descripción, modo y permisos propios. |
 | **Commands** | *Qué escribes tú*: `/prd`, `/spec-lint`, `/plan`, `/tasks`, `/verify`... El `AGENTS.md` global obliga a pasos verificables: no se puede saltar la escritura de la especificación. |
 | **Skills** | *Conocimiento que se carga solo cuando hace falta* (patrones, checklists, marcos). No ocupan contexto permanente. |
-| **CLIs** | *La máquina que valida*: frontmatter, smoke-test, conteos, test del instalador, presupuesto de tokens. |
+| **CLIs** | *La máquina que valida*: frontmatter, prosa (enlaces rotos y mojibake), smoke-test, conteos, test del instalador, presupuesto de tokens. |
 | **MCPs / plugins** | Conexiones externas (context7, supabase, vercel, stripe) y hooks de comportamiento. |
 
 ## El flujo SDD
@@ -50,7 +50,13 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 8. **`/definition-of-done`** — cierre formal.
 9. **`/change-request`** — cualquier cambio de alcance vuelve a pasar por la especificación.
 
+**Todo el ciclo de una vez**: `/orchestrate` encadena el flujo multi-agente completo y arranca en la Fase 0 invocando solo al `prd-agent`, para que la especificación no se pueda saltar ni a mano.
+
+**Flujos pre-armados**: para los cuatro casos habituales ya viene el recorrido montado — `/flow-feature`, `/flow-bugfix`, `/flow-refactor` y `/flow-security`. Si el final es publicar, `/opensource-pipeline` hace lo suyo.
+
 Complementos: `/spec-to-tests` (tests desde la especificación), `/quick-prd` (cambios pequeños), `pack-reference` (skill con el manual completo).
+
+La lista completa de los **70 comandos**, agrupados por intención, está en [`.opencode/manual/COMMANDS.md`](.opencode/manual/COMMANDS.md); el mapa de los **85 agents** por intención, en [`.opencode/manual/ROUTE.md`](.opencode/manual/ROUTE.md).
 
 ## El equipo se adapta a tu proyecto
 
@@ -58,7 +64,7 @@ SDD es un **estándar**, no una plantilla con el mismo equipo para todos: el pro
 
 **Siempre entra** — el núcleo spec-driven, que no depende de ningún lenguaje:
 
-`/prd` · `/spec-lint` · `/plan` · `/tasks` · `/verify` · `/audit-report` · `/trace` · `/definition-of-done` · `/change-request`
+`/prd` · `/spec-lint` · `/plan` · `/tasks` · `/orchestrate` · `/verify` · `/audit-report` · `/trace` · `/definition-of-done` · `/change-request`
 
 y con ellos los agents de proceso: `prd-agent`, `planner`, `tdd-guide`, `code-reviewer`, `security-reviewer`, `doc-updater`, `report-auditor`... **Estos nunca se podan**: son los que sostienen las 9 fases de arriba.
 
@@ -175,12 +181,15 @@ Desde la raíz del proyecto instalado:
 | Chequeo | Comando |
 |---|---|
 | Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` |
+| Prosa: enlaces relativos rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` |
 | Salud general del pack | `node .opencode/bin/smoke-test.js` |
 | Los bloques `## Counts` reflejan lo real en disco | `node .opencode/bin/counts.js --check` |
 | El instalador no rompe nada (T1–T7) | `powershell -File .opencode/bin/installer-test.ps1` |
 | Presupuesto de tokens vs baseline | `node .opencode/bin/measure-tokens.js` |
 
-Estado actual del pack maestro: `validate` **477 / 0 warnings / 0 fallos** · `smoke-test` **31/31** · `installer-test` **48/48**.
+Estado actual del pack maestro: `validate` **477 / 0 warnings / 0 fallos** · `lint-docs` **0 hallazgos en 223 .md** · `smoke-test` **31/31** · `installer-test` **48/48**.
+
+> `measure-tokens` sale hoy en rojo (**-22%** frente a una meta de ≥40% de ahorro): el arranque subió por tener 4 MCPs activos. No es un fallo del pack, es la palanca que queda por tirar.
 
 ### Paso 4 — Arranca opencode
 
@@ -221,11 +230,13 @@ Vuelve a ejecutar el mismo comando con la misma ruta. Como la instalación es id
 ├── .agents/skills/           Skills + el router (dispatcher)
 └── .opencode/
     ├── AGENTS.md             Reglas globales de comportamiento
+    ├── AGENTS_INDEX.md       Índice de agents (autogenerado)
     ├── agents/               Agents
     ├── commands/             Slash commands
     ├── bin/                  CLIs de validación y utilidades
     ├── manual/               Documentación de referencia
-    └── examples/             Proyectos de ejemplo
+    ├── plugins/              Hooks de comportamiento
+    └── templates/            Plantillas (PROJECT.md, etc.)
 ```
 
 Los ficheros `AGENTS_INDEX.md`, `skills/INDEX.md` y los bloques `## Counts` son **autogenerados**: se regeneran solos en cada instalación, así que nunca llevan cifras falsas.
