@@ -124,8 +124,8 @@ Tras escribir:
 
 ```bash
 STATE="$(node .opencode/bin/state.js init spec-to-tests "$ARGUMENTS" [<prd-path>])"
-node .opencode/bin/state.js update "$STATE" generated '{"agentsInvoked":["testing-auto"],"filesModified":[]}'
-node .opencode/bin/state.js update "$STATE" executed '{"agentsInvoked":["testing-auto"],"filesModified":["<tests>"]}'
+node .opencode/bin/state.js update "$STATE" 1 '{"phase":"generated","agentsInvoked":["testing-auto"],"filesModified":[]}'
+node .opencode/bin/state.js update "$STATE" 2 '{"phase":"executed","agentsInvoked":["testing-auto"],"filesModified":["<tests>"]}'
 node .opencode/bin/state.js complete "$STATE"
 node .opencode/bin/state.js fail "$STATE" "<mensaje>"
 ```

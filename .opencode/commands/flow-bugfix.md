@@ -93,8 +93,8 @@ This flow writes to `docs/state/` so it can be resumed after interruption. See `
 STATE="$(node .opencode/bin/state.js init flow-bugfix "$ARGUMENTS" [<prd-path>])"
 # $STATE holds the path printed by init; reuse it in the calls below
 
-# After each phase
-node .opencode/bin/state.js update "$STATE" <phase> '{"agentsInvoked":["..."],"filesModified":["..."]}'
+# After each phase — growing phase number (1, 2, ...); readable name goes in the JSON
+node .opencode/bin/state.js update "$STATE" 1 '{"phase":"<phase-name>","agentsInvoked":["..."],"filesModified":["..."]}'
 
 # On success
 node .opencode/bin/state.js complete "$STATE"

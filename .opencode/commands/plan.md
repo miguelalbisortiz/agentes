@@ -171,8 +171,8 @@ Este flujo escribe en `docs/state/` para poder resumirse tras una interrupción.
 STATE="$(node .opencode/bin/state.js init plan "$ARGUMENTS" [<prd-path>])"
 # $STATE guarda la ruta que imprime init; se reutiliza en las llamadas siguientes
 
-# Después de cada fase
-node .opencode/bin/state.js update "$STATE" <phase> '{"agentsInvoked":["..."],"filesModified":["..."]}'
+# Después de cada fase — número de fase creciente (1, 2, ...); el nombre legible va en el JSON
+node .opencode/bin/state.js update "$STATE" 1 '{"phase":"<nombre-de-fase>","agentsInvoked":["..."],"filesModified":["..."]}'
 
 # Al terminar bien
 node .opencode/bin/state.js complete "$STATE"

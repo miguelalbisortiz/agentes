@@ -71,9 +71,20 @@ function update(file, phase, contextJson, dryRun) {
     process.stderr.write(`hint: pass the full path from 'state.js init' or just the basename\n`);
     process.exit(1);
   }
+  // <phase> must be an integer. Non-numeric input used to sail through
+  // parseInt() and get stored as null in the JSON - a silent corruption
+  // that later made session-start resume from null. Fail loudly instead.
+  const phaseRaw = String(phase === undefined || phase === null ? '' : phase).trim();
+  const phaseNum = Number(phaseRaw);
+  if (phaseRaw === '' || !Number.isInteger(phaseNum)) {
+    process.stderr.write(`invalid phase: ${phaseRaw}\n`);
+    process.stderr.write(`hint: <phase> must be an integer (1, 2, 3...); keep the readable name in the context JSON as "phase"\n`);
+    process.exit(1);
+  }
+
   const state = readState(resolved);
   const before = JSON.parse(JSON.stringify(state));
-  state.currentPhase = parseInt(phase, 10);
+  state.currentPhase = phaseNum;
   if (!state.completed.includes(state.currentPhase)) {
     state.completed.push(state.currentPhase);
   }

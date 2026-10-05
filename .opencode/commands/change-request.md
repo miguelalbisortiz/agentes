@@ -160,10 +160,10 @@ STATE="$(node .opencode/bin/state.js init change-request "$ARGUMENTS" [<prd-path
 # $STATE guarda la ruta que imprime init; se reutiliza en las llamadas siguientes
 
 # Tras capturar impacto
-node .opencode/bin/state.js update "$STATE" impact '{"agentsInvoked":["prd-agent"],"filesModified":[]}'
+node .opencode/bin/state.js update "$STATE" 1 '{"phase":"impact","agentsInvoked":["prd-agent"],"filesModified":[]}'
 
 # Al aplicar
-node .opencode/bin/state.js update "$STATE" applied '{"agentsInvoked":["prd-agent"],"filesModified":["<prd>","<plan>"]}'
+node .opencode/bin/state.js update "$STATE" 2 '{"phase":"applied","agentsInvoked":["prd-agent"],"filesModified":["<prd>","<plan>"]}'
 
 # Fin
 node .opencode/bin/state.js complete "$STATE"
