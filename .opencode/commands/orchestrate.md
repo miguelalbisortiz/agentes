@@ -200,7 +200,7 @@ COMPLETADO | EN PROGRESO | BLOQUEADO
 3. Preguntar UNA vez: "Report en `docs/reports/{name}.report.md`. ¿Audito con report-auditor? (s/n)".
 4. Si `s`/`si`/`audita` → invocar `report-auditor` con el path del report.
 5. Si `n`/`skip` → respetar.
-6. Gates de cierre del ciclo SDD: correr `/trace` (matriz criterios PRD ↔ tareas ↔ tests) y después `/definition-of-done`, que cruza `/verify` + `/eval` + `/audit-report` + `/trace` en un único veredicto PASS/NO-CLOSE. Pega ambos resultados en el report bajo `## Criterios PRD`.
+6. Gates de cierre del ciclo SDD: correr `/trace` (matriz criterios PRD ↔ tareas ↔ tests) y después `/definition-of-done`, que cruza `/verify` + `/audit-report` + `/trace` en un único veredicto PASS/NO-CLOSE. Pega ambos resultados en el report bajo `## Criterios PRD`.
 7. Reportar al usuario: PRD + plan + report + audit (si se genero) + siguiente paso.
 
 ---

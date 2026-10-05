@@ -1,5 +1,5 @@
 ---
-description: "Gate unico de cierre: cruza /verify + /eval + /audit-report + /trace en UN solo veredicto PASS/NO-CLOSE con la lista exacta de lo que bloquea. Responde '¿esto esta listo para dar por terminado?' sin correr 4 comandos a mano. Use al final de un feature, antes de merge/commit grande, o cuando el user diga '¿ya esta listo?'"
+description: "Gate unico de cierre: cruza /verify + /audit-report + /trace en UN solo veredicto PASS/NO-CLOSE con la lista exacta de lo que bloquea. Responde '¿esto esta listo para dar por terminado?' sin correr 3 comandos a mano. Use al final de un feature, antes de merge/commit grande, o cuando el user diga '¿ya esta listo?'"
 agent: report-auditor
 ---
 
@@ -7,7 +7,7 @@ agent: report-auditor
 
 Evaluar cierre de: $ARGUMENTS
 
-> **Por qué existe:** hoy para saber si algo está listo cruzas `/verify`, `/eval`,
+> **Por qué existe:** hoy para saber si algo está listo cruzas `/verify`,
 > `/audit-report` y `/trace` a mano. Este comando los agrega en **un veredicto** y
 > **una lista de bloqueos**. No reemplaza a esos comandos — los **consume**.
 
@@ -38,7 +38,7 @@ Un feature está **listo** solo si los 6 pasan. Cero excepciones:
 
 | # | Criterio | Fuente | Si falla |
 |---|---|---|---|
-| **D1** | **Spec** — todos los `SC-*`/`AC-*` tienen estado `PASS` (no `FAIL`, no `NOT-VERIFIED`) | report `/verify` + `/eval` | bloquea |
+| **D1** | **Spec** — todos los `SC-*`/`AC-*` tienen estado `PASS` (no `FAIL`, no `NOT-VERIFIED`) | report `/verify` | bloquea |
 | **D2** | **Técnicas** — analyze/lint/types/tests/build en verde para el stack | report `/verify` | bloquea |
 | **D3** | **Tareas** — `docs/tasks` en `status: DONE`, sin `[!]` bloqueadas | tasks | bloquea |
 | **D4** | **Auditoría** — `/audit-report` con veredicto `PASS` (no `PASS-WITH-NITS` con pendientes) | sección `## Auditoria` | bloquea |

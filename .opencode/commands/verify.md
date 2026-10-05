@@ -116,6 +116,20 @@ No resumir, no reescribir, no inventar criterios que no estén.
 | `FAIL` | La evidencia existe y **contradice** el criterio |
 | `NOT-VERIFIED` | No hay evidencia automatizable en esta corrida |
 
+### Cómo evaluar cada criterio según su tipo
+
+No todos los criterios se demuestran igual. Antes de buscar evidencia, clasifica cada uno para saber **qué vas a mirar**:
+
+| Tipo de grader | Cuándo aplica | Qué evidencia buscar |
+|---|---|---|
+| **Binario** | Se cumple o no: «el botón envía el correo», «`/tasks` rechaza un plan sin `APPROVED`» | Un test o una observación que lo confirme; no hay punto medio |
+| **Escalar** | Hay un número medible: latencia, cobertura, límite de peticiones | El valor medido **contra el umbral** que fija el criterio |
+| **Rúbrica** | Es juicio de calidad: accesibilidad, claridad del código, solidez del diseño | Bajarlo a casillas concretas y puntuarlas una a una |
+
+La clasificación cambia **cómo demuestras** el criterio, nunca **su estado**: siguen siendo `PASS` / `FAIL` / `NOT-VERIFIED`.
+
+> **Puntuación opcional (solo si la pide el usuario).** Asigna un peso a cada criterio y calcula `Σ(criterio × peso) / Σ(pesos)`. Es adicional: `/trace` y `/definition-of-done` leen los estados por criterio, no una media.
+
 ### REGLA CRÍTICA
 
 > **Que el build pase y los tests pasen NO hace `PASS` a un criterio de usuario.**

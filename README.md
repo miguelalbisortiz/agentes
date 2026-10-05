@@ -11,7 +11,7 @@ No es una aplicación: es configuración + prompts + herramientas que se copian 
 > Regenerate: `node .opencode/bin/counts.js --update <files...>`
 
 - **85** agents (.opencode/agents)
-- **71** commands (.opencode/commands)
+- **70** commands (.opencode/commands)
 - **40** skills (.agents/skills)
 - **15** native CLIs (.opencode/bin)
 - **3** npm plugins + **1** local plugin(s)
@@ -35,7 +35,7 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 ```text
 /prd ──▶ /spec-lint ──▶ /plan ──▶ /tasks ──▶ implementar
                                                 │
-   /definition-of-done ◀── /trace ◀── /audit-report ◀── /eval ◀── /verify
+   /definition-of-done ◀── /trace ◀── /audit-report ◀── /verify
                                                 ▲
                                   /change-request  (cambio de alcance)
 ```
@@ -46,7 +46,7 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 4. **`/tasks`** — desglose atado uno a uno a los criterios de aceptación.
 5. **Implementar** — con `tdd-guide`, `code-reviewer` y `security-reviewer`.
 6. **`/verify`** — ejecuta pruebas, linters y builds reales.
-7. **`/eval` → `/audit-report` → `/trace`** — evidencia: qué criterio cubre qué tarea y qué test.
+7. **`/audit-report` → `/trace`** — evidencia: qué criterio cubre qué tarea y qué test.
 8. **`/definition-of-done`** — cierre formal.
 9. **`/change-request`** — cualquier cambio de alcance vuelve a pasar por la especificación.
 
@@ -58,7 +58,7 @@ SDD es un **estándar**, no una plantilla con el mismo equipo para todos: el pro
 
 **Siempre entra** — el núcleo spec-driven, que no depende de ningún lenguaje:
 
-`/prd` · `/spec-lint` · `/plan` · `/tasks` · `/verify` · `/eval` · `/audit-report` · `/trace` · `/definition-of-done` · `/change-request`
+`/prd` · `/spec-lint` · `/plan` · `/tasks` · `/verify` · `/audit-report` · `/trace` · `/definition-of-done` · `/change-request`
 
 y con ellos los agents de proceso: `prd-agent`, `planner`, `tdd-guide`, `code-reviewer`, `security-reviewer`, `doc-updater`, `report-auditor`... **Estos nunca se podan**: son los que sostienen las 9 fases de arriba.
 

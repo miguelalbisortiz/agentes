@@ -769,7 +769,7 @@ if ($allGood -and $script:errors -eq 0) {
     Write-Host "    - Templates y estructura docs" -ForegroundColor White
     Write-Host ""
     Write-Host "  Ciclo Spec-Driven disponible desde el minuto 1:" -ForegroundColor Cyan
-    Write-Host "    /prd -> /spec-lint -> /plan -> /tasks -> /verify -> /eval -> /audit-report -> /trace" -ForegroundColor DarkCyan
+    Write-Host "    /prd -> /spec-lint -> /plan -> /tasks -> /verify -> /audit-report -> /trace" -ForegroundColor DarkCyan
     Write-Host "    (+ /change-request cuando el requisito cambie a mitad de ciclo)" -ForegroundColor DarkCyan
     Write-Host ""
     Write-Host "  Siguiente paso:" -ForegroundColor Cyan

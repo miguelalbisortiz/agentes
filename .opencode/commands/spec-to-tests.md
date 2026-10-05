@@ -1,5 +1,5 @@
 ---
-description: "Genera tests DESDE los Success Criteria del PRD: para cada AC produce el test que lo demuestra (o marca por que no es automatizable). Multi-stack. Rellena el hueco entre '/verify exige evidencia' y '/eval evalua'. Use post-/tasks, pre-/verify, o cuando falten tests para criterios."
+description: "Genera tests DESDE los Success Criteria del PRD: para cada AC produce el test que lo demuestra (o marca por que no es automatizable). Multi-stack. Rellena el hueco entre '/tasks descompone' y '/verify exige evidencia'. Use post-/tasks, pre-/verify, o cuando falten tests para criterios."
 agent: testing-auto
 ---
 
@@ -7,7 +7,7 @@ agent: testing-auto
 
 Generar tests desde los criterios: $ARGUMENTS
 
-> **Por qué existe:** `/eval` **evalúa** criterios y `/verify` **exige** evidencia, pero
+> **Por qué existe:** `/verify` **exige** evidencia de cada criterio, pero
 > **nadie genera los tests** que producen esa evidencia. Este comando cierra ese hueco:
 > va del *spec* al *test*, no del código al test.
 

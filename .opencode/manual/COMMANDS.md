@@ -30,12 +30,11 @@
 | `/e2e` | Genera y ejecuta tests E2E con Playwright. | e2e-runner |
 | `/test-coverage` | Analiza y mejora la cobertura de tests. | tdd-guide |
 | `/tdd` | Fuerza el workflow TDD con 80%+ de cobertura. | tdd-guide |
-| `/eval` | Ejecuta evaluación contra criterios de aceptación. | build |
 | `/checkpoint` | Guarda el estado de verificación y checkpoint de progreso. | build |
 | `/audit-report` | Cruza un report contra su PRD origen. Veredicto PASS / PASS-WITH-NITS / FAIL. | report-auditor |
 | `/trace` | **Trazabilidad bidireccional**: de un AC → plan/tasks/tests/archivos, y de un archivo → qué ACs toca. `--matrix` y `--gap`. Responde "¿qué se rompe si cambio esto?". | planner |
 | `/spec-to-tests` | Genera los tests **desde** los Success Criteria del PRD (unit/integration/E2E), nombrados con el id del AC para que `/verify` y `/trace` los vinculen. Marca `MANUAL` lo no automatizable. | testing-auto |
-| `/definition-of-done` | **Gate único de cierre**: cruza `/verify` + `/eval` + `/audit-report` + `/trace` en UN veredicto (READY / READY WITH BLOCKERS / NOT READY) con la lista de bloqueos. | report-auditor |
+| `/definition-of-done` | **Gate único de cierre**: cruza `/verify` + `/audit-report` + `/trace` en UN veredicto (READY / READY WITH BLOCKERS / NOT READY) con la lista de bloqueos. | report-auditor |
 
 ## "Quiero revisar por stack"
 
