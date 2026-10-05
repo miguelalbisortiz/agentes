@@ -653,7 +653,7 @@ function detect() {
         const stat = fs.statSync(path.join(dir, f));
         recent.push({
           type: sub.replace(/s$/, ''),  // 'prds' → 'prd'
-          file: `docs/${sub}/${f}`,
+          file: `${sub}/${f}`,
           title: f.replace(/^\d{4}-\d{2}-\d{2}_\d{4}-/, '').replace(/\.\w+$/, '').replace(/[-_]/g, ' '),
           date: stat.mtime.toISOString().slice(0, 10),
         });
@@ -787,7 +787,11 @@ function buildRecentActivityBlock(detected, existing) {
     const m = existing.match(re);
     if (m) {
       // Keep only lines that look like entries
-      const kept = m[1].split('\n').filter(l => /^-\s/.test(l) || l.trim() === '');
+      const kept = m[1].split('\n').filter(l => /^-\s/.test(l) || l.trim() === '')
+        // Legacy entries were written as docs/<sub>/<file>, but PROJECT.md lives inside
+        // docs/, so the correct relative path has no prefix. Normalise so a refresh
+        // doesn't duplicate every old entry once the generator stops adding it.
+        .map(l => l.replace(/\]\(docs\/(prds|plans|audits|reports|sessions)\//g, ']($1/'));
       // Drop trailing blanks
       while (kept.length > 0 && kept[kept.length - 1].trim() === '') kept.pop();
       if (kept.length > 0) lines.push(kept.join('\n'));

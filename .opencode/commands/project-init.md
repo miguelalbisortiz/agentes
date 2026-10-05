@@ -22,7 +22,7 @@ Based on `$ARGUMENTS`:
 | `status` | `--status` | Show freshness: `🟢 fresh` / `🟡 aging` / `🔴 stale` / `⚪ no project context` |
 | `check` | `--check` | Exit 1 if stale/missing (for CI/pre-commit) |
 | `dry-run` | `--dry-run` | Print to stdout, don't write |
-| `event <type> <name> [meta]` | `--append-event` | Append a single event to Recent Activity |
+| `event <type> <file> [meta]` | `--append-event` | Append a single event to Recent Activity. `<file>` is the link target, relative to `docs/`. |
 
 ### Run the CLI
 
@@ -37,7 +37,7 @@ node .opencode/bin/project-init.js --refresh
 node .opencode/bin/project-init.js --status
 node .opencode/bin/project-init.js --check
 node .opencode/bin/project-init.js --dry-run
-node .opencode/bin/project-init.js --append-event prd "My new feature" "scope + AC"
+node .opencode/bin/project-init.js --append-event plan plans/2026-07-27_1830-user-auth.plan.md "12/15 steps complete"
 ```
 
 ## When to use

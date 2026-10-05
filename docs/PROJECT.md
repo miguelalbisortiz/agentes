@@ -145,7 +145,7 @@
 <!-- auto-managed: appended by project-init.js. Do not edit by hand. -->
 
 
-- 2026-07-27 — [plan](docs/plans/2026-07-27_1122-pack-1.1-polish.plan.md): "pack 1.1 polish.plan"
-- 2026-07-27 — [audit](docs/audits/2026-07-27_1530-pack-1.1-audit.audit.md): "pack 1.1 audit.audit"
-- 2026-07-14 — [audit](docs/audits/2026-07-14_1530-pack-thorough-audit.audit.md): "pack thorough audit.audit"
-- 2026-07-14 — [session](docs/sessions/README.md): "README"
+- 2026-07-27 — [plan](plans/2026-07-27_1122-pack-1.1-polish.plan.md): "pack 1.1 polish.plan"
+- 2026-07-27 — [audit](audits/2026-07-27_1530-pack-1.1-audit.audit.md): "pack 1.1 audit.audit"
+- 2026-07-14 — [audit](audits/2026-07-14_1530-pack-thorough-audit.audit.md): "pack thorough audit.audit"
+- 2026-07-14 — [session](sessions/README.md): "README"

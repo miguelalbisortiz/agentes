@@ -55,9 +55,9 @@ Baja los plugins (vibeguard, pty, dcp) + `@opencode-ai/plugin` peer. Sin esto op
 
 Toda la documentación del pack vive dentro de `.opencode/manual/`, así se copia junto con el resto al instalar:
 
-- **[.opencode/manual/README.md](./.opencode/manual/README.md)** — punto de entrada, instalación, comandos principales
-- **[.opencode/manual/ROUTE.md](./.opencode/manual/ROUTE.md)** — qué sub-agente usar según la intención
-- **[.opencode/manual/COMMANDS.md](./.opencode/manual/COMMANDS.md)** — los slash commands por intención
-- **[.opencode/manual/EXAMPLES.md](./.opencode/manual/EXAMPLES.md)** — 5 flujos completos de proyectos reales
-- **[.opencode/manual/ARCH.md](./.opencode/manual/ARCH.md)** — 4 capas de memoria, flujo PRD, ciclo de instintos
-- **[.opencode/manual/SURFACES.md](./.opencode/manual/SURFACES.md)** — cuándo usar regla vs skill vs MCP vs agente vs CLI
+- **[.opencode/manual/README.md](./manual/README.md)** — punto de entrada, instalación, comandos principales
+- **[.opencode/manual/ROUTE.md](./manual/ROUTE.md)** — qué sub-agente usar según la intención
+- **[.opencode/manual/COMMANDS.md](./manual/COMMANDS.md)** — los slash commands por intención
+- **[.opencode/manual/EXAMPLES.md](./manual/EXAMPLES.md)** — 5 flujos completos de proyectos reales
+- **[.opencode/manual/ARCH.md](./manual/ARCH.md)** — 4 capas de memoria, flujo PRD, ciclo de instintos
+- **[.opencode/manual/SURFACES.md](./manual/SURFACES.md)** — cuándo usar regla vs skill vs MCP vs agente vs CLI
