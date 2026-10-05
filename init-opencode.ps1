@@ -368,7 +368,7 @@ Write-Host "[1/7] Archivos raiz..." -ForegroundColor Yellow
 Write-Host "----------------------------------------------------" -ForegroundColor DarkGray
 
 # Fusion conservadora: el proyecto manda, el pack solo aporta lo que falta.
-Merge-JsonConservative -Source (Join-Path $PackPath "opencode.json") -Destination (Join-Path $ProjectPath "opencode.json") -Description "opencode.json (MCPs: context7, supabase, vercel, stripe)"
+Merge-JsonConservative -Source (Join-Path $PackPath "opencode.json") -Destination (Join-Path $ProjectPath "opencode.json") -Description "opencode.json (MCP activo: context7; el resto, opt-in)"
 Merge-JsonConservative -Source (Join-Path $PackPath "skills-lock.json") -Destination (Join-Path $ProjectPath "skills-lock.json") -Description "skills-lock.json"
 Merge-Gitignore -Source (Join-Path $PackPath ".gitignore") -Destination (Join-Path $ProjectPath ".gitignore")
 

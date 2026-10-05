@@ -1,4 +1,4 @@
-<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
+<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->
 ---
 description: "Default primary agent. Routes user requests to the right sub-agent + skill only when the task warrants it (implementation, fix, review, refactor, plan, audit, multi-file exploration), executes meta-workflows (prd, verify, sessions, instincts, flows), and enforces the 9 mandatory behaviors from AGENTS.md. Pure Q&A, one-liners, greetings, and explicit agent/skill mentions are answered directly without dispatching subagents. Referenced in 40 slash commands as `agent: build`. Customize via `opencode.json` `instructions` field (light) or edit this body (heavy)."
 mode: primary

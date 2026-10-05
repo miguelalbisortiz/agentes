@@ -13,7 +13,7 @@ No es una aplicación: es configuración + prompts + herramientas que se copian 
 - **85** agents (.opencode/agents)
 - **70** commands (.opencode/commands)
 - **40** skills (.agents/skills)
-- **16** native CLIs (.opencode/bin)
+- **17** native CLIs (.opencode/bin)
 - **3** npm plugins + **1** local plugin(s)
 - **1** active MCP + **14** optional MCP(s)
 <!-- COUNTS-END -->
@@ -27,8 +27,8 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 | **Agents** | *Quién* hace el trabajo: roles especializados (`code-reviewer`, `security-reviewer`, `build-error-resolver`, `tdd-guide`, revisores por lenguaje...). Cada uno con descripción, modo y permisos propios. |
 | **Commands** | *Qué escribes tú*: `/prd`, `/spec-lint`, `/plan`, `/tasks`, `/verify`... El `AGENTS.md` global obliga a pasos verificables: no se puede saltar la escritura de la especificación. |
 | **Skills** | *Conocimiento que se carga solo cuando hace falta* (patrones, checklists, marcos). No ocupan contexto permanente. |
-| **CLIs** | *La máquina que valida*: frontmatter, prosa (enlaces rotos y mojibake), smoke-test, conteos, test del instalador, presupuesto de tokens. |
-| **MCPs / plugins** | Conexiones externas (context7, supabase, vercel, stripe) y hooks de comportamiento. |
+| **CLIs** | *La máquina que valida*: frontmatter, prosa (enlaces rotos y mojibake), cableado (command → agent → skill), smoke-test, conteos, test del instalador, presupuesto de tokens. |
+| **MCPs / plugins** | Conexiones externas: `context7` activo por defecto, 14 más en opt-in (`supabase`, `vercel`, `stripe`, `playwright`...) — cada uno se enciende con `/mcp-on`. Más los hooks de comportamiento. |
 
 ## El flujo SDD
 
@@ -182,12 +182,13 @@ Desde la raíz del proyecto instalado:
 |---|---|
 | Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` |
 | Prosa: enlaces relativos rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` |
+| Cableado: command → agent, y agents/skills alcanzables (W1–W8) | `node .opencode/bin/wiring-test.js` |
 | Salud general del pack | `node .opencode/bin/smoke-test.js` |
 | Los bloques `## Counts` reflejan lo real en disco | `node .opencode/bin/counts.js --check` |
 | El instalador no rompe nada (T1–T7) | `powershell -File .opencode/bin/installer-test.ps1` |
 | Presupuesto de tokens vs baseline | `node .opencode/bin/measure-tokens.js` |
 
-Estado actual del pack maestro: `validate` **477 / 0 warnings / 0 fallos** · `lint-docs` **0 hallazgos en 223 .md** · `smoke-test` **31/31** · `installer-test` **48/48**.
+Estado actual del pack maestro: `validate` **477 / 0 warnings / 0 fallos** · `lint-docs` **0 hallazgos en 223 .md** · `wiring-test` **8/8** · `smoke-test` **31/31** · `installer-test` **48/48**.
 
 > `measure-tokens` sale en rojo (**+19%** frente a una meta de ≥40%): `AGENTS.md` pesa hoy 7570 bytes frente a los 7192 de la baseline, y nunca se ha recortado. La palanca de los MCPs ya está tirada — queda solo `context7`, y con **0** MCPs el techo sería +32% —, así que llegar al 40% exige reducir `AGENTS.md`. La baseline no se reescribe (actualizarla haría la meta auto-cumplible), de modo que el rojo es deliberado y honesto.
 
