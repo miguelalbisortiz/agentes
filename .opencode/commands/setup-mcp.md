@@ -51,7 +51,7 @@ The authoritative — and always current — list is:
 node .opencode/bin/setup-mcp.js --list
 ```
 
-Roughly: code-hosting (`github`, `gitlab`) · data (`postgres`, `filesystem`, `supabase`) · observability (`sentry`) · productivity (`linear`, `notion`, `slack`) · web (`brave-search`, `fetch`) · deploy (`vercel`) · payments (`stripe`) · browser (`playwright`).
+Roughly: code-hosting (`github`, `gitlab`) · data (`postgres`, `filesystem`, `supabase`) · observability (`sentry`) · productivity (`linear`, `notion`, `slack`) · web (`brave-search`, `fetch`) · deploy (`vercel`) · payments (`stripe`) · testing (`playwright`).
 
 All of them except `playwright` need a secret you provide at activation time.
 

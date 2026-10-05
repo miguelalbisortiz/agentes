@@ -31,6 +31,9 @@
       ],
       "payments": [
         "stripe"
+      ],
+      "testing": [
+        "playwright"
       ]
     },
     "defaults": {
