@@ -384,7 +384,7 @@ Quick reference for "what kind of bug is this" — directs your diagnostic appro
 | **Deadlock** | Hang, threads/processes stuck | Lock order, lock-with-callback, missing release |
 | **Integer overflow** | Negative where positive expected, wraparound | Math, especially in typed languages with fixed widths |
 | **Timezone** | "It works in dev (UTC), fails in prod (EST)" | Date construction, ISO parsing, `new Date("2026-01-01")` is UTC, `new Date(2026, 0, 1)` is local |
-| **Encoding** | Mojibake, "Ã©" instead of "é" | UTF-8 vs Latin-1, byte/string confusion, `b` vs `str` |
+| **Encoding** | Mojibake, `Ã©` instead of `é` | UTF-8 vs Latin-1, byte/string confusion, `b` vs `str` |
 | **Floating point** | 0.1 + 0.2 !== 0.3, money calculations off | Use Decimal/BigInt for money, never float for currency |
 | **Async / Promise** | Order of operations wrong, missing await | Promise chain, `forEach` vs `for...of` (latter awaits) |
 | **Resource leak** | Memory grows, FDs exhaust over time | File handles, DB connections, listeners without removal |

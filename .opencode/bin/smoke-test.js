@@ -254,16 +254,20 @@ try {
 }
 
 console.log('');
-console.log('[Prose lint (lint-docs.js) — 5 reglas]');
+console.log('[Prose lint (lint-docs.js) — 7 reglas]');
 // validate-frontmatter y smoke-test daban verde con backticks rotos, frases
 // truncadas, sintaxis V1 y `state.js ""` en el repo: ninguno de los dos lee
-// prosa. lint-docs.js si.
+// prosa. lint-docs.js si. R6/R7 nacieron de una auditoria posterior que
+// encontro 12 enlaces muertos y 5 caracteres mojibake que todos los
+// demas verificadores pasaron en verde.
 const LINT_RULES = [
   ['R1', 'backticks sin cerrar'],
   ['R2', 'frases truncadas'],
   ['R3', 'sintaxis V1 de subagente'],
   ['R4', 'state.js con cadena vacia'],
   ['R5', 'fase de state no numerica'],
+  ['R6', 'enlaces relativos rotos'],
+  ['R7', 'mojibake / UTF-8 doble'],
 ];
 const lintOut = (() => {
   try {
@@ -274,7 +278,7 @@ const lintOut = (() => {
 })();
 // Si el script ni siquiera arranco, no damos verde por silencio.
 const lintRan = /lint-docs: \d+ \.md scanned/.test(lintOut);
-const lintFindings = lintOut.split('\n').filter((l) => /^\s+R[1-5]\s/.test(l));
+const lintFindings = lintOut.split('\n').filter((l) => /^\s+R[1-7]\s/.test(l));
 if (lintFindings.length && !QUIET) {
   console.log('  Hallazgos:');
   for (const l of lintFindings) console.log(`    ${l.trim()}`);
