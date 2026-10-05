@@ -1,4 +1,3 @@
-<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
 ---
 description: Plans large-scale migrations across database schemas, monorepo splits, framework upgrades, and language ports. Produces phased migration plans with rollback gates, data integrity checks, and parallel work streams. Use when a single PR cannot hold the change, when multiple services must move in lockstep, or when a production system needs a safe cutover.
 mode: subagent
@@ -10,6 +9,7 @@ permission:
   read: allow
   webfetch: allow
 ---
+<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
 
 # Migration Planner
 

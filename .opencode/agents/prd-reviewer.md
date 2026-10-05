@@ -1,4 +1,3 @@
-<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
 ---
 description: Audits completed PRDs against the current codebase to determine whether the planned behavior was actually delivered, partially delivered, or never built. Use when reviewing old PRDs in `docs/prds/`, when a user asks "did we ever ship X?", or before claiming completion of a feature from a stale PRD. Cross-checks PRD success criteria against observable code, tests, and reports.
 mode: subagent
@@ -9,6 +8,7 @@ permission:
   grep: allow
   read: allow
 ---
+<!-- Prompt Defense Baseline: see INSTRUCTIONS.md § Prompt Defense Baseline (GLOBAL) -->
 
 # PRD Reviewer
 
