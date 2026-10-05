@@ -636,8 +636,34 @@ else {
     $script:skipped++
 }
 
-# Copiar PROJECT.md si existe
-Copy-ItemSafe -Source (Join-Path $PackPath "docs\PROJECT.md") -Destination (Join-Path $ProjectPath "docs\PROJECT.md") -Description "docs/PROJECT.md" -IsFile
+# Copiar PROJECT.md si existe.
+# Se copia SIN el bloque "## Recent Activity": ese historial es del pack, no del
+# proyecto de destino, y sus enlaces apuntan a docs/plans|audits|sessions, que no
+# se instalan. Sin este recorte, el PROJECT.md de toda instalacion arranca con
+# enlaces muertos que project-init nunca llega a corregir (no se ejecuta aqui).
+# project-init --refresh lo rellena despues con los ficheros reales del proyecto.
+$projectSrc = Join-Path $PackPath "docs\PROJECT.md"
+$projectDest = Join-Path $ProjectPath "docs\PROJECT.md"
+Copy-ItemSafe -Source $projectSrc -Destination $projectDest -Description "docs/PROJECT.md" -IsFile
+if (Test-Path $projectDest) {
+    try {
+        $raw = [System.IO.File]::ReadAllText($projectDest)
+        $marker = '## Recent Activity'
+        $idx = $raw.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase)
+        if ($idx -ge 0) {
+            $head = $raw.Substring(0, $idx).TrimEnd(' ', "`r", "`n")
+            $clean = $head + "`r`n`r`n" + $marker + "`r`n" +
+                     "<!-- auto-managed: appended by project-init.js. Do not edit by hand. -->`r`n`r`n" +
+                     "<!-- (no activity detected yet) -->`r`n"
+            # UTF-8 SIN BOM: Set-Content/Out-File -Encoding utf8 lo aniade en PS5.1
+            $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+            [System.IO.File]::WriteAllText($projectDest, $clean, $utf8NoBom)
+        }
+    }
+    catch {
+        Write-Host "  [WARN] no se pudo recortar PROJECT.md: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+}
 
 # ============================================================
 # FASE 6: INSTALAR DEPENDENCIAS NPM
