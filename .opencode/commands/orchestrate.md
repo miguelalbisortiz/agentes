@@ -35,6 +35,8 @@ subagent { agent: "prd-agent", description: "Clarify intent and generate PRD", p
 
 **If the user has already provided a clear, unambiguous request with explicit acceptance criteria** (e.g., a bug report, a fully-specified RFC, a one-liner with full context), you may skip Phase 0 and proceed to Phase 1. Document this skip in your output: "Skipped prd-agent — request already meets PRD criteria."
 
+**Gate 1 — `/spec-lint` (obligatorio antes de Phase 1).** Run `/spec-lint` against the PRD Phase 0 just produced, or against the pre-existing PRD when Phase 0 was skipped — the gate checks the artifact, not who wrote it. A PRD with lint findings reaches the planner as-is and the plan inherits them. Fix the findings first; if the user explicitly decides to continue anyway, record that decision in the report.
+
 ---
 
 ## Available Agents (for Phases 1+)
@@ -45,7 +47,8 @@ subagent { agent: "prd-agent", description: "Clarify intent and generate PRD", p
 |-------|-----------|---------|
 | **prd-agent** | **Intent clarification** | **Phase 0 — always first** |
 | planner | Implementation planning | Phase 1+ — complex feature design |
-| architect | System design | Architectural decisions |
+| architect | System design | Scalability and technical decision-making |
+| code-architect | Implementation blueprint | Phase 1 — PRD to concrete design (used by Phase 1 below) |
 | code-reviewer | Code quality | Review changes |
 | security-reviewer | Security analysis | Vulnerability detection |
 | tdd-guide | Test-driven dev | Feature implementation |
@@ -92,7 +95,10 @@ Use when: Multiple perspectives needed
 ### Phase 1: Planning
 - Agent: `planner` (or `code-architect` for system design)
 - Task: consume PRD, produce implementation plan
-- Depends on: Phase 0 (PRD must exist)
+- Output: `docs/plans/{YYYY-MM-DD_HHMM}-{name}.plan.md` with frontmatter `status: APPROVED`
+- Depends on: Phase 0 (PRD exists **and passed `/spec-lint`**)
+
+**Gate 2 — `/tasks` (obligatorio antes de Phase 2).** `/tasks` only accepts a plan sitting at `docs/plans/*.plan.md` with `status: APPROVED`, and it writes `docs/tasks/{name}.tasks.md`. Run it. Without it Phase 2 executes an unordered plan, and later `/trace` and `/definition-of-done` have no tasks to check.
 
 ### Phase 2: [Specialists] (parallel when independent)
 - Agent A: [specialist-1]
@@ -100,6 +106,8 @@ Use when: Multiple perspectives needed
 - Agent B: [specialist-2]
   - Task: [specific task from plan]
 - Depends on: Phase 1
+
+**Gate 3 — `/verify` (obligatorio antes de Phase 4).** Once the specialists finish, run `/verify`. It detects the stack, runs the checks and writes `docs/reports/{YYYY-MM-DD_HHMM}-{name}.report.md` with the criteria table. Never close a multi-agent flow on an unverified build.
 
 ### Phase 3: Synthesis
 - Combine results from Phases 0–2
@@ -192,7 +200,32 @@ COMPLETADO | EN PROGRESO | BLOQUEADO
 3. Preguntar UNA vez: "Report en `docs/reports/{name}.report.md`. ¿Audito con report-auditor? (s/n)".
 4. Si `s`/`si`/`audita` → invocar `report-auditor` con el path del report.
 5. Si `n`/`skip` → respetar.
-6. Reportar al usuario: PRD + plan + report + audit (si se genero) + siguiente paso.
+6. Gates de cierre del ciclo SDD: correr `/trace` (matriz criterios PRD ↔ tareas ↔ tests) y después `/definition-of-done`, que cruza `/verify` + `/eval` + `/audit-report` + `/trace` en un único veredicto PASS/NO-CLOSE. Pega ambos resultados en el report bajo `## Criterios PRD`.
+7. Reportar al usuario: PRD + plan + report + audit (si se genero) + siguiente paso.
+
+---
+
+## Handoff al ciclo SDD
+
+`/orchestrate` is not a side path around the SDD cycle — it is the multi-agent way of walking it. Each phase hands the artifact that the next cycle command expects:
+
+| Phase | Artifact delivered | Cycle command that validates or consumes it |
+|-------|--------------------|---------------------------------------------|
+| 0 | `docs/prds/{name}.prd.md` | `/spec-lint` — gate before planning |
+| 1 | `docs/plans/{name}.plan.md` with `status: APPROVED` | `/tasks` → `docs/tasks/{name}.tasks.md` |
+| 2 | code from the specialists | `/verify` → `docs/reports/{name}.report.md` |
+| 4 | `docs/reports/{name}.report.md` | `/trace` + `/definition-of-done` close the loop |
+
+If the flow is interrupted anywhere, resume from the command that demands the artifact that is missing:
+
+- no approved plan → `/plan`
+- plan approved but no task breakdown → `/tasks`
+- no verification → `/verify`
+- no traceability → `/trace`
+- no closing verdict → `/definition-of-done`
+- scope changed mid-flow → `/change-request`
+
+> `/definition-of-done` is the single closing gate: it reads the PRD, `docs/tasks/*.tasks.md` and the latest `/verify` report, and refuses to invent a PASS when the evidence is missing.
 
 ## Coordination Rules
 
@@ -203,6 +236,7 @@ COMPLETADO | EN PROGRESO | BLOQUEADO
 5. **Clear boundaries** — Each agent has specific scope
 6. **Single source of truth** — PRD is the contract; plan is the strategy; code is the implementation
 7. **Report always** — Every multi-agent flow leaves a `docs/reports/{name}.report.md` artifact
+8. **The cycle gates are not advisory** — `/spec-lint` gates 0 → 1, `/tasks` gates 1 → 2, `/verify` gates 2 → 4, `/trace` + `/definition-of-done` gate the close. Skipping one is a decision only the user can take, and it has to be written into the report.
 
 ## When to Skip Phase 0
 
