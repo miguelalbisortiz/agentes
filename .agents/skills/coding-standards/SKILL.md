@@ -13,7 +13,7 @@ This skill is the shared floor, not the detailed framework playbook.
 
 - Use `frontend-patterns` for React, state, forms, rendering, and UI architecture.
 - Use `backend-patterns` or `api-design` for repository/service layers, endpoint design, validation, and server-specific concerns.
-- The shortest reusable conventions live in `.opencode/instructions/INSTRUCTIONS.md` (consolidated common rules).
+- The shortest reusable conventions live in `.agents/skills/pack-reference/SKILL.md` (consolidated reference, loaded on demand).
 
 ## When to Activate
 

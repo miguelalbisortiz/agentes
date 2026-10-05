@@ -239,15 +239,15 @@ function validateCommand(file) {
 
 function validateCrossRefs() {
   const refPattern = /\.opencode\/(skills|agents|commands)\/([a-z0-9-]+)/g;
-  // Also check relative markdown links to other docs in .opencode/manual/
-  // and to the root README/AGENTS (e.g. `[x](./foo.md)`, `[x](.opencode/manual/foo.md)`).
+  // Also check relative markdown links to other docs in .opencode/manual/.
+  // El boot file vive en .opencode/AGENTS.md (no en la raiz): si apuntas a la
+  // raiz, fs.existsSync filtra la entrada y el chequeo NO se ejecuta nunca.
   const docLinkPattern = /\[([^\]]+)\]\((?:\.{1,2}\/|\.opencode\/docs\/|#?[\w./-]+\.md)\)/g;
   const checkDirs = [
     path.join(CWD, '.opencode', 'agents'),
     path.join(CWD, '.opencode', 'commands'),
     MANUAL_DIR,
-    path.join(CWD, 'INSTRUCTIONS.md'.replace(/^/, CWD)),
-    path.join(CWD, 'AGENTS.md'),
+    path.join(CWD, '.opencode', 'AGENTS.md'),
     path.join(CWD, 'README.md'),
   ].filter(p => fs.existsSync(p));
 
