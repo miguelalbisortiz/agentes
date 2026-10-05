@@ -21,7 +21,7 @@ Run `node .opencode/bin/context.js` to generate a context hygiene report.
 - **Commands** — count + total bytes
 - **Sessions** — count + latest date (helps decide if `/session-start` will resume)
 - **Project size** — excluding `.git/` and `.opencode/node_modules/`
-- **Recommendations** — heuristic tips based on the above (e.g. "many skills, trust catalog", "use Task tool to delegate")
+- **Recommendations** — heuristic tips based on the above (e.g. "many skills, trust catalog", "use the subagent tool to delegate")
 
 ## When to run
 

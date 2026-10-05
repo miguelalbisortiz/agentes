@@ -10,7 +10,7 @@ El pack minimiza el uso de tokens dividiendo el contexto en 4 capas. Solo las ca
 |------|--------------|-----------------|--------|
 | 1 | `AGENTS.md` + `docs/PROJECT.md` | siempre | ~2K tokens |
 | 2 | `docs/sessions/LATEST.md` (copia del último snapshot) | `/session-start` o auto al cerrar | ~1-3K tokens |
-| 3 | Skills bajo demanda, archivos, sub-agentes | cuando se necesitan (skill tool, task tool) | variable |
+| 3 | Skills bajo demanda, archivos, sub-agentes | cuando se necesitan (skill tool, subagent tool) | variable |
 | 4 | historial git, PRDs, planes, instintos | nunca al contexto | solo disco |
 
 **Regla**: si algo puede vivir en disco, vive en disco. Solo la capa "viva" va al contexto.
@@ -22,7 +22,7 @@ El usuario dice: "construir X" / "crear Y" / "agregar Z" / "implementar W"
        ↓
 build (primary) detecta el verbo de intención
        ↓
-task { subagent_type: "prd-agent" }
+subagent { agent: "prd-agent" }
        ↓
 prd-agent ejecuta el Protocolo de Entendimiento:
   Fase 0: verifica/crea docs/PROJECT.md
