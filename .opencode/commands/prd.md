@@ -12,13 +12,9 @@ Same as `@prd-agent` but as a slash command. Triggers the prd-agent to:
 
 ## Your Task
 
-Dispatch to prd-agent via task tool:
+> Este comando ya corre como `prd-agent` (frontmatter `agent:`): ejecuta el flujo directamente, sin invocar un subagente.
 
-```
-task { subagent_type: "prd-agent", prompt: "$ARGUMENTS" }
-```
-
-**Wait for prd-agent to finish.** Do not start planning or implementation until the user has confirmed the Intention Map and a PRD file exists.
+Ejecuta los pasos 1-3 de arriba. **NO** empezar planificación ni implementación hasta que el usuario confirme el Intention Map y exista un fichero PRD.
 
 ## When to use
 

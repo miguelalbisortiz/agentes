@@ -25,10 +25,10 @@ Orchestrate multiple specialized agents for this complex task: $ARGUMENTS
 2. Run the Understanding Protocol (active listening, intention map, ambiguity resolution, confirmation)
 3. Produce `docs/prds/{YYYY-MM-DD_HHMM}-{name}.prd.md`
 
-**Dispatch via task tool:**
+**Dispatch via the `subagent` tool:**
 
 ```
-task { subagent_type: "prd-agent", prompt: "$ARGUMENTS" }
+subagent { agent: "prd-agent", description: "Clarify intent and generate PRD", prompt: "$ARGUMENTS" }
 ```
 
 **Wait for prd-agent to finish.** Do not start planning until the user has confirmed the Intention Map and a PRD file exists.
@@ -224,10 +224,10 @@ In all other cases, Phase 0 is mandatory. The cost of a clear PRD is one extra r
 
 This flow writes to `docs/state/` so it can be resumed after interruption. See `docs/state/README.md` for the schema.
 
-``bash
+```bash
 # At flow start
 node .opencode/bin/state.js init orchestrate "" [<prd-path>]
-# Capture the printed path as 
+# Capture the printed path; use it instead of "" in the calls below
 
 # After each phase
 node .opencode/bin/state.js update "" <phase> '{"agentsInvoked":["..."],"filesModified":["..."]}'
@@ -237,6 +237,6 @@ node .opencode/bin/state.js complete ""
 
 # On error
 node .opencode/bin/state.js fail "" "<error message>"
-``
+```
 
 The flow is resumable: if interrupted, `/session-start` detects active states in `docs/state/` and offers to resume from `currentPhase`.

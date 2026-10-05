@@ -49,7 +49,7 @@ If phase 2 reports PASS-WITH-WARNINGS → pause. Show the warnings, ask the user
 
 ### Step 1 — Forker (subagent: opensource-forker)
 
-Dispatch via the `task` tool with `subagent_type: "opensource-forker"`:
+Dispatch via the `subagent` tool (agent ID `opensource-forker`):
 
 Prompt: "Fork the project at `<source-dir>` to `<target-dir>`. Generate `.env.example`, strip 20+ secret patterns, replace internal references with placeholders, clean git history (rewrite authors, drop internal commit messages referencing company names), and write `<target-dir>/FORK_REPORT.md` with a summary of what was changed."
 
@@ -61,7 +61,7 @@ If either check fails → abort with diagnostic.
 
 ### Step 2 — Sanitizer (subagent: opensource-sanitizer) [GATE]
 
-Dispatch via `task` with `subagent_type: "opensource-sanitizer"`:
+Dispatch via the `subagent` tool (agent ID `opensource-sanitizer`):
 
 Prompt: "Audit `<target-dir>` (read-only — do NOT modify any files). Scan all 6 categories: Secrets / PII / Internal Refs / Dangerous Files / Config Completeness / Git History. Emit a verdict (PASS / PASS-WITH-WARNINGS / FAIL) with a list of every finding and severity. Write the full report to `<target-dir>/SANITIZATION_REPORT.md`."
 
@@ -78,7 +78,7 @@ Read `<target-dir>/SANITIZATION_REPORT.md` and branch on the verdict:
 
 Only reached after a clean sanitizer verdict (or user override of warnings).
 
-Dispatch via `task` with `subagent_type: "opensource-packager"`:
+Dispatch via the `subagent` tool (agent ID `opensource-packager`):
 
 Prompt: "Package `<target-dir>` for open source release. Generate: `CLAUDE.md` (the most important file, <100 lines, summarizes the project for AI agents), executable `setup.sh` (idempotent bootstrap), `README.md` (with usage, install, contributing links), `LICENSE` (default MIT, ask user if other), `CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE/bug_report.md`, `.github/ISSUE_TEMPLATE/feature_request.md`."
 

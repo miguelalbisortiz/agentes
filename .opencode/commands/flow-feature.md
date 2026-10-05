@@ -84,10 +84,10 @@ Siguiente paso: commit (espera instruccion explicita del user)
 
 This flow writes to `docs/state/` so it can be resumed after interruption. See `docs/state/README.md` for the schema.
 
-``bash
+```bash
 # At flow start
 node .opencode/bin/state.js init flow-feature "" [<prd-path>]
-# Capture the printed path as 
+# Capture the printed path; use it instead of "" in the calls below
 
 # After each phase
 node .opencode/bin/state.js update "" <phase> '{"agentsInvoked":["..."],"filesModified":["..."]}'
@@ -97,6 +97,6 @@ node .opencode/bin/state.js complete ""
 
 # On error
 node .opencode/bin/state.js fail "" "<error message>"
-``
+```
 
 The flow is resumable: if interrupted, `/session-start` detects active states in `docs/state/` and offers to resume from `currentPhase`.
