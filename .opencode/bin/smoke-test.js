@@ -254,6 +254,37 @@ try {
 }
 
 console.log('');
+console.log('[Prose lint (lint-docs.js) — 5 reglas]');
+// validate-frontmatter y smoke-test daban verde con backticks rotos, frases
+// truncadas, sintaxis V1 y `state.js ""` en el repo: ninguno de los dos lee
+// prosa. lint-docs.js si.
+const LINT_RULES = [
+  ['R1', 'backticks sin cerrar'],
+  ['R2', 'frases truncadas'],
+  ['R3', 'sintaxis V1 de subagente'],
+  ['R4', 'state.js con cadena vacia'],
+  ['R5', 'fase de state no numerica'],
+];
+const lintOut = (() => {
+  try {
+    return execSync(`node "${path.join(__dirname, 'lint-docs.js')}"`, { encoding: 'utf8', stdio: 'pipe' });
+  } catch (e) {
+    return `${e.stdout || ''}${e.stderr || ''}`;
+  }
+})();
+// Si el script ni siquiera arranco, no damos verde por silencio.
+const lintRan = /lint-docs: \d+ \.md scanned/.test(lintOut);
+const lintFindings = lintOut.split('\n').filter((l) => /^\s+R[1-5]\s/.test(l));
+if (lintFindings.length && !QUIET) {
+  console.log('  Hallazgos:');
+  for (const l of lintFindings) console.log(`    ${l.trim()}`);
+}
+for (const [id, label] of LINT_RULES) {
+  const n = lintFindings.filter((l) => new RegExp(`^\\s+${id}\\s`).test(l)).length;
+  check(`lint ${id} ${label}`, () => lintRan && n === 0);
+}
+
+console.log('');
 console.log('=======================');
 console.log(`PASSED:   ${passed}`);
 console.log(`WARNINGS: ${warnings}`);

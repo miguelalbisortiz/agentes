@@ -105,7 +105,7 @@ El `permission.skill: "allow"` global en `opencode.json` permite a cada agente c
 | caveman mode (AGENTS.md) | ~75% en outputs |
 | plugin `dynamic-context-pruning` | 30-50% en sessions largas |
 | memoria de sesión de 4 capas | ~80% al reanudar |
-| sub-agentes vía `task` tool | 70-90% en paralelismo |
+| sub-agentes vía `subagent` tool | 70-90% en paralelismo |
 | skills bajo demanda (no en `instructions`) | ~95% en skills no usadas |
 | truncado de resultados de tools (`grep -m 50`, `head -n 100`) | 20-40% en sessions con muchos greps |
 | **Total vs starter sin optimizar** | **~85%** |

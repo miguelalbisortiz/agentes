@@ -53,7 +53,7 @@ You DO NOT refactor manifests — you report findings only. Recommending a missi
 - **`privileged: true` on container securityContext**: Container runs with all host capabilities. Equivalent to root on the node. Hard-fail unless the workload is a known node-level component (e.g. CNI, kubelet plugin) AND the PR description justifies.
 - **`hostNetwork: true` / `hostPID: true` / `hostIPC: true`**: Pod shares host namespaces. Reads / writes host processes, sees host network. Only valid for node agents.
 - **`runAsUser: 0` (root) without explicit justification**: Default for many images, but `restricted` PSA requires non-root. Must set `runAsNonRoot: true` + a non-zero UID/GID, OR the PR must justify root (init container writing to a root-owned volume, etc.).
-- **`capabilities.add: ["SYS_ADMIN", "NET_ADMIN", "SYS_PTRACE", "ALL"]**: Mounts / network / debug. Hard-fail unless workload is a kernel-level component.
+- **`capabilities.add: ["SYS_ADMIN", "NET_ADMIN", "SYS_PTRACE", "ALL"]`**: Mounts / network / debug. Hard-fail unless workload is a kernel-level component.
 - **`allowPrivilegeEscalation: true` (default!)**: Required to be explicitly `false` for `restricted` PSA. Most teams want this off.
 - **`seccompProfile.type: Unconfined`**: Default, but `RuntimeDefault` is the `restricted` PSA baseline.
 - **Plain-text secret in `ConfigMap` or `env.valueFrom.configMapKeyRef`**: ConfigMaps are world-readable to anyone with `get` on the namespace. Use `Secret` + encryption-at-rest + external secrets (External Secrets Operator, Sealed Secrets, Vault Agent).

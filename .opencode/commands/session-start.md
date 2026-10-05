@@ -89,4 +89,4 @@ Do not start working. Wait for the user to confirm direction.
 - `/session-end` — write the snapshot this command reads next time
 - `@prd-agent` — generate `docs/PROJECT.md` if missing
 - `dynamic-context-pruning` plugin — auto-prunes chat history mid-session
-- Sub-agents via `task` tool — keep heavy work out of the main context
+- Sub-agents via `subagent` tool — keep heavy work out of the main context

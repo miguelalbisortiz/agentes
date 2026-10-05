@@ -149,7 +149,7 @@
 - **85** agents (.opencode/agents)
 - **70** commands (.opencode/commands)
 - **40** skills (.agents/skills)
-- **15** native CLIs (.opencode/bin)
+- **16** native CLIs (.opencode/bin)
 - **3** npm plugins + **1** local plugin(s)
 - **4** active MCPs + **12** optional MCP(s)
 <!-- COUNTS-END -->

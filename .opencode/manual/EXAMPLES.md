@@ -385,7 +385,7 @@ Encadena: `/quick-prd` → fix → `/verify` → report → audit. Útil cuando 
 | `/audit-report` después de `/verify` | cruzar report contra PRD origen, agrega veredicto |
 | `/pack-doctor` antes de release | detecta frontmatter invalido, duplicados, permalinks rotos |
 | `@code-explorer` antes de `/plan` | en codebases desconocidos o refactors |
-| Sub-agentes en paralelo | el primary los dispara via `task` tool, no espera uno a otro |
+| Sub-agentes en paralelo | el primary los dispara via `subagent` tool, no espera uno a otro |
 | TDD con `@tdd-guide` | features nuevas, refactors, bug fixes |
 | `/verify` antes de commit | obligatorio |
 | 1 commit por unidad lógica | no commit gigante con 50 archivos |
