@@ -67,15 +67,15 @@ Check for inefficient algorithms:
 
 | Pattern | Complexity | Better Alternative |
 |---------|------------|-------------------|
-| Nested loops on same data | O(nÂ²) | Use Map/Set for O(1) lookups |
+| Nested loops on same data | O(n²) | Use Map/Set for O(1) lookups |
 | Repeated array searches | O(n) per search | Convert to Map for O(1) |
-| Sorting inside loop | O(nÂ² log n) | Sort once outside loop |
-| String concatenation in loop | O(nÂ²) | Use array.join() |
+| Sorting inside loop | O(n² log n) | Sort once outside loop |
+| String concatenation in loop | O(n²) | Use array.join() |
 | Deep cloning large objects | O(n) each time | Use shallow copy or immer |
 | Recursion without memoization | O(2^n) | Add memoization |
 
 ```typescript
-// BAD: O(nÂ²) - searching array in loop
+// BAD: O(n²) - searching array in loop
 for (const user of users) {
   const posts = allPosts.filter(p => p.userId === user.id); // O(n) per user
 }

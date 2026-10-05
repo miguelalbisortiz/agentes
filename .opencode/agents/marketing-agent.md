@@ -95,7 +95,7 @@ Map all deliverables to a day-by-day schedule:
 Before finalising any deliverable, check every piece against:
 - 5-second test: above-fold copy makes clear who it's for and what it does
 - One primary CTA per page, email, or post
-- No hollow superlatives or marketing clichÃ©s
+- No hollow superlatives or marketing clichés
 - Tone is consistent across all deliverables
 - Every claim is specific and supportable
 - Email subject matches email body (no bait-and-switch)
