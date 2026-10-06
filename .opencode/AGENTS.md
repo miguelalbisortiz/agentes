@@ -69,43 +69,19 @@ prd-agent → planner → build → code-reviewer → audit-orchestrator → man
 - El manual se genera DESPUÉS de que `/verify` pase Y `/audit-report` dé PASS
 - Usar `manual-writer` que compila todo
 - Guardar en `docs/MANUAL.md`
-### Session Continuity
-- Cada sesión arranca leyendo `docs/PROJECT.md` + archivos recientes en `docs/`
-- Si hay `docs/state/*.json` activos, ofrecer continuar desde donde se quedó
-- Al finalizar sesión, guardar snapshot en `docs/sessions/`
-
 ## Session Memory (Enhanced)
 ### Session Start
 1. Read docs/PROJECT.md
 2. Read docs/LEARNING.md (if exists)
 3. Read docs/sessions/LATEST.md
-4. Apply learnings to current task
+4. If `docs/state/*.json` is active, offer to resume from it
+5. Check `docs/plans/` for an active plan (status: in-progress) and offer to continue
+6. Apply learnings to current task
 
 ### Session End
 1. Save snapshot to docs/sessions/
 2. Run project-learning skill to extract new learnings
 3. Update docs/LEARNING.md
-
-## Plan Persistence (CRITICAL)
-### Save Plan
-When starting a multi-step feature or project:
-1. Create `docs/plans/{feature-name}.plan.md`
-2. Include: objective, acceptance criteria, task breakdown, dependencies, status
-3. Use checkbox format: `- [ ] task` / `- [x] completed task`
-4. Reference plan in `docs/sessions/LATEST.md`
-
-### Resume Plan
-On session start:
-1. Check `docs/plans/` for active plans (status: in-progress)
-2. If found, show: "Plan '{name}' encontrado. ¿Continuar?"
-3. Resume from last incomplete task
-
-### Update Plan
-After completing a task:
-1. Mark task with `[x]`
-2. Add completion date
-3. Update status field
-4. Save with new timestamp
 
 ## Checkpoint Mode (CRITICAL)
 ### Manual Checkpoint
