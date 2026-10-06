@@ -84,7 +84,7 @@ Los cuatro `/flow-*` y `/orchestrate` **sí encadenan**. La conducta 8 del paque
 
 ```powershell
 # 1. instala el pack en la carpeta del proyecto
-.\init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
+node init-opencode.js --project-path "C:\mi-proyecto"
 
 # 2. arranca
 cd C:\mi-proyecto
@@ -101,7 +101,7 @@ opencode .
 
 ```powershell
 # 1. instala o actualiza (idempotente: no pisa nada)
-.\init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
+node init-opencode.js --project-path "C:\mi-proyecto"
 
 # 2. arranca
 cd C:\mi-proyecto
@@ -192,27 +192,42 @@ Y no se deja a la buena fe. El `smoke-test` lo comprueba en **cada** instalació
 
 ### Requisitos
 
-- **Windows** con PowerShell 5.1 o superior
 - **Git** para clonar el repositorio
-- **Node.js** en el `PATH` — opcional: sin él el instalador funciona igual, pero omite la regeneración de índices y de los bloques `## Counts`
+- **Node.js 18 o superior** en el `PATH` — es el **único** requisito
+
+**No hace falta Windows ni PowerShell.** El instalador corre en Windows, Linux y macOS. El `.ps1` clásico se conserva como alternativa para quien prefiera esa vía en Windows.
 
 ### Paso 1 — Clona
 
-```powershell
+```bash
 git clone https://github.com/miguelalbisortiz/agentes.git
 cd agentes
 ```
 
 ### Paso 2 — Instala en tu proyecto
 
-```powershell
-.\init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
+Linux y macOS:
+
+```bash
+node init-opencode.js --project-path /ruta/a/mi-proyecto
 ```
 
-O en el directorio actual, sin `-ProjectPath`:
+Windows:
 
 ```powershell
-.\init-opencode.ps1
+node init-opencode.js --project-path "C:\mi-proyecto"
+```
+
+O en el directorio actual, sin indicar ruta:
+
+```bash
+node init-opencode.js
+```
+
+**Alternativa en Windows** — el instalador original de PowerShell:
+
+```powershell
+.\init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
 ```
 
 Si Windows bloquea el script por política de ejecución:
@@ -220,6 +235,8 @@ Si Windows bloquea el script por política de ejecución:
 ```powershell
 powershell -ExecutionPolicy Bypass -File init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
 ```
+
+> **Los dos producen exactamente el mismo árbol.** La CI lo comprueba fichero a fichero: 249 archivos, 0 diferencias de contenido.
 
 El instalador **no pregunta nada**: se lanza y corre solo hasta el final.
 
@@ -234,7 +251,7 @@ Luego ejecuta 7 fases en orden:
 | 1 | Archivos raíz | Fusiona `opencode.json`, `skills-lock.json` y `.gitignore` |
 | 2 | `.opencode/` | Agents, commands, plugins, CLIs, manual, `AGENTS.md` y templates |
 | 3 | `.agents/` | Skills y el router que decide cuál se carga |
-| 4 | `docs/` | Crea la estructura de documentación — lo omite con `-SkipDocs` |
+| 4 | `docs/` | Crea la estructura de documentación — lo omite con `--skip-docs` |
 | 5 | Documentación | README y `docs/PROJECT.md` del pack |
 | 6 | Plugins npm | Instala los plugins del pack — lo omite con `-SkipInstall` |
 | 7 | Verificación | Recuenta agents, commands y skills, y comprueba los MCPs |
@@ -245,7 +262,7 @@ Termina con un resumen que imprime el **recuento real instalado**.
 
 | Ruta | Contenido |
 |---|---|
-| `.opencode/agents/` | Agents filtrados por tu stack (o la biblioteca completa con `-AllAgents`) |
+| `.opencode/agents/` | Agents filtrados por tu stack (o la biblioteca completa con `--all-agents`) |
 | `.opencode/commands/` | Slash commands |
 | `.opencode/bin/` | CLIs de validación |
 | `.opencode/AGENTS.md` | Reglas globales de comportamiento |
@@ -259,14 +276,18 @@ Termina con un resumen que imprime el **recuento real instalado**.
 
 ### Parámetros
 
-| Parámetro | Efecto |
-|---|---|
-| `-ProjectPath <ruta>` | Proyecto destino (por defecto, el directorio actual) |
-| `-PackPath <ruta>` | Origen del pack (por defecto, la carpeta del propio script) |
-| `-Stack <nombre>` | Fuerza el stack; si se omite, se detecta automáticamente |
-| `-AllAgents` | Instala la biblioteca completa sin filtrar por stack |
-| `-SkipInstall` | Omite la instalación de plugins npm |
-| `-SkipDocs` | Omite la estructura de `docs/` |
+Cada flag de `init-opencode.js` con su equivalente en el `.ps1`:
+
+| Node | PowerShell | Efecto |
+|---|---|---|
+| `--project-path <ruta>` | `-ProjectPath <ruta>` | Proyecto destino (por defecto, el directorio actual) |
+| `--pack-path <ruta>` | `-PackPath <ruta>` | Origen del pack (por defecto, la carpeta del propio script) |
+| `--stack <nombre>` | `-Stack <nombre>` | Fuerza el stack; si se omite, se detecta automáticamente |
+| `--all-agents` | `-AllAgents` | Instala la biblioteca completa sin filtrar por stack |
+| `--skip-install` | `-SkipInstall` | Omite la instalación de plugins npm |
+| `--skip-docs` | `-SkipDocs` | Omite la estructura de `docs/` |
+
+`--force` / `-Force` se aceptan por compatibilidad, pero no cambian nada: el instalador nunca pregunta y siempre sobreescribe.
 
 ### Actualizar
 
@@ -326,7 +347,8 @@ SAVINGS     35%            (meta >= 40%)
 ```text
 .
 ├── README.md                  Este documento
-├── init-opencode.ps1          Instalador (única vía de instalación/actualización)
+├── init-opencode.js           Instalador (Windows / Linux / macOS)
+├── init-opencode.ps1          Instalador alternativo para Windows
 ├── opencode.json              Configuración (plugins, MCPs)
 ├── skills-lock.json           Estado de las skills
 ├── .gitignore                 Reglas de exclusión

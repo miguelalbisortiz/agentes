@@ -81,6 +81,11 @@ jobs:
         shell: powershell
         run: powershell -ExecutionPolicy Bypass -File .opencode/bin/installer-test.ps1
 
+      # The same 48 checks against the Node installer: both must stay green,
+      # because both are documented as valid ways to install the pack.
+      - name: "installer-test.js (48 checks)"
+        run: node .opencode/bin/installer-test.js
+
       # --- 2. behavioural invariants (hard gate) ------------------------
       - name: "eval-static (E1-E9)"
         run: node .opencode/bin/eval-static.js
@@ -89,3 +94,51 @@ jobs:
       - name: "measure-tokens (informational, not a gate)"
         continue-on-error: true
         run: node .opencode/bin/measure-tokens.js
+
+  # Second gate: the pack claims to install anywhere Node runs. Until this
+  # job existed that claim was only ever tested on Windows, which is exactly
+  # the "said but never executed" pattern the rest of this repo guards
+  # against. This job runs the whole Node battery plus the Node installer's
+  # own 48 checks on Ubuntu.
+  linux:
+    name: "linux: battery + node installer"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      # Same reason as the Windows job: the two compat links are deliberately
+      # gitignored (git cannot store NTFS junctions), so a fresh clone does
+      # not have them and smoke-test fails. On Linux they are plain symlinks.
+      - name: "Setup compat symlinks (opencode 1.17.x)"
+        run: |
+          ln -sfn "$PWD/.opencode/agents" "$PWD/.opencode/agent"
+          ln -sfn "$PWD/.agents/skills" "$PWD/.opencode/skill"
+          ls -ld .opencode/agent .opencode/skill
+
+      - name: "lint-docs (R1-R7)"
+        run: node .opencode/bin/lint-docs.js --dir .
+
+      - name: "counts --check"
+        run: node .opencode/bin/counts.js --check
+
+      - name: "wiring-test (W1-W8)"
+        run: node .opencode/bin/wiring-test.js
+
+      - name: "validate-frontmatter"
+        run: node .opencode/bin/validate-frontmatter.js
+
+      - name: "smoke-test"
+        run: node .opencode/bin/smoke-test.js
+
+      - name: "eval-static (E1-E9)"
+        run: node .opencode/bin/eval-static.js
+
+      # The point of this job: install the pack for real on Ubuntu.
+      - name: "installer-test.js (48 checks)"
+        run: node .opencode/bin/installer-test.js
