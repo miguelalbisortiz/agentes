@@ -15,7 +15,7 @@ apartado conforme se cierre.
 |---|---|---|
 | SDD | 🟢 Fuerte | 9 puertas + 4 flujos; los 4 gates devuelven exit code |
 | Context Engineering | 🟢 Fuerte | arranque 5682 B, 40 skills diferidos, 1 MCP activo |
-| EvalOps | 🟡 Estructural sí, conductual no | 16 verificadores, 0 golden prompts, 0 ejecuciones |
+| EvalOps | 🟢 Estructural + invariantes | CI en cada push · `eval-static` 9/9 · **0 ejecuciones en vivo (Nivel 2 abierto)** |
 | Aislamiento | 🟢 Fuerte | 85/85 con `permission`, 0 con los 9 tools en `allow`; scaffold corregido |
 | Seguridad | 🟢 Fuerte | 0 secretos literales; **85/85** con Prompt Defense |
 
@@ -68,6 +68,47 @@ creados en P2 y dejaría la seguridad *off*.
 
 ---
 
+## P5 — Eval-Driven Development
+
+**Estado: 🟢 Nivel 0 + 1 hecho · Nivel 2 pendiente de decisión.**
+
+### Hecho
+
+| | |
+|---|---|
+| **Nivel 0** — `.github/workflows/ci.yml` | gate en **cada push y PR**: 13 pasos, todos en verde |
+| **Nivel 1** — `evals/cases/static.json` | **9 invariantes** (E1-E9) con datos, no código |
+| runner | `.opencode/bin/eval-static.js` · `--json` · exit 0/1 · cero dependencias |
+| doc | `evals/README.md` |
+
+Qué protegen: no reintroducir auto-commit (E1), 9 conductas intactas (E2),
+Prompt Defense presente (E3) y en los 85 agents (E4), 0 huérfanos estrictos
+(E5), punteros `§` que resuelven (E6), suelo de tokens ≥30 % (E7), los 4 gates
+del SDD (E8), conducta 3 (E9).
+
+**Pruebas negativas hechas**: inyectar auto-checkpoint → exit 1 · borrar una
+conducta → exit 1 · restaurar → exit 0.
+
+### Bug destapado por el CI (ya corregido en `17bd10b`)
+
+`.opencode/agent` y `.opencode/skill` son **junctions que están en
+`.gitignore`** — git no puede guardarlos. Un clon limpio no los tiene y
+`smoke-test` fallaba 29/31. El CI ahora los crea antes de la batería, igual
+que hace `init-opencode.ps1` (`Ensure-Junction`).
+
+### Nivel 2 — pendiente de decisión
+
+Evaluar **si el modelo obedece** las reglas, con `opencode run` (headless) +
+`opencode export` (traza JSON).
+
+- **~50 casos**: ¿rutea a `prd-agent`?, ¿commita sin pedir?, ¿obedece ante
+  *ignore previous instructions*?, ¿inventa `go-reviewer` sin stack?
+- **Coste:** **API real por cada ejecución, en cada corrida**
+- **Guía del sector:** 50 casos detectan regresiones grandes; 200 dan
+  confianza estadística
+
+---
+
 ## Al retomar
 
 ```powershell
@@ -92,6 +133,7 @@ node .opencode/bin/wiring-test.js                    # 8/8
 node .opencode/bin/validate-frontmatter.js           # 477/0/0
 node .opencode/bin/smoke-test.js                     # 31/31
 powershell -ExecutionPolicy Bypass -File .opencode/bin/installer-test.ps1   # 48/48
+node .opencode/bin/eval-static.js                    # 9/9
 node .opencode/bin/measure-tokens.js                 # rojo deliberado (35%)
 ```
 
@@ -113,6 +155,9 @@ node .opencode/bin/measure-tokens.js                 # rojo deliberado (35%)
 | `ee5897c` | **P4·1** · se quita el auto-checkpoint (contradecía las conductas 3 y 5) |
 | `34d35b2` | **P4·2** · `Plan Persistence` + `Session Continuity` → skills/comandos |
 | `158b7d7` | **P4·3** · `Execution Order` + `Checkpoint Mode` → `/orchestrate` y `checkpoint-mode` |
+| `ac81e1e` | P4 al **35 %** + verificación de qué NO se puede mover |
+| `6b021f8` | **P5** · EDD nivel 0+1: CI + `eval-static` (E1-E9) |
+| `17bd10b` | **P5** · el CI crea los junctions (estaban en `.gitignore`) |
 
 **Conteos maestro:** 85 agents · 70 commands · 40 skills · 17 CLIs · 1 active MCP +
 14 optional.
