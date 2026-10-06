@@ -108,25 +108,11 @@ After completing a task:
 4. Save with new timestamp
 
 ## Checkpoint Mode (CRITICAL)
-### Auto-Checkpoint
-Every 10 minutes of active coding:
-1. Stage all modified files
-2. Commit with prefix "WIP: "
-3. Include brief description of changes
-4. Continue working seamlessly
-
 ### Manual Checkpoint
 On "checkpoint" or "guarda":
 1. Stage all modified files
 2. Commit with user-provided message or "WIP: manual checkpoint"
 3. Confirm: "Checkpoint guardado: {commit-hash}"
-
-### Before Risky Operations
-Auto-checkpoint before:
-- Major refactors
-- Migrations
-- Deleting files
-- Commit message: "WIP: pre-{operation} checkpoint"
 
 ### Recovery
 If session crashes:

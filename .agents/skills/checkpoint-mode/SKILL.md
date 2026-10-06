@@ -1,38 +1,29 @@
 ---
 name: checkpoint-mode
-description: Use when user wants to save work in progress, prevent data loss, or auto-commit changes. Provides auto-checkpoint every 10 minutes and manual checkpoint on demand.
+description: Use when user wants to save work in progress or prevent data loss. Manual checkpoint on demand ("checkpoint" / "guarda") plus crash recovery. Does NOT auto-commit.
 ---
 
 # Checkpoint Mode Skill
 
-Auto-commit work in progress to prevent data loss. Never lose work again.
+Manual checkpoint of work in progress to prevent data loss.
+
+> **No auto-checkpoint.** The "auto-commit every 10 minutes" and "auto-commit
+> before risky operations" rules were removed: both contradicted the mandatory
+> behaviors 3 (Git consent) and 5 (Destructivas con consentimiento) in
+> `AGENTS.md`, which require an explicit commit verb in the same turn. A local
+> `WIP:` commit still needs the user's word. Do not reintroduce without
+> changing those behaviors first.
 
 ## Triggers
-- Automatic every 10 minutes of active coding
-- Before risky operations (major refactors, migrations)
 - When user says "checkpoint" or "guarda"
 
 ## Workflow
-
-### Auto-Checkpoint
-1. Track files modified in current session
-2. Every 10 minutes of active changes:
-   - Stage modified files
-   - Commit with prefix "WIP: "
-   - Include brief description of what changed
-3. Continue working seamlessly
 
 ### Manual Checkpoint
 1. User says "checkpoint" or "guarda"
 2. Stage all modified files
 3. Commit with user-provided message or "WIP: manual checkpoint"
 4. Confirm: "Checkpoint guardado: {commit-hash}"
-
-### Before Risky Operations
-1. Before major refactor: auto-checkpoint
-2. Before migration: auto-checkpoint
-3. Before deleting files: auto-checkpoint
-4. Commit message: "WIP: pre-{operation} checkpoint"
 
 ## Commit Message Format
 ```
@@ -52,7 +43,6 @@ If session crashes:
 3. Or `git reset HEAD~1` to uncommit but keep changes
 
 ## Configuration
-- Default interval: 10 minutes
 - Prefix: "WIP: "
-- Auto-checkpoint: enabled by default
-- Can be disabled with "/checkpoint off"
+- Auto-checkpoint: **disabled** (see the note at the top of this file)
+- Manual checkpoint: always available on "checkpoint" / "guarda"
