@@ -38,6 +38,29 @@ jobs:
         with:
           node-version: "24"
 
+      # --- 0. install step ----------------------------------------------
+      # The two compat junctions are deliberately gitignored (git cannot
+      # store NTFS junctions), so a fresh clone does not have them. The
+      # pack's own installer (init-opencode.ps1, Ensure-Junction) creates
+      # them on install. CI must reproduce that step or smoke-test fails on
+      # every clean checkout.
+      - name: "Setup compat junctions (opencode 1.17.x)"
+        shell: powershell
+        run: |
+          foreach ($j in @(
+            @{ Link = ".opencode\agent"; Target = ".opencode\agents" },
+            @{ Link = ".opencode\skill"; Target = ".agents\skills" }
+          )) {
+            $link = Join-Path $PWD $j.Link
+            $target = Join-Path $PWD $j.Target
+            if (-not (Test-Path $target)) { throw "missing target $($j.Target)" }
+            $existing = Get-Item $link -Force -ErrorAction SilentlyContinue
+            if ($existing -and $existing.LinkType) { Write-Host "  ok $($j.Link) already a junction" ; continue }
+            if ($existing) { Remove-Item $link -Recurse -Force -ErrorAction SilentlyContinue }
+            New-Item -ItemType Junction -Path $link -Target $target | Out-Null
+            Write-Host "  ok $($j.Link) -> $($j.Target)"
+          }
+
       # --- 1. structural verifiers -------------------------------------
       - name: "lint-docs (R1-R7)"
         run: node .opencode/bin/lint-docs.js --dir .
