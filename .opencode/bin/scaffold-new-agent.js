@@ -36,7 +36,11 @@ function arg(name, def) {
 }
 
 const MODE = arg('--mode', 'subagent');
-const PERMISSION = arg('--permission', 'bash: allow, read: allow, write: allow, edit: allow, glob: allow, grep: allow, webfetch: allow, task: allow, skill: allow');
+// Least privilege por defecto: leer y explorar el repo, nada mas. bash / edit /
+// write / webfetch / task se piden a mano con --permission. Antes el default eran
+// los 9 tools en allow, lo que hacia que todo agent nuevo naciera permisivo
+// mientras los 85 agents del pack son de menos privilegio (0 con los 9 allow).
+const PERMISSION = arg('--permission', 'glob: allow, grep: allow, read: allow');
 const DESCRIPTION = arg('--description', 'Use when <describe the request patterns that should route to this agent>.');
 
 if (HELP || !AGENT_NAME) {
@@ -52,7 +56,8 @@ Name rules:
 
 Options:
   --mode MODE              subagent (default) or primary
-  --permission "..."       permission block (default: all allow)
+  --permission "..."       permission block (default: glob+grep+read, least privilege;
+                            add bash/edit/write/webfetch explicitly if the agent needs them)
   --description "..."      Description line (default: "> ")
   --force                  Overwrite existing agent
   --dry-run                Show what would be created, don't write
@@ -155,5 +160,7 @@ console.log(`Created: ${path.relative(CWD, AGENT_FILE)} (${CONTENT.split('\n').l
 console.log(`\nNext:`);
 console.log(`  1. Edit the description (this drives the router skill matching)`);
 console.log(`  2. Replace the TODO sections with the agent's actual workflow`);
-console.log(`  3. Run \`node .opencode/bin/validate-frontmatter.js\` to check the frontmatter`);
-console.log(`  4. Run \`node .opencode/bin/build-agents-index.js\` to refresh .opencode/AGENTS_INDEX.md`);
+console.log(`  3. Review \`permission:\` - the default is least privilege (glob+grep+read).`);
+console.log(`     Add ONLY what this agent really needs, e.g. \`bash: allow\` or \`edit: allow\`.`);
+console.log(`  4. Run \`node .opencode/bin/validate-frontmatter.js\` to check the frontmatter`);
+console.log(`  5. Run \`node .opencode/bin/build-agents-index.js\` to refresh .opencode/AGENTS_INDEX.md`);
