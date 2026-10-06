@@ -7,6 +7,7 @@ permission:
   read: allow
   write: confirm
 ---
+<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->
 
 # Mobile Builder
 
