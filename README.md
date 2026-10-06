@@ -1,8 +1,17 @@
 # Agentes
 
-**Pack portátil de opencode** — un equipo completo de agents, commands y skills que convierte a opencode en un flujo de trabajo guiado por especificación (**SDD**: Spec-Driven Development).
+**Pack portátil de opencode** — un equipo completo de agents, commands y skills que convierte a opencode en un flujo de desarrollo guiado por especificación y verificado en cada paso.
 
 No es una aplicación: es configuración + prompts + herramientas que se copian a cualquier proyecto. Los CLIs usan solo el stdlib de Node (cero dependencias).
+
+Sobre el ecosistema de desarrollo de software con IA, este pack no aplica una práctica sino **cuatro**:
+
+| Práctica | Cómo está cubierta |
+|---|---|
+| **Spec-driven** | especificar antes de construir: `/prd` → `/spec-lint` → `/plan` → `/tasks` |
+| **Context engineering** | los skills se cargan solo cuando hacen falta; `AGENTS.md` no se llena de todo |
+| **Verification gate** | `/verify` ejecuta tests y builds reales; `/definition-of-done` solo cierra con evidencia |
+| **Eval-driven** | un dataset de invariantes y un gate en CI que no deja pasar un cambio que las rompa |
 
 <!-- COUNTS-START -->
 ## Counts
@@ -25,10 +34,85 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 | Componente | Función |
 |---|---|
 | **Agents** | *Quién* hace el trabajo: roles especializados (`code-reviewer`, `security-reviewer`, `build-error-resolver`, `tdd-guide`, revisores por lenguaje...). Cada uno con descripción, modo y permisos propios. |
-| **Commands** | *Qué escribes tú*: `/prd`, `/spec-lint`, `/plan`, `/tasks`, `/verify`... El `AGENTS.md` global obliga a pasos verificables: no se puede saltar la escritura de la especificación. |
-| **Skills** | *Conocimiento que se carga solo cuando hace falta* (patrones, checklists, marcos). No ocupan contexto permanente. |
-| **CLIs** | *La máquina que valida*: frontmatter, prosa (enlaces rotos y mojibake), cableado (command → agent → skill), smoke-test, conteos, test del instalador, presupuesto de tokens. |
-| **MCPs / plugins** | Conexiones externas: `context7` activo por defecto, 14 más en opt-in (`supabase`, `vercel`, `stripe`, `playwright`...) — cada uno se enciende con `/mcp-on`. Más los hooks de comportamiento. |
+| **Commands** | *Qué escribes tú*: `/prd`, `/spec-lint`, `/plan`, `/tasks`, `/verify`... El `AGENTS.md` global obliga a pasos verificables. |
+| **Skills** | *Conocimiento que se carga solo cuando hace falta* — patrones, checklists, marcos. No ocupan contexto permanente. |
+| **CLIs** | *La máquina que valida*: frontmatter, prosa, cableado, smoke-test, conteos, instalador, presupuesto de tokens y las invariantes de comportamiento. |
+| **MCPs / plugins** | Conexiones externas: `context7` activo por defecto, 14 más en opt-in (`supabase`, `vercel`, `stripe`, `playwright`...) — cada uno se enciende con `/mcp-on`. |
+
+La lista completa de los **70 comandos**, agrupados por intención, está en [`.opencode/manual/COMMANDS.md`](.opencode/manual/COMMANDS.md); el mapa de los **85 agents** por intención, en [`.opencode/manual/ROUTE.md`](.opencode/manual/ROUTE.md).
+
+## Cómo empezar
+
+Todo empieza por una de estas dos preguntas.
+
+### No sé qué hacer
+
+| Qué escribes | Qué pasa |
+|---|---|
+| `/route "lo que quiero, en lenguaje normal"` | te da 1 recomendación + 2 alternativas + el comando exacto para copiar |
+| `/start-here` | 5 flujos típicos (construir, arreglar, revisar, refactorizar, salud) con un ejemplo cada uno |
+| `/list-agents` o `/list-skills` | inventario completo para hojear |
+
+> **`/route` es read-only**: recomienda, no conduce. **No ejecuta nada** — te dice qué escribir y lo lanzas tú.
+
+```text
+/route "añadir módulo de pagos con Stripe"
+
+→ Recommended: /flow-feature
+  Why: feature nueva
+  Run: /flow-feature "añadir módulo de pagos con Stripe"
+
+(y tú copias y ejecutas ese Run)
+```
+
+### Sí sé qué hacer
+
+| La tarea es | Escribe |
+|---|---|
+| una feature nueva | `/flow-feature "…"` — encadena todo |
+| un bug con reproducción | `/flow-bugfix "pasos para reproducir"` |
+| un refactor | `/flow-refactor "…"` |
+| seguridad | `/flow-security` |
+| una revisión de código | `/code-review` |
+| algo pequeño | `/quick-prd "…"` |
+| el ciclo entero, con varios agents | `/orchestrate "…"` |
+| una pregunta normal | **no escribas nada** — se responde directo |
+
+Los cuatro `/flow-*` y `/orchestrate` **sí encadenan**. La conducta 8 del paquete lo dice claro: **cero sub-agentes por defecto**, solo se encadena cuando la tarea lo merece.
+
+### Proyecto nuevo
+
+```powershell
+# 1. instala el pack en la carpeta del proyecto
+.\init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
+
+# 2. arranca
+cd C:\mi-proyecto
+opencode .
+
+# 3. crea el contexto del proyecto (conducta 9)
+/project-init
+
+# 4. empieza
+/flow-feature "…"
+```
+
+### Proyecto existente
+
+```powershell
+# 1. instala o actualiza (idempotente: no pisa nada)
+.\init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
+
+# 2. arranca
+cd C:\mi-proyecto
+opencode .
+
+# 3. recupera el hilo de la sesión anterior
+/session-start
+
+# 4. continúa
+/route "…"
+```
 
 ## El flujo SDD
 
@@ -52,11 +136,19 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 
 **Todo el ciclo de una vez**: `/orchestrate` encadena el flujo multi-agente completo y arranca en la Fase 0 invocando solo al `prd-agent`, para que la especificación no se pueda saltar ni a mano.
 
-**Flujos pre-armados**: para los cuatro casos habituales ya viene el recorrido montado — `/flow-feature`, `/flow-bugfix`, `/flow-refactor` y `/flow-security`. Si el final es publicar, `/opensource-pipeline` hace lo suyo.
+**Flujos pre-armados**: `/flow-feature`, `/flow-bugfix`, `/flow-refactor` y `/flow-security` montan los recorridos habituales. Si el final es publicar, `/opensource-pipeline` hace lo suyo.
 
 Complementos: `/spec-to-tests` (tests desde la especificación), `/quick-prd` (cambios pequeños), `pack-reference` (skill con el manual completo).
 
-La lista completa de los **70 comandos**, agrupados por intención, está en [`.opencode/manual/COMMANDS.md`](.opencode/manual/COMMANDS.md); el mapa de los **85 agents** por intención, en [`.opencode/manual/ROUTE.md`](.opencode/manual/ROUTE.md).
+### Quién manda
+
+Hay tres capas, y manda una distinta de lo que suena:
+
+| Capa | Papel |
+|---|---|
+| **`AGENTS.md`** | la ley: se carga **siempre** y tiene las 9 conductas obligatorias (no opt-in) |
+| **`router` skill** | decide qué agent o skill encaja — se carga **bajo demanda** |
+| **`/orchestrate`** | el conductor del ciclo multi-agente, **no** el jefe. Para tareas simples manda la conducta 8 y respondes directo |
 
 ## El equipo se adapta a tu proyecto
 
@@ -66,7 +158,7 @@ SDD es un **estándar**, no una plantilla con el mismo equipo para todos: el pro
 
 `/prd` · `/spec-lint` · `/plan` · `/tasks` · `/orchestrate` · `/verify` · `/audit-report` · `/trace` · `/definition-of-done` · `/change-request`
 
-y con ellos los agents de proceso: `prd-agent`, `planner`, `tdd-guide`, `code-reviewer`, `security-reviewer`, `doc-updater`, `report-auditor`... **Estos nunca se podan**: son los que sostienen las 9 fases de arriba.
+y con ellos los agents de proceso: `prd-agent`, `planner`, `tdd-guide`, `code-reviewer`, `security-reviewer`, `doc-updater`... **Estos nunca se podan**: son los que sostienen las 9 fases de arriba.
 
 **Se adapta** — los reviewers y resolvers atados a un lenguaje:
 
@@ -77,7 +169,7 @@ y con ellos los agents de proceso: `prd-agent`, `planner`, `tdd-guide`, `code-re
 | Python | `python-reviewer`, `django-build-resolver`, `fastapi-reviewer`... | los de JS/TS, Go, Rust... |
 | Go, Rust, Java, Kotlin, C#, C++, PHP, Swift | los de su lenguaje | el resto |
 
-Los skills también se ajustan, pero con criterio conservador: solo los estrictamente JS/TS (`drizzle-patterns`, `turso-libsql`, `clerk-auth`) se descartan fuera de Node. El resto son multi-stack (`docker-patterns`, `github-actions`) o los usan agents de otros procesos (`supabase-patterns` y `firebase-patterns` sirven también a Flutter).
+Los skills también se ajustan, pero con criterio conservador: solo los estrictamente JS/TS (`drizzle-patterns`, `turso-libsql`, `clerk-auth`) se descartan fuera de Node. El resto son multi-stack o los usan agents de otros procesos.
 
 ### Nada queda suelto
 
@@ -91,43 +183,39 @@ Descartar un agente puede dejar referencias colgando. El instalador las limpia *
 
 Y no se deja a la buena fe. El `smoke-test` lo comprueba en **cada** instalación con la batería `[Stack filter integrity]`:
 
-- **`no orphan commands`** — el `agent:` de cada comando apunta a un agente instalado (o a los built-in de opencode).
-- **`dispatch points document the stack fallback`** — todos los puntos de despacho (`/route`, `/orchestrate`, `/pr-review`, `/list-agents`, `router/SKILL.md`, `AGENTS.md`...) explican qué hacer cuando un agente no existe.
+- **`no orphan commands`** — el `agent:` de cada comando apunta a un agente instalado.
+- **`dispatch points document the stack fallback`** — todos los puntos de despacho explican qué hacer cuando un agente no existe.
 
-`installer-test` lo repite además en los escenarios reales de instalación (T1 con filtro y T6 sin filtro de skills). **Si algo quedara suelto, el test falla** en lugar de dejarlo pasar.
-
-Ese es el resultado: no una carpeta de piezas sueltas, sino un equipo que trabaja conjunto desde el primer mensaje y bajo el mismo ciclo SDD.
+`installer-test` lo repite además en los escenarios reales de instalación. **Si algo quedara suelto, el test falla** en lugar de dejarlo pasar.
 
 ## Instalación
 
 ### Requisitos
 
-- **Windows** con PowerShell 5.1 o superior (incluido en Windows 10 y 11)
+- **Windows** con PowerShell 5.1 o superior
 - **Git** para clonar el repositorio
 - **Node.js** en el `PATH` — opcional: sin él el instalador funciona igual, pero omite la regeneración de índices y de los bloques `## Counts`
 
-### Paso 1 — Clona el pack
+### Paso 1 — Clona
 
 ```powershell
 git clone https://github.com/miguelalbisortiz/agentes.git
 cd agentes
 ```
 
-### Paso 2 — Instálalo en tu proyecto
-
-**Si el proyecto ya existe**, indica su ruta:
+### Paso 2 — Instala en tu proyecto
 
 ```powershell
 .\init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
 ```
 
-**O en el directorio actual:**
+O en el directorio actual, sin `-ProjectPath`:
 
 ```powershell
 .\init-opencode.ps1
 ```
 
-Si Windows bloquea el script por política de ejecución, lánzalo así:
+Si Windows bloquea el script por política de ejecución:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File init-opencode.ps1 -ProjectPath "C:\mi-proyecto"
@@ -135,9 +223,9 @@ powershell -ExecutionPolicy Bypass -File init-opencode.ps1 -ProjectPath "C:\mi-p
 
 El instalador **no pregunta nada**: se lanza y corre solo hasta el final.
 
-### Qué hace el instalador
+### Qué hace
 
-Antes de copiar nada **detecta el stack** del proyecto mirando sus ficheros de configuración (`pubspec.yaml` → flutter, `package.json` → node, `pyproject.toml` → python, `Cargo.toml` → rust, `go.mod` → go, `pom.xml` → java...) y descarta los agents de lenguajes que no aplican. Si no reconoce el stack, instala la biblioteca completa.
+Antes de copiar nada **detecta el stack** del proyecto mirando sus ficheros de configuración (`pubspec.yaml` → flutter, `package.json` → node, `pyproject.toml` → python, `Cargo.toml` → rust, `go.mod` → go...) y descarta los agents de lenguajes que no aplican. Si no reconoce el stack, instala la biblioteca completa.
 
 Luego ejecuta 7 fases en orden:
 
@@ -151,12 +239,7 @@ Luego ejecuta 7 fases en orden:
 | 6 | Plugins npm | Instala los plugins del pack — lo omite con `-SkipInstall` |
 | 7 | Verificación | Recuenta agents, commands y skills, y comprueba los MCPs |
 
-Termina con un resumen que imprime el **recuento real instalado** y el comando para arrancar:
-
-```text
-cd C:\mi-proyecto
-opencode .
-```
+Termina con un resumen que imprime el **recuento real instalado**.
 
 ### Qué aparece en tu proyecto
 
@@ -170,40 +253,9 @@ opencode .
 | `docs/` | Estructura de documentación |
 | `opencode.json` | **Fusionado**: conserva lo tuyo y añade los MCPs del pack |
 | `.gitignore` | **Fusionado**: conserva tus reglas y añade las del pack |
-| `skills-lock.json` | Estado de las skills |
+| `skills-lock.json` | **Fusionado**: estado de las skills |
 
 **No se pisa nada**: si ya tienes `opencode.json` o `.gitignore`, el pack solo añade las entradas que faltan. Repetir la instalación es seguro (**idempotente**): no duplica carpetas ni crea anidados.
-
-### Paso 3 — Verifica
-
-Desde la raíz del proyecto instalado:
-
-| Chequeo | Comando |
-|---|---|
-| Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` |
-| Prosa: enlaces relativos rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` |
-| Cableado: command → agent, y agents/skills alcanzables (W1–W8) | `node .opencode/bin/wiring-test.js` |
-| Salud general del pack | `node .opencode/bin/smoke-test.js` |
-| Los bloques `## Counts` reflejan lo real en disco | `node .opencode/bin/counts.js --check` |
-| El instalador no rompe nada (T1–T7) | `powershell -File .opencode/bin/installer-test.ps1` |
-| Presupuesto de tokens vs baseline | `node .opencode/bin/measure-tokens.js` |
-
-Estado actual del pack maestro: `validate` **477 / 0 warnings / 0 fallos** · `lint-docs` **0 hallazgos en 223 .md** · `wiring-test` **8/8** · `smoke-test` **31/31** · `installer-test` **48/48**.
-
-> `measure-tokens` sale en rojo (**+19%** frente a una meta de ≥40%): `AGENTS.md` aún pesa más que los **7192 bytes** de su baseline y nunca se ha recortado. La palanca de los MCPs ya está tirada — queda solo `context7` —, así que **el techo con 0 MCPs ronda el 32%** y llegar al 40% exige reducir `AGENTS.md`. La baseline no se reescribe (actualizarla haría la meta auto-cumplible), de modo que el rojo es deliberado y honesto.
-
-### Paso 4 — Arranca opencode
-
-```powershell
-cd C:\mi-proyecto
-opencode .
-```
-
-Escribe algo como *«Crea una app SaaS con login y pagos»* y el router ya sabe a qué agents y skills llamar.
-
-### Actualizar o reinstalar
-
-Vuelve a ejecutar el mismo comando con la misma ruta. Como la instalación es idempotente, actualiza lo que haya cambiado en el pack sin duplicar nada ni pisar tus archivos.
 
 ### Parámetros
 
@@ -216,31 +268,84 @@ Vuelve a ejecutar el mismo comando con la misma ruta. Como la instalación es id
 | `-SkipInstall` | Omite la instalación de plugins npm |
 | `-SkipDocs` | Omite la estructura de `docs/` |
 
-`-Force` sigue aceptándose por compatibilidad, pero no hace falta: el instalador nunca pregunta y siempre sobreescribe.
+### Actualizar
+
+Vuelve a ejecutar el mismo comando con la misma ruta. Como la instalación es idempotente, actualiza lo que haya cambiado sin duplicar nada ni pisar tus archivos.
+
+## Verificación, CI y EDD
+
+### Batería local
+
+Se corre desde la raíz del pack:
+
+| Chequeo | Comando | Estado |
+|---|---|---|
+| Prosa: enlaces rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` | **225 .md · 0 hallazgos** |
+| Los bloques `## Counts` reflejan lo real | `node .opencode/bin/counts.js --check` | **exit 0** |
+| Cableado: command → agent → skill (W1–W8) | `node .opencode/bin/wiring-test.js` | **8/8** |
+| Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` | **477 / 0 / 0** |
+| Salud general del pack | `node .opencode/bin/smoke-test.js` | **31/31** |
+| El instalador no rompe nada | `powershell -File .opencode/bin/installer-test.ps1` | **48/48** |
+| Invariantes de comportamiento | `node .opencode/bin/eval-static.js` | **9/9** |
+| Presupuesto de tokens | `node .opencode/bin/measure-tokens.js` | **35 %** (rojo deliberado) |
+
+### Gate en CI
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) corre **en cada push y en cada pull request**: 13 pasos, desde la creación de los junctions de compatibilidad hasta `eval-static`. Un cambio que rompa cualquier chequeo **no llega**.
+
+`measure-tokens` corre ahí **solo informativo** (`continue-on-error`): está en rojo al 35 % contra una meta de 40 % que sigue abierta. El suelo real lo fija el caso `E7`.
+
+### Las 9 invariantes
+
+Los casos viven en [`evals/cases/static.json`](evals/cases/static.json) — son **datos**, no código: añadir una regresión no exige tocar el runner. El diseño completo está en [`evals/README.md`](evals/README.md).
+
+| Id | Qué protege |
+|---|---|
+| E1 | `AGENTS.md` no vuelve a autorizar commits automáticos |
+| E2 | las 9 conductas obligatorias siguen completas |
+| E3 | la baseline de Prompt Defense sigue presente |
+| E4 | todo agent referencia esa baseline |
+| E5 | 0 huérfanos en agents, skills y commands |
+| E6 | cada puntero de sección resuelve a un encabezado |
+| E7 | `measure-tokens` no cae por debajo del 30 % |
+| E8 | los 4 gates del ciclo SDD existen |
+| E9 | la conducta de consentimiento git sigue intacta |
+
+### Presupuesto de tokens
+
+`measure-tokens` compara contra la baseline histórica del PRD `2026-08-12-optimize-pack-token-consumption`. **La baseline no se reescribe** — actualizarla haría que la meta fuera auto-cumplible.
+
+```text
+AGENTS.md   5682 bytes (~1421 tokens)
+boot        ~1921 tokens   vs baseline ~2948
+SAVINGS     35%            (meta >= 40%)
+```
 
 ## Estructura
 
 ```text
 .
-├── README.md                 Este documento
-├── init-opencode.ps1         Instalador (única vía de instalación/actualización)
-├── opencode.json             Configuración (plugins, MCPs)
-├── skills-lock.json          Estado de las skills
-├── .gitignore                Reglas de exclusión
-├── docs/                     Plantillas y documentación
-├── .agents/skills/           Skills + el router (dispatcher)
+├── README.md                  Este documento
+├── init-opencode.ps1          Instalador (única vía de instalación/actualización)
+├── opencode.json              Configuración (plugins, MCPs)
+├── skills-lock.json           Estado de las skills
+├── .gitignore                 Reglas de exclusión
+├── .github/workflows/ci.yml   Gate de CI
+├── docs/                      Plantillas y documentación
+├── evals/                     Casos de regresión (EDD)
+├── .agents/skills/            Skills + el router (dispatcher)
 └── .opencode/
-    ├── AGENTS.md             Reglas globales de comportamiento
-    ├── AGENTS_INDEX.md       Índice de agents (autogenerado)
-    ├── agents/               Agents
-    ├── commands/             Slash commands
-    ├── bin/                  CLIs de validación y utilidades
-    ├── manual/               Documentación de referencia
-    ├── plugins/              Hooks de comportamiento
-    └── templates/            Plantillas (PROJECT.md, etc.)
+    ├── AGENTS.md              Reglas globales de comportamiento
+    ├── AGENTS_INDEX.md        Índice de agents (autogenerado)
+    ├── agents/                Agents
+    ├── commands/              Slash commands
+    ├── bin/                   CLIs de validación y utilidades
+    ├── manual/                Documentación de referencia
+    ├── plugins/               Hooks de comportamiento
+    └── templates/             Plantillas (PROJECT.md, etc.)
 ```
 
-Los ficheros `AGENTS_INDEX.md`, `skills/INDEX.md` y los bloques `## Counts` son **autogenerados**: se regeneran solos en cada instalación, así que nunca llevan cifras falsas.
+Los ficheros `AGENTS_INDEX.md`, `skills/INDEX.md` y los bloques `## Counts` son **autogenerados**: se regeneran en cada instalación, así que nunca llevan cifras falsas.
 
 ## Créditos
 
