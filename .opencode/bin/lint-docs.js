@@ -61,6 +61,12 @@ const SKIP_DIRS = new Set([
   'node_modules', '.git', 'backup', 'dist', 'build', '.next', 'agents-backup',
 ]);
 
+// Repo-root files that are gitignored working notes, not part of the pack.
+// They exist only on the maintainer's machine, so skipping them is what keeps
+// the local count identical to the count on a clean clone (CI). Without this
+// the battery would report 225 here and 224 in CI.
+const SKIP_FILES = new Set(['PENDIENTES.md']);
+
 /**
  * Last word a sentence is unlikely to finish on when it is actually complete.
  * Deliberately narrow: the broad version produced 43 false positives on
@@ -126,6 +132,7 @@ function walk(dir, out = []) {
       if (SKIP_DIRS.has(e.name)) continue;
       walk(full, out);
     } else if (e.isFile() && e.name.endsWith('.md')) {
+      if (SKIP_FILES.has(e.name)) continue;
       out.push(full);
     }
   }

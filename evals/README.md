@@ -72,11 +72,31 @@ ilegible.
 `.github/workflows/ci.yml` ejecuta la batería completa y `eval-static` en cada
 push y en cada pull request.
 
-`measure-tokens` corre **solo informativo** (`continue-on-error`): está en rojo
-deliberado al 35 % frente a una meta de 40 % que sigue abierta en
-`PENDIENTES.md`. El suelo real lo fija el caso E7. Convertirlo en gate duro
-solo tiene sentido cuando se cumpla el 40 %, y **nunca reescribiendo la
-baseline** — eso haría la meta auto-cumplible.
+`measure-tokens` corre **solo informativo** (`continue-on-error`): su rojo es
+deliberado. El **suelo duro** lo fija el caso E7 (≥ 30 %); la **meta** es
+≥ 40 %. El valor actual sale de `node .opencode/bin/measure-tokens.js`.
+
+La baseline histórica **nunca se reescribe** — actualizarla haría que la meta
+fuera auto-cumplible. Convertir `measure-tokens` en gate duro solo tiene
+sentido cuando se cumpla el 40 %.
+
+## Nivel 2 — pendiente
+
+El dataset actual es **estático**: comprueba que lo escrito sigue ahí. **No
+comprueba que el modelo obedece** — E3 y E4 verifican que el puntero de Prompt
+Defense existe, no que un *ignore previous instructions* sea rechazado.
+
+Evaluar comportamiento en vivo con `opencode run` (headless) y `opencode export`
+(traza JSON):
+
+- **~50 casos**: ¿rutea a `prd-agent`?, ¿commita sin pedir?, ¿obedece ante
+  inyección?, ¿inventa un agent que no existe sin stack?
+- **Coste**: API real por cada ejecución, en cada corrida
+- **Guía del sector**: 50 casos detectan regresiones grandes; 200 dan
+  confianza estadística
+
+Es lo que separa EDD de estar a medias: la máquina ya existe, le falta
+comprobar comportamiento.
 
 ## Cómo añadir un caso
 

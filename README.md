@@ -301,7 +301,7 @@ Se corre desde la raíz del pack:
 
 | Chequeo | Comando | Estado |
 |---|---|---|
-| Prosa: enlaces rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` | **225 .md · 0 hallazgos** |
+| Prosa: enlaces rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` | **224 .md · 0 hallazgos** |
 | Los bloques `## Counts` reflejan lo real | `node .opencode/bin/counts.js --check` | **exit 0** |
 | Cableado: command → agent → skill (W1–W8) | `node .opencode/bin/wiring-test.js` | **8/8** |
 | Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` | **477 / 0 / 0** |

@@ -10,10 +10,10 @@
 #   2. eval-static — behavioural invariants from evals/cases/*.json — hard
 #      gate. Adding a regression case needs no runner change.
 #   3. measure-tokens — informational only (continue-on-error). The metric
-#      is deliberately red at 35% against a 40% goal that is still open in
-#      PENDIENTES.md; the real floor is enforced by eval-static E7 (>=30%).
-#      Do not turn this into a hard gate until the 40% goal is met, and
-#      never rewrite the baseline — that would make the goal self-passing.
+#      is deliberately red against a 40% goal; the real floor is enforced by
+#      eval-static E7 (>=30%). Do not turn this into a hard gate until the
+#      40% goal is met, and never rewrite the baseline — that would make
+#      the goal self-passing.
 
 name: ci
 

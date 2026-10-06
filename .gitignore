@@ -44,3 +44,8 @@ Thumbs.db
 .opencode/skill
 .opencode/agent/
 .opencode/skill/
+
+# --- Notas de trabajo internas (no son parte de la biblioteca) ---
+# El tracker de sesion vive solo en local: el repositorio publico contiene
+# agents, commands y skills, no el cuaderno de anotaciones de quien lo mantiene.
+PENDIENTES.md
