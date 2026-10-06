@@ -1,0 +1,68 @@
+# CI gate — eval-driven development, deterministic layer
+#
+# Why this file exists: the pack ships verifiers that all had to be run by
+# hand. Nothing ran automatically, so a broken push went unnoticed until
+# someone remembered to run the battery. This workflow is the gate.
+#
+# Tiers:
+#   1. Structural verifiers (lint, counts, wiring, frontmatter, smoke,
+#      installer) — hard gate, any failure blocks the change.
+#   2. eval-static — behavioural invariants from evals/cases/*.json — hard
+#      gate. Adding a regression case needs no runner change.
+#   3. measure-tokens — informational only (continue-on-error). The metric
+#      is deliberately red at 35% against a 40% goal that is still open in
+#      PENDIENTES.md; the real floor is enforced by eval-static E7 (>=30%).
+#      Do not turn this into a hard gate until the 40% goal is met, and
+#      never rewrite the baseline — that would make the goal self-passing.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: battery + eval-static
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      # --- 1. structural verifiers -------------------------------------
+      - name: "lint-docs (R1-R7)"
+        run: node .opencode/bin/lint-docs.js --dir .
+
+      - name: "counts --check"
+        run: node .opencode/bin/counts.js --check
+
+      - name: "wiring-test (W1-W8)"
+        run: node .opencode/bin/wiring-test.js
+
+      - name: "validate-frontmatter"
+        run: node .opencode/bin/validate-frontmatter.js
+
+      - name: "smoke-test"
+        run: node .opencode/bin/smoke-test.js
+
+      - name: "installer-test (48 checks)"
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File .opencode/bin/installer-test.ps1
+
+      # --- 2. behavioural invariants (hard gate) ------------------------
+      - name: "eval-static (E1-E9)"
+        run: node .opencode/bin/eval-static.js
+
+      # --- 3. informational ---------------------------------------------
+      - name: "measure-tokens (informational, not a gate)"
+        continue-on-error: true
+        run: node .opencode/bin/measure-tokens.js

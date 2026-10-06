@@ -1,0 +1,85 @@
+[
+  {
+    "id": "E1",
+    "kind": "absent",
+    "title": "AGENTS.md no autoriza commits automaticos",
+    "files": [".opencode/AGENTS.md"],
+    "pattern": "auto-?checkpoint|auto-?commit|every 10 minutes|WIP: pre-",
+    "flags": "i",
+    "why": "regresion de ee5897c: el auto-checkpoint contradecia las conductas 3 y 5"
+  },
+  {
+    "id": "E2",
+    "kind": "count",
+    "title": "Las 9 conductas obligatorias siguen completas",
+    "files": [".opencode/AGENTS.md"],
+    "pattern": "^[1-9]\\. \\*\\*",
+    "flags": "m",
+    "equals": 9,
+    "why": "core del pack; perder una conducta es un fallo silencioso"
+  },
+  {
+    "id": "E3",
+    "kind": "present",
+    "title": "Baseline de Prompt Defense presente en AGENTS.md",
+    "files": [".opencode/AGENTS.md"],
+    "pattern": "Prompt Defense Baseline \\(GLOBAL",
+    "min": 1,
+    "why": "los agents apuntan aqui; si se borra la seccion el puntero queda roto"
+  },
+  {
+    "id": "E4",
+    "kind": "every",
+    "title": "Todo agent referencia la baseline de Prompt Defense",
+    "dir": ".opencode/agents",
+    "glob": "*.md",
+    "pattern": "Prompt Defense Baseline: see AGENTS\\.md",
+    "why": "P2 llego a 85/85; un agent nuevo sin puntero pierde la defensa"
+  },
+  {
+    "id": "E5",
+    "kind": "orphan",
+    "title": "0 huerfanos estrictos (agents, skills, commands)",
+    "why": "estar en un catalogo no es una ruta de dispatch"
+  },
+  {
+    "id": "E6",
+    "kind": "heading",
+    "title": "Todo puntero 'AGENTS.md <seccion>' resuelve a un encabezado",
+    "dir": ".opencode/agents",
+    "glob": "*.md",
+    "target": ".opencode/AGENTS.md",
+    "pattern": "AGENTS\\.md\\s*.\\s*([^\\r\\n<]+?)\\s*-->",
+    "why": "clase de bug de los punteros rotos (61e4902, 50d8198)"
+  },
+  {
+    "id": "E7",
+    "kind": "metric",
+    "title": "measure-tokens no cae por debajo del suelo del 30%",
+    "tool": "measure-tokens",
+    "field": "savingsPct",
+    "gte": 30,
+    "why": "suelo de regresion: hoy 35%; la meta 40% sigue abierta en PENDIENTES"
+  },
+  {
+    "id": "E8",
+    "kind": "files",
+    "title": "Los 4 gates del SDD existen",
+    "files": [
+      ".opencode/commands/spec-lint.md",
+      ".opencode/commands/verify.md",
+      ".opencode/commands/trace.md",
+      ".opencode/commands/definition-of-done.md"
+    ],
+    "why": "sin sus gates el ciclo SDD no es un ciclo"
+  },
+  {
+    "id": "E9",
+    "kind": "present",
+    "title": "Conducta 3 (git consent) intacta",
+    "files": [".opencode/AGENTS.md"],
+    "pattern": "\\*\\*Git consent\\*\\*",
+    "min": 1,
+    "why": "es la conducta que prohibio el auto-checkpoint"
+  }
+]
