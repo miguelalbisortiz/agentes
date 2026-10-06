@@ -8,7 +8,7 @@ Sobre el ecosistema de desarrollo de software con IA, este pack no aplica una pr
 
 | Práctica | Cómo está cubierta |
 |---|---|
-| **Spec-driven** | especificar antes de construir: `/prd` → `/spec-lint` → `/plan` → `/tasks` |
+| **Spec-driven** | especificar antes de construir y demostrar al cerrar — el ciclo entero en orden de gates: `/prd` → `/spec-lint` → `/plan` → `/tasks` → `/verify` → `/audit-report` → `/trace` → `/definition-of-done` |
 | **Context engineering** | los skills se cargan solo cuando hacen falta; `AGENTS.md` no se llena de todo |
 | **Verification gate** | `/verify` ejecuta tests y builds reales; `/definition-of-done` solo cierra con evidencia |
 | **Eval-driven** | un dataset de invariantes y un gate en CI que no deja pasar un cambio que las rompa |
