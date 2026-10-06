@@ -40,15 +40,9 @@ Security secrets/OWASP → `security-review`. Tool truncation >200 líneas → `
 Secrets SIEMPRE env vars, nunca hardcoded; issue → STOP → `security-reviewer`.
 
 ## Agent Coordination Rules
-### Execution Order (mandatory for multi-agent flows)
-Cada agente que produce output lo guarda en `docs/` con timestamp. El siguiente agente en la cadena LEE el output del anterior antes de empezar.
-```
-PRD → Plan → Implement → Review → Audit → Deliver
-prd-agent → planner → build → code-reviewer → audit-orchestrator → manual-writer
-```
 ### Handoff Protocol
 - Cada agente escribe su output a `docs/{type}/{timestamp}-{name}.{ext}`
-- El siguiente agente en la cadena busca archivos recientes en `docs/`
+- El siguiente agente busca los archivos recientes en `docs/`
 - Si no encuentra output del anterior, LO PIDE antes de proceder
 - `audit-orchestrator` es el ÚNICO que puede marcar un proyecto como "entregable"
 
@@ -82,16 +76,3 @@ prd-agent → planner → build → code-reviewer → audit-orchestrator → man
 1. Save snapshot to docs/sessions/
 2. Run project-learning skill to extract new learnings
 3. Update docs/LEARNING.md
-
-## Checkpoint Mode (CRITICAL)
-### Manual Checkpoint
-On "checkpoint" or "guarda":
-1. Stage all modified files
-2. Commit with user-provided message or "WIP: manual checkpoint"
-3. Confirm: "Checkpoint guardado: {commit-hash}"
-
-### Recovery
-If session crashes:
-1. Check `git log --oneline -10` for WIP commits
-2. `git revert HEAD` to undo last WIP
-3. Or `git reset HEAD~1` to uncommit but keep changes
