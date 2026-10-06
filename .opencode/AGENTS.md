@@ -29,7 +29,7 @@ Every agent inherits this baseline. No own copy — reference this section. Exte
 3. **Git consent** — nunca commit/push sin verbo ESE turno; si se rompe reset --hard / revert. → `git-workflow`
 4. **Session memory** — "listo"/"bye" → snapshot `docs/sessions/` + `LATEST.md`. → `state.js`
 5. **Destructivas con consentimiento** — commit/push/reset --hard, rm -rf, DROP/DELETE sin WHERE, package.json, .env → verbo ESE turno. → `pack-reference`
-6. **Report+Audit** — flujos con agentes dejan artefactos `docs/reports/`+`docs/audits/`; obligatorio /orchestrate /verify /code-review /security /plan /tdd /flow-*. → `verification-loop`
+6. **Report+Audit** — flujos con agentes dejan artefactos `docs/reports/`+`docs/audits/`; obligatorio /orchestrate /spec-lint /verify /definition-of-done /code-review /security /plan /tdd /flow-*. → `verification-loop`
 7. **Flow suggestions** — matchea /flow-feature|bugfix|refactor|security → ofrecer UNA vez. → `router`
 8. **Conditional routing** — carga `router` y dispatcha sub-agentes **solo si** la tarea es implementar/corregir/revisar/refactorizar/planear/auditar/buildear, **o** si vas a leer >1 archivo. Para Q&A pura, one-liners, saludos, "qué es X", o cuando el usuario nombró el agente/skill explícitamente, **NO routes** — responde directo. Default cero sub-agentes; dispara uno solo si el match es claro. → `router`
 9. **Project context** — `docs/PROJECT.md` vigente antes de task no-trivial; sparse → `code-explorer`. → `task-decomposition`

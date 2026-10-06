@@ -1,6 +1,6 @@
 # Pendientes
 
-> **Última actualización:** 2026-10-05 · `D:\open` → `main` = `origin/main` = `50d8198`
+> **Última actualización:** 2026-10-06 · `D:\open` → `main` = `origin/main`
 > **Estado del repo:** limpio, 0 sin commitear, 0 sin push, batería completa en verde.
 
 Este fichero es la mano donde se dejó el trabajo después de la auditoría de los cinco
@@ -14,86 +14,16 @@ apartado conforme se cierre.
 | Eje | Veredicto | Nota |
 |---|---|---|
 | SDD | 🟢 Fuerte | 9 puertas + 4 flujos; los 4 gates devuelven exit code |
-| Context Engineering | 🟢 Fuerte | arranque 7570 B, 40 skills diferidos, 1 MCP activo |
+| Context Engineering | 🟢 Fuerte | arranque 7601 B, 40 skills diferidos, 1 MCP activo |
 | EvalOps | 🟡 Estructural sí, conductual no | 16 verificadores, 0 golden prompts, 0 ejecuciones |
-| Aislamiento | 🟢 Fuerte | 85/85 con `permission`, 0 con los 9 tools en `allow` |
-| Seguridad | 🟢 Bueno | 0 secretos literales; 11 agents sin Prompt Defense |
-
----
-
-## P1 — El scaffold crea agents permisivos
-
-**Dónde:** `.opencode/bin/scaffold-new-agent.js:39`
-
-```js
-const PERMISSION = arg('--permission', 'bash: allow, read: allow, write: allow, edit: allow,
-  glob: allow, grep: allow, webfetch: allow, task: allow, skill: allow');
-```
-
-**Problema:** los 85 agents actuales son de menos privilegio (nadie tiene los 9 tools
-en `allow`), pero **cualquier agent nuevo nace con todo abierto**. El pack enseña una
-cosa y su propia herramienta hace la contraria.
-
-**Acción:** cambiar el valor por defecto por uno mínimo coherente con el resto del
-pack. Mantener la flag `--permission` para quien quiera abrirlo a mano.
-
-**Criterio de hecho:** crear un agent con el scaffold y comprobar que no nace con los
-9 tools.
-
-- **Ficheros:** 1 (más la ayuda que imprime el propio script)
-- **Esperado:** ~10 min
-
----
-
-## P2 — Prompt Defense ausente en 11 agents
-
-**Dónde:** 11 ficheros, todos de la familia *builder/integrator*:
-
-```
-api-integrator      auth-builder        devops-deploy
-fullstack-builder   graphql-builder     legacy-modernizer
-mobile-builder      payment-integrator  realtime-builder
-supabase-builder    testing-auto
-```
-
-**Problema:** 74/85 llevan la marca; **estos 11 no**. Y son justo los que tocan
-**pagos, auth y despliegues**.
-
-**Acción:** añadir en cada uno la línea ya estandarizada en el resto:
-
-```html
-<!-- Prompt Defense Baseline: see AGENTS.md § Prompt Defense Baseline (GLOBAL) -->
-```
-
-**Criterio de hecho:** el recuento pasa de 74/85 a **85/85**.
-
-- **Ficheros:** 11 (mecánico, mismo patrón que el commit `61e4902`)
-- **Esperado:** ~15 min
-
----
-
-## P3 — Dos puertas del SDD no están en `AGENTS.md`
-
-**Dónde:** `.opencode/AGENTS.md`
-
-**Problema:** el arranque sí nombra `/prd`, `/verify` y `/orchestrate`, pero
-**no `/spec-lint` ni `/definition-of-done`** — que son precisamente las dos puertas
-que *pueden fallar*. Si nadie las escribe, no se ejecutan.
-
-**Acción:** incluirlas en la lista obligatoria.
-
-**Criterio de hecho:** ambas aparecen en `AGENTS.md`.
-
-- **Ficheros:** 1
-- **Esperado:** ~10 min
-- ⚠️ **Advertencia:** `AGENTS.md` es el fichero de arranque. Añadir texto **sube** el
-  consumo de tokens y empeora `measure-tokens`. Hacerlo **antes** de P4.
+| Aislamiento | 🟢 Fuerte | 85/85 con `permission`, 0 con los 9 tools en `allow`; scaffold corregido |
+| Seguridad | 🟢 Fuerte | 0 secretos literales; **85/85** con Prompt Defense |
 
 ---
 
 ## P4 — Recortar `AGENTS.md` (única palanca de tokens)
 
-**Dónde:** `.opencode/AGENTS.md` — hoy **7570 B / 136 líneas**, frente a los **7192 B**
+**Dónde:** `.opencode/AGENTS.md` — hoy **7601 B**, frente a los **7192 B**
 de la baseline.
 
 **Problema:** `measure-tokens` sale con exit 1 y **19 %** de ahorro frente a una meta
@@ -149,6 +79,10 @@ node .opencode/bin/measure-tokens.js                 # rojo deliberado (19%)
 | `db21128` | `coding-standards` → `pack-reference`; ruta de `AGENTS.md` en `validate-frontmatter` |
 | `0fe4c0c` | `playwright` pasa de `[other]` a categoría `testing` |
 | `50d8198` | `wiring-test` (W1–W8) + puntero de `agents-backup` + etiquetas MCP obsoletas |
+| `9b1c457` | este fichero |
+| `065444e` | **P1** · el scaffold crea agents con least-privilege (`glob+grep+read`) |
+| `fbc6678` | **P2** · Prompt Defense en los 11 builders → **85/85** |
+| — | **P3** · `/spec-lint` y `/definition-of-done` entran en las 9 conductas obligatorias |
 
 **Conteos maestro:** 85 agents · 70 commands · 40 skills · 17 CLIs · 1 active MCP +
 14 optional.

@@ -190,7 +190,7 @@ Desde la raíz del proyecto instalado:
 
 Estado actual del pack maestro: `validate` **477 / 0 warnings / 0 fallos** · `lint-docs` **0 hallazgos en 223 .md** · `wiring-test` **8/8** · `smoke-test` **31/31** · `installer-test` **48/48**.
 
-> `measure-tokens` sale en rojo (**+19%** frente a una meta de ≥40%): `AGENTS.md` pesa hoy 7570 bytes frente a los 7192 de la baseline, y nunca se ha recortado. La palanca de los MCPs ya está tirada — queda solo `context7`, y con **0** MCPs el techo sería +32% —, así que llegar al 40% exige reducir `AGENTS.md`. La baseline no se reescribe (actualizarla haría la meta auto-cumplible), de modo que el rojo es deliberado y honesto.
+> `measure-tokens` sale en rojo (**+19%** frente a una meta de ≥40%): `AGENTS.md` aún pesa más que los **7192 bytes** de su baseline y nunca se ha recortado. La palanca de los MCPs ya está tirada — queda solo `context7` —, así que **el techo con 0 MCPs ronda el 32%** y llegar al 40% exige reducir `AGENTS.md`. La baseline no se reescribe (actualizarla haría la meta auto-cumplible), de modo que el rojo es deliberado y honesto.
 
 ### Paso 4 — Arranca opencode
 
