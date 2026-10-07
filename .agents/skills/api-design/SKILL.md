@@ -357,6 +357,16 @@ Retry-After: 60
 
 ## Versioning
 
+Patterns for REST API versioning, backward compatibility, and deprecation.
+
+### When to Activate
+
+- Adding versioning to an existing API
+- Deprecating old API versions
+- Migrating clients between versions
+- Implementing version negotiation
+- Managing backward compatibility
+
 ### URL Path Versioning (Recommended)
 
 ```
@@ -377,6 +387,15 @@ Accept: application/vnd.myapp.v2+json
 **Pros:** Clean URLs
 **Cons:** Harder to test, easy to forget
 
+### Query Parameter Versioning
+
+```
+GET /api/users?version=1
+```
+
+**Pros:** Simple and cacheable
+**Cons:** Leaks into copied links, noisier URLs
+
 ### Versioning Strategy
 
 ```
@@ -396,6 +415,59 @@ Accept: application/vnd.myapp.v2+json
    - Changing URL structure
    - Changing authentication method
 ```
+
+### Backward Compatibility Rules
+
+- **Additive changes are safe**: new fields, new endpoints, new optional params
+- **Breaking changes require a new version**: type changes, field removal, required param changes
+- **Response transformation**: strip new fields when returning v1 responses from v2 data
+
+### Express Implementation
+
+```typescript
+import { Router } from 'express';
+
+const v1Router = Router();
+const v2Router = Router();
+
+v1Router.get('/users', getUsersV1);
+v2Router.get('/users', getUsersV2);
+
+app.use('/api/v1', v1Router);
+app.use('/api/v2', v2Router);
+```
+
+### NestJS Implementation
+
+```typescript
+app.enableVersioning({ type: VersioningType.URI, prefix: 'api/v' });
+
+@Controller('users')
+export class UsersController {
+  @Version('1') @Get() findAllV1() { return 'v1'; }
+  @Version('2') @Get() findAllV2() { return 'v2'; }
+}
+```
+
+### Deprecation Strategy
+
+1. Add `Deprecation: true` + `Sunset: <date>` headers
+2. Log usage metrics to track remaining consumers
+3. Reduce functionality (read-only first, then remove)
+4. Remove entirely when traffic hits zero
+
+### Migration Patterns
+
+- **Parallel running**: both versions live, monitor traffic shift
+- **Canary**: route small percentage to new version, compare
+- **Content negotiation**: client requests version via Accept header
+
+### Anti-Patterns
+
+- Breaking changes in same version
+- No deprecation timeline
+- Missing version headers
+- Too many versions maintained simultaneously
 
 ## Implementation Patterns
 

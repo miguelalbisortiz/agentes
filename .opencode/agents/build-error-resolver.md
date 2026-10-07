@@ -60,9 +60,43 @@ npx eslint . --ext .ts,.tsx,.js,.jsx
 
 **DON'T:** Refactor, change architecture, rename variables (unless causing error), add features, optimize
 
+## Priority Levels
+
+| Level | Symptoms | Action |
+|-------|----------|--------|
+| CRITICAL | Build completely broken, no dev server | Fix immediately |
+| HIGH | Single file failing, new code type errors | Fix soon |
+| MEDIUM | Linter warnings, deprecated APIs | Fix when possible |
+
+## Quick Recovery
+
+```bash
+# Nuclear option: clear all caches
+rm -rf .next node_modules/.cache && npm run build
+
+# Reinstall dependencies
+rm -rf node_modules package-lock.json && npm install
+
+# Fix ESLint auto-fixable
+npx eslint . --fix
+```
+
 ## Success Metrics
 
 - `npx tsc --noEmit` exits with code 0
 - `npm run build` completes successfully
 - Minimal lines changed (< 5% of affected file)
 - Tests still passing
+- No new errors introduced
+
+## When NOT to Use
+
+- Code needs refactoring → use `refactor-cleaner`
+- Architecture changes needed → use `architect`
+- New features required → use `planner`
+- Tests failing → use `tdd-guide`
+- Security issues → use `security-reviewer`
+
+---
+
+**Remember**: Fix the error, verify the build passes, move on. Speed and precision over perfection.
