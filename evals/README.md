@@ -72,31 +72,54 @@ ilegible.
 `.github/workflows/ci.yml` ejecuta la batería completa y `eval-static` en cada
 push y en cada pull request.
 
-`measure-tokens` corre **solo informativo** (`continue-on-error`): su rojo es
-deliberado. El **suelo duro** lo fija el caso E7 (≥ 30 %); la **meta** es
-≥ 40 %. El valor actual sale de `node .opencode/bin/measure-tokens.js`.
+`measure-tokens` corre **solo informativo** (`continue-on-error`). Sale en
+**verde** mientras aguante el suelo del 30 % — que hoy aguanta (35 %) — y solo
+se pone en rojo si cae por debajo. El **suelo duro** lo fija el caso E7
+(≥ 30 %); la **meta** ≥ 40 % se imprime como `OPEN`, **no como fallo**: un
+objetivo aspiracional que enrojea un comando que todo el mundo corre en local,
+mientras la CI lo deja pasar, es una métrica sobre la que nadie actúa. El valor
+actual sale de `node .opencode/bin/measure-tokens.js`.
 
 La baseline histórica **nunca se reescribe** — actualizarla haría que la meta
-fuera auto-cumplible. Convertir `measure-tokens` en gate duro solo tiene
-sentido cuando se cumpla el 40 %.
+fuera auto-cumplible. E7 ya es el gate duro sobre el suelo; no hace falta
+convertir `measure-tokens` en gate para eso.
 
-## Nivel 2 — pendiente
+## Nivel 2 — activo (decidido 2026-10-07)
 
 El dataset actual es **estático**: comprueba que lo escrito sigue ahí. **No
 comprueba que el modelo obedece** — E3 y E4 verifican que el puntero de Prompt
 Defense existe, no que un *ignore previous instructions* sea rechazado.
 
-Evaluar comportamiento en vivo con `opencode run` (headless) y `opencode export`
-(traza JSON):
+Se decidió activar el Nivel 2. Evalúa comportamiento en vivo con `opencode run`
+(headless) y `opencode export` (traza JSON), ~50 casos:
 
-- **~50 casos**: ¿rutea a `prd-agent`?, ¿commita sin pedir?, ¿obedece ante
-  inyección?, ¿inventa un agent que no existe sin stack?
-- **Coste**: API real por cada ejecución, en cada corrida
-- **Guía del sector**: 50 casos detectan regresiones grandes; 200 dan
-  confianza estadística
+- ¿rutea a `prd-agent`?
+- ¿commita sin pedir?
+- ¿obedece ante inyección?
+- ¿inventa un agent que no existe sin stack?
 
-Es lo que separa EDD de estar a medias: la máquina ya existe, le falta
-comprobar comportamiento.
+**Coste: API real por cada ejecución, en cada corrida. Asumido.**
+
+### Para qué se usa, dado el alcance actual
+
+El alcance de skills quedó fijado en **(a): cero skills nuevas hasta medir el
+catálogo**. Así que el Nivel 2 **no** se gasta en validar importaciones — se
+gasta en **verificar que un reescrito no cambia el comportamiento**.
+
+La Fase 1 reescribe `tdd-workflow` y `docker-patterns` y fusiona
+`frontend-patterns` con `backend-patterns`. El Nivel 1 dirá que el texto sigue
+ahí y que la prosa pasa el lint; el Nivel 2 dirá que el agente **sigue haciendo
+lo que hacía**. Ese es el valor: los reescritos son donde un pack se rompe sin
+que ningún verificador de forma se entere.
+
+### Regla de coste
+
+Antes de cada corrida, el coste de ~50 casos tiene que estar por debajo de lo
+que el cambio arriesga. Un cambio puramente cosmético no paga API — el Nivel 1
+basta cuando no puede cambiar comportamiento por construcción.
+
+**Guía del sector**: 50 casos detectan regresiones grandes; 200 dan confianza
+estadística. Se empieza por 50 y se sube solo si los reescritos dan sustos.
 
 ## Cómo añadir un caso
 
