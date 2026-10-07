@@ -308,13 +308,13 @@ Se corre desde la raíz del pack:
 | Salud general del pack | `node .opencode/bin/smoke-test.js` | **31/31** |
 | El instalador no rompe nada | `powershell -File .opencode/bin/installer-test.ps1` | **48/48** |
 | Invariantes de comportamiento | `node .opencode/bin/eval-static.js` | **9/9** |
-| Presupuesto de tokens | `node .opencode/bin/measure-tokens.js` | **35 %** (rojo deliberado) |
+| Presupuesto de tokens | `node .opencode/bin/measure-tokens.js` | **35 %** · suelo 30 % PASS |
 
 ### Gate en CI
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) corre **en cada push y en cada pull request**: 13 pasos, desde la creación de los junctions de compatibilidad hasta `eval-static`. Un cambio que rompa cualquier chequeo **no llega**.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) corre **en cada push y en cada pull request** en **dos jobs**: `verify` (Windows, con **ambos** instaladores) y `linux` (Ubuntu, con el instalador Node). Un cambio que rompa cualquier chequeo **no llega**.
 
-`measure-tokens` corre ahí **solo informativo** (`continue-on-error`): está en rojo al 35 % contra una meta de 40 % que sigue abierta. El suelo real lo fija el caso `E7`.
+`measure-tokens` corre ahí **solo informativo** (`continue-on-error`). Sale en **verde** cuando se cumple el suelo del 30 % — que hoy se cumple (35 %) — y solo se pone en rojo si cae por debajo. **La meta del 40 % se reporta como `OPEN`, no como fallo**: un objetivo aspiracional que hace enrojar un comando que todo el mundo ejecuta en local, mientras la CI lo deja pasar, es una métrica sobre la que nadie actúa. El suelo real lo fija el caso `E7`.
 
 ### Las 9 invariantes
 
@@ -339,8 +339,21 @@ Los casos viven en [`evals/cases/static.json`](evals/cases/static.json) — son 
 ```text
 AGENTS.md   5682 bytes (~1421 tokens)
 boot        ~1921 tokens   vs baseline ~2948
-SAVINGS     35%            (meta >= 40%)
+SAVINGS     35%            suelo 30% PASS · meta 40% OPEN (faltan ~152 tokens)
 ```
+
+**Lo que ese número no cubre.** OpenCode anuncia en cada paso del modelo la descripción de cada skill —`id + name + description`, nunca el cuerpo—, y esa lista **no está en `bootTokens`**:
+
+| Concepto | Coste | ¿Siempre? |
+|---|---:|---|
+| `AGENTS.md` + MCP + plugins | ~1 921 tok | ✅ sí (lo que mide el número de arriba) |
+| 40 descripciones de skills | ~2 519 tok | ✅ sí — se listan en cada paso |
+| 85 descripciones de agents | ~5 118 tok | ✅ sí |
+| **boot real** | **~9 558 tok** | |
+| Cuerpos `SKILL.md` | — | ❌ bajo demanda |
+| Router (`router` + `route`) | ~7 497 tok | ❌ solo al dispatchar |
+
+No se pliega a `savingsPct` porque **la baseline no tiene su propio catálogo**: meterlo ahí falsearía el porcentaje que exige `E7`. Para ocultar un skill de la lista sin eliminarlo existe `opencode/autoinvoke: false` — se sigue pudiendo cargar por id.
 
 ## Estructura
 

@@ -9,11 +9,12 @@
 #      installer) — hard gate, any failure blocks the change.
 #   2. eval-static — behavioural invariants from evals/cases/*.json — hard
 #      gate. Adding a regression case needs no runner change.
-#   3. measure-tokens — informational only (continue-on-error). The metric
-#      is deliberately red against a 40% goal; the real floor is enforced by
-#      eval-static E7 (>=30%). Do not turn this into a hard gate until the
-#      40% goal is met, and never rewrite the baseline — that would make
-#      the goal self-passing.
+#   3. measure-tokens — informational only (continue-on-error). It exits 0
+#      while the >=30% FLOOR holds; the >=40% GOAL is printed as OPEN and is
+#      deliberately NOT a failure (an aspirational target that reddens a
+#      command everyone runs locally, while CI waves it through, is a metric
+#      nobody acts on). The hard line is eval-static E7. Never rewrite the
+#      baseline — that would make the goal self-passing.
 
 name: ci
 

@@ -49,3 +49,9 @@ Thumbs.db
 # El tracker de sesion vive solo en local: el repositorio publico contiene
 # agents, commands y skills, no el cuaderno de anotaciones de quien lo mantiene.
 PENDIENTES.md
+
+# Informe comparativo de analisis: vive solo en local por decision del
+# mantenedor (el repo es publico y el informe audita nuestras propias
+# debilidades). Tiene que viajar SIEMPRE junto a SKIP_FILES en
+# .opencode/bin/lint-docs.js: si solo esta aqui, local escanea 225 y CI 224.
+docs/reports/2026-10-07_1313-ecc-vs-open.report.md
