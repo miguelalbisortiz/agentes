@@ -102,7 +102,10 @@ try {
     Run-Init $t1
     $ag = @(Get-ChildItem (Join-Path $t1 '.opencode\agents\*.md')).Count
     $cm = @(Get-ChildItem (Join-Path $t1 '.opencode\commands\*.md')).Count
-    if ($ag -gt 0 -and $ag -lt 85) { Ok "agents filtrados: $ag (pack completo=85)" } else { Bad "agents=$ag, se esperaba un conteo filtrado" }
+    # Igual que con skills: lo que se prueba es que el filtro de stack descarta
+    # agents, no que el pack pese 85. La cuenta sale de $pack.
+    $packAg = @(Get-ChildItem (Join-Path $pack '.opencode\agents\*.md')).Count
+    if ($ag -gt 0 -and $ag -lt $packAg) { Ok "agents filtrados: $ag (pack completo=$packAg)" } else { Bad "agents=$ag, se esperaba un conteo filtrado (<$packAg)" }
     if ($cm -gt 0) { Ok "commands: $cm" } else { Bad 'no hay commands' }
     $or = Get-Orphans $t1
     if ($or.Count -eq 0) { Ok '0 comandos huerfanos' } else { Bad ("huerfanos: " + ($or -join ', ')) }
@@ -217,7 +220,8 @@ try {
     if (Test-Path (Join-Path $t6 '.agents\skills\drizzle-patterns')) { Ok 'drizzle-patterns conservado (aplica a node)' } else { Bad 'se descarto un skill que si aplica a node' }
     if (Test-Path (Join-Path $t6 '.agents\skills\turso-libsql')) { Ok 'turso-libsql conservado (aplica a node)' } else { Bad 'se descarto turso-libsql en node' }
     $ag = @(Get-ChildItem (Join-Path $t6 '.opencode\agents\*.md')).Count
-    if ($ag -gt 0 -and $ag -lt 85) { Ok "agents filtrados para node: $ag" } else { Bad "agents=$ag" }
+    $packAg = @(Get-ChildItem (Join-Path $pack '.opencode\agents\*.md')).Count
+    if ($ag -gt 0 -and $ag -lt $packAg) { Ok "agents filtrados para node: $ag (pack=$packAg)" } else { Bad "agents=$ag (pack=$packAg)" }
     $or = Get-Orphans $t6
     if ($or.Count -eq 0) { Ok '0 comandos huerfanos' } else { Bad ("huerfanos: " + ($or -join ', ')) }
     $nest = @(Get-Nesting $t6)

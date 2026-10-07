@@ -46,6 +46,7 @@ subagent { agent: "prd-agent", description: "Clarify intent and generate PRD", p
 | Agent | Specialty | Use For |
 |-------|-----------|---------|
 | **prd-agent** | **Intent clarification** | **Phase 0 — always first** |
+| spec-miner | Brownfield recon | Phase 0 — **antes que `prd-agent`** cuando el código ya existe y no hay PRD |
 | planner | Implementation planning | Phase 1+ — complex feature design |
 | architect | System design | Scalability and technical decision-making |
 | code-architect | Implementation blueprint | Phase 1 — PRD to concrete design (used by Phase 1 below) |

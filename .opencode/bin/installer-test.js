@@ -181,8 +181,11 @@ function t1() {
   runInit(t1);
 
   const ag = listMd(path.join(t1, '.opencode', 'agents')).length;
-  if (ag > 0 && ag < 85) ok('agents filtrados: ' + ag + ' (pack completo=85)');
-  else bad('agents=' + ag + ', se esperaba un conteo filtrado');
+  // Igual que con skills: el 85/86 es el tamano del pack de hoy, no la
+  // intencion. Lo que se prueba es que el filtro de stack DESCARTA agents.
+  const packAg = listMd(path.join(PACK, '.opencode', 'agents')).length;
+  if (ag > 0 && ag < packAg) ok('agents filtrados: ' + ag + ' (pack completo=' + packAg + ')');
+  else bad('agents=' + ag + ', se esperaba un conteo filtrado (<' + packAg + ')');
 
   const cm = listMd(path.join(t1, '.opencode', 'commands')).length;
   if (cm > 0) ok('commands: ' + cm);
@@ -370,8 +373,9 @@ function t6() {
   else bad('se descarto turso-libsql en node');
 
   const ag = listMd(path.join(t6, '.opencode', 'agents')).length;
-  if (ag > 0 && ag < 85) ok('agents filtrados para node: ' + ag);
-  else bad('agents=' + ag);
+  const packAg = listMd(path.join(PACK, '.opencode', 'agents')).length;
+  if (ag > 0 && ag < packAg) ok('agents filtrados para node: ' + ag + ' (pack=' + packAg + ')');
+  else bad('agents=' + ag + ' (pack=' + packAg + ')');
 
   const or = getOrphans(t6);
   if (or.length === 0) ok('0 comandos huerfanos');

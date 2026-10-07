@@ -19,7 +19,7 @@ Sobre el ecosistema de desarrollo de software con IA, este pack no aplica una pr
 > Auto-managed by `.opencode/bin/counts.js`. Do not edit by hand.
 > Regenerate: `node .opencode/bin/counts.js --update <files...>`
 
-- **85** agents (.opencode/agents)
+- **86** agents (.opencode/agents)
 - **70** commands (.opencode/commands)
 - **45** skills (.agents/skills)
 - **19** native CLIs (.opencode/bin)
@@ -39,7 +39,7 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 | **CLIs** | *La máquina que valida*: frontmatter, prosa, cableado, smoke-test, conteos, instalador, presupuesto de tokens y las invariantes de comportamiento. |
 | **MCPs / plugins** | Conexiones externas: `context7` activo por defecto, 14 más en opt-in (`supabase`, `vercel`, `stripe`, `playwright`...) — cada uno se enciende con `/mcp-on`. |
 
-La lista completa de los **70 comandos**, agrupados por intención, está en [`.opencode/manual/COMMANDS.md`](.opencode/manual/COMMANDS.md); el mapa de los **85 agents** por intención, en [`.opencode/manual/ROUTE.md`](.opencode/manual/ROUTE.md).
+La lista completa de los **70 comandos**, agrupados por intención, está en [`.opencode/manual/COMMANDS.md`](.opencode/manual/COMMANDS.md); el mapa de los **86 agents** por intención, en [`.opencode/manual/ROUTE.md`](.opencode/manual/ROUTE.md).
 
 ## Cómo empezar
 
@@ -348,10 +348,10 @@ SAVINGS     35%            suelo 30% PASS · meta 40% OPEN (faltan ~152 tokens)
 |---|---:|---|
 | `AGENTS.md` + MCP + plugins | ~1 921 tok | ✅ sí (lo que mide el número de arriba) |
 | 45 descripciones de skills | ~2 870 tok | ✅ sí — se listan en cada paso |
-| 85 descripciones de agents | ~5 118 tok | ✅ sí |
-| **boot real** | **~9 909 tok** | |
+| 86 descripciones de agents | ~5 229 tok | ✅ sí |
+| **boot real** | **~10 020 tok** | |
 | Cuerpos `SKILL.md` | — | ❌ bajo demanda |
-| Router (`router` + `route`) | ~7 497 tok | ❌ solo al dispatchar |
+| Router (`router` + `route`) | ~7 689 tok | ❌ solo al dispatchar |
 
 No se pliega a `savingsPct` porque **la baseline no tiene su propio catálogo**: meterlo ahí falsearía el porcentaje que exige `E7`. Para ocultar un skill de la lista sin eliminarlo existe `opencode/autoinvoke: false` — se sigue pudiendo cargar por id.
 

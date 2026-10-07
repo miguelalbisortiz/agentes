@@ -20,7 +20,7 @@ const AGENTS_DIR = path.join(__dirname, '..', 'agents');
 const OUT_MD = path.join(__dirname, '..', 'AGENTS_INDEX.md');
 
 const CATEGORIES = [
-  { name: 'Build / Plan',       match: /^(build|prd-agent|planner|code-architect|code-explorer|architect|migration-planner)\.md$/ },
+  { name: 'Build / Plan',       match: /^(build|prd-agent|spec-miner|planner|code-architect|code-explorer|architect|migration-planner)\.md$/ },
   { name: 'Review (General)',   match: /^(code-reviewer|security-reviewer|code-quality-analyzer|refactor-cleaner)\.md$/ },
   { name: 'Language Reviewers', match: /(typescript|python|go|rust|java|kotlin|csharp|swift|cpp|fsharp|php|flutter|dart|react|vue|svelte)-reviewer\.md$/ },
   { name: 'Build Resolvers',    match: /-resolver\.md$/ },

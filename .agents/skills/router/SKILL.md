@@ -83,6 +83,7 @@ For implementation work, ALWAYS layer with `planner` → `tdd-guide` → reviewe
 | "plan implementation of X" | `planner` | `code-architect`, `architect` |
 | "design the system" / architecture decision | `code-architect` | `architect`, `network-architect` |
 | "explore how Y works" / map codebase | `code-explorer` | `code-architect` |
+| "mine specs" / código heredado sin PRD | `spec-miner` | `code-explorer`, `prd-agent` |
 | "generate diagram of the system" | `diagram-generator` | `flow-visualizer` (skill) |
 | "show database ERD" | `diagram-generator` | `db-schema-visualizer` (skill) |
 | "review the PRD" | `prd-reviewer` | `planner` |
