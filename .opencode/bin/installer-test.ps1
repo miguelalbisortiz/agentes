@@ -108,7 +108,10 @@ try {
     if ($or.Count -eq 0) { Ok '0 comandos huerfanos' } else { Bad ("huerfanos: " + ($or -join ', ')) }
     if (Test-Path (Join-Path $t1 '.opencode\.stack')) { Ok "marcador .stack = $(Get-Content (Join-Path $t1 '.opencode\.stack'))" } else { Bad 'falta .opencode/.stack' }
     $sk = @(Get-ChildItem (Join-Path $t1 '.agents\skills') -Directory -ErrorAction SilentlyContinue).Count
-    if ($sk -ge 35 -and $sk -lt 40) { Ok "skills filtrados: $sk (pack=40)" } else { Bad "skills=$sk, se esperaba un conteo filtrado (<40)" }
+    # El pack crece; lo que hay que probar es que el filtro de stack DESCARTA
+    # skills (las JS/TS en un proyecto flutter) y que el recuento sigue sano.
+    $packSkills = @(Get-ChildItem (Join-Path $pack '.agents\skills') -Directory -ErrorAction SilentlyContinue).Count
+    if ($sk -ge 35 -and $sk -lt $packSkills) { Ok "skills filtrados: $sk (pack=$packSkills)" } else { Bad "skills=$sk, se esperaba un conteo filtrado (<$packSkills)" }
     if (-not (Test-Path (Join-Path $t1 '.agents\skills\drizzle-patterns'))) { Ok 'skill JS/TS descartado (drizzle-patterns)' } else { Bad 'drizzle-patterns no se descarto' }
     if (Test-Path (Join-Path $t1 '.agents\skills\supabase-patterns')) { Ok 'skill multi-stack conservado (supabase-patterns)' } else { Bad 'se descarto un skill multi-stack' }
     $r = [System.IO.File]::ReadAllText((Join-Path $t1 '.agents\skills\router\SKILL.md'))
