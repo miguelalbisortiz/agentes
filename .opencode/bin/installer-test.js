@@ -197,8 +197,11 @@ function t1() {
   else bad('falta .opencode/.stack');
 
   const sk = skillDirs(t1).length;
-  if (sk >= 35 && sk < 40) ok('skills filtrados: ' + sk + ' (pack=40)');
-  else bad('skills=' + sk + ', se esperaba un conteo filtrado (<40)');
+  // El pack crece; lo que hay que probar es que el filtro de stack DESCARTA
+  // skills (las JS/TS en un proyecto flutter) y que el recuento sigue sano.
+  const packSkills = skillDirs(PACK).length;
+  if (sk >= 35 && sk < packSkills) ok('skills filtrados: ' + sk + ' (pack=' + packSkills + ')');
+  else bad('skills=' + sk + ', se esperaba un conteo filtrado (<' + packSkills + ')');
 
   if (!fs.existsSync(path.join(t1, '.agents', 'skills', 'drizzle-patterns'))) ok('skill JS/TS descartado (drizzle-patterns)');
   else bad('drizzle-patterns no se descarto');

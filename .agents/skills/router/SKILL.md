@@ -262,6 +262,11 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | railway, deployment, paas, database, service, microservice | `railway-deploy` |
 | turso, libsql, edge-database, sqlite, embedded-replica, global-database | `turso-libsql` |
 | drizzle, orm, schema, migration, type-safe, query-builder, database | `drizzle-patterns` |
+| i18n, locale, translation, translate, languages, missing keys, stale translations, multilingual | `i18n-sync` |
+| design system, design tokens, token extraction, DESIGN.md, visual consistency, UI audit, styling, AI slop | `design-system` |
+| hexagonal, ports and adapters, domain boundary, dependency inversion, use case, adapter, anti-corruption layer | `hexagonal-architecture` |
+| ADR, architecture decision, trade-off, record this decision, alternatives considered, consequences, docs/adr | `architecture-decision-records` |
+| onboarding, unfamiliar codebase, architecture map, entry points, project conventions, new repo, walk me through | `codebase-onboarding` |
 | "find a skill", "is there a skill for", extend capabilities, install skill | `find-skills` (global, `~/.agents/skills/`) |
 
 ---

@@ -21,7 +21,7 @@ Sobre el ecosistema de desarrollo de software con IA, este pack no aplica una pr
 
 - **85** agents (.opencode/agents)
 - **70** commands (.opencode/commands)
-- **40** skills (.agents/skills)
+- **45** skills (.agents/skills)
 - **19** native CLIs (.opencode/bin)
 - **3** npm plugins + **1** local plugin(s)
 - **1** active MCP + **14** optional MCP(s)
@@ -347,9 +347,9 @@ SAVINGS     35%            suelo 30% PASS · meta 40% OPEN (faltan ~152 tokens)
 | Concepto | Coste | ¿Siempre? |
 |---|---:|---|
 | `AGENTS.md` + MCP + plugins | ~1 921 tok | ✅ sí (lo que mide el número de arriba) |
-| 40 descripciones de skills | ~2 519 tok | ✅ sí — se listan en cada paso |
+| 45 descripciones de skills | ~2 870 tok | ✅ sí — se listan en cada paso |
 | 85 descripciones de agents | ~5 118 tok | ✅ sí |
-| **boot real** | **~9 558 tok** | |
+| **boot real** | **~9 909 tok** | |
 | Cuerpos `SKILL.md` | — | ❌ bajo demanda |
 | Router (`router` + `route`) | ~7 497 tok | ❌ solo al dispatchar |
 
