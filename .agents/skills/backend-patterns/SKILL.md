@@ -1,7 +1,7 @@
 ---
 name: backend-patterns
-description: Use this skill when designing, reviewing, or implementing server-side code: REST/GraphQL APIs, repository/service layers, database access, authentication, validation, and error handling. Covers layered architecture, dependency injection, middleware, transactions, and request lifecycle. Use api-design for the URL/status-code contract and security-review for auth/authorization.
-triggers: [Express, FastAPI, NestJS, repository, service layer, DI, transaction, controller, middleware]
+description: Use this skill when designing, reviewing, or implementing server-side code: REST/GraphQL APIs, repository/service layers, database access, caching, authentication, validation, error handling, and background jobs. Covers layered architecture, dependency injection, middleware, transactions, and request lifecycle. Use api-design for the URL/status-code contract and security-review for auth/authorization.
+triggers: [Express, FastAPI, NestJS, repository, service layer, DI, transaction, controller, middleware, cache, redis, queue]
 origin: starter-pack
 ---
 
@@ -17,6 +17,7 @@ Server-side conventions for API services, business logic, and data access. Layer
 - Setting up database access, transactions, or migrations
 - Adding input validation, error responses, or logging
 - Refactoring monolithic handlers into layered architecture
+- Adding caching, invalidation, or cache performance tuning
 - Implementing background jobs, queues, or scheduled tasks
 
 ## Layered Architecture
@@ -201,6 +202,63 @@ await db.transaction(async (tx) => {
 - Never edit a deployed migration. Create a new one.
 - Test migrations on a copy of production data before deploying.
 
+## Caching Strategies
+
+### Redis Caching Layer
+
+```typescript
+class CachedMarketRepository implements MarketRepository {
+  constructor(
+    private baseRepo: MarketRepository,
+    private redis: RedisClient
+  ) {}
+
+  async findById(id: string): Promise<Market | null> {
+    // Check cache first
+    const cached = await this.redis.get(`market:${id}`)
+
+    if (cached) {
+      return JSON.parse(cached)
+    }
+
+    // Cache miss - fetch from database
+    const market = await this.baseRepo.findById(id)
+
+    if (market) {
+      // Cache for 5 minutes
+      await this.redis.setex(`market:${id}`, 300, JSON.stringify(market))
+    }
+
+    return market
+  }
+
+  async invalidateCache(id: string): Promise<void> {
+    await this.redis.del(`market:${id}`)
+  }
+}
+```
+
+### Cache-Aside Pattern
+
+```typescript
+async function getMarketWithCache(id: string): Promise<Market> {
+  const cacheKey = `market:${id}`
+
+  // Try cache
+  const cached = await redis.get(cacheKey)
+  if (cached) return JSON.parse(cached)
+
+  // Cache miss - fetch from DB
+  const market = await db.markets.findUnique({ where: { id } })
+
+  if (!market) throw new Error('Market not found')
+
+  // Update cache
+  await redis.setex(cacheKey, 300, JSON.stringify(market))
+
+  return market
+}
+```
 ## Authentication & Sessions
 
 - Use established libraries (Passport, NextAuth, Lucia, Clerk, Auth0). Do not roll your own JWT.
@@ -240,6 +298,62 @@ Never log:
 - PII unless explicitly required (and even then, hash or mask)
 - Full request/response bodies in prod (too verbose, may contain PII)
 
+## Background Jobs & Queues
+
+The pattern below is single-process and best-effort only (cache warm-up, debounced writes, fire-and-forget indexing). Anything that must survive a restart needs a durable broker — an in-memory queue loses every pending job on deploy and never delivers across replicas.
+
+### Simple Queue Pattern
+
+```typescript
+class JobQueue<T> {
+  private queue: T[] = []
+  private processing = false
+
+  async add(job: T): Promise<void> {
+    this.queue.push(job)
+
+    if (!this.processing) {
+      this.process()
+    }
+  }
+
+  private async process(): Promise<void> {
+    this.processing = true
+
+    while (this.queue.length > 0) {
+      const job = this.queue.shift()!
+
+      try {
+        await this.execute(job)
+      } catch (error) {
+        console.error('Job failed:', error)
+      }
+    }
+
+    this.processing = false
+  }
+
+  private async execute(job: T): Promise<void> {
+    // Job execution logic
+  }
+}
+
+// Usage for indexing markets
+interface IndexJob {
+  marketId: string
+}
+
+const indexQueue = new JobQueue<IndexJob>()
+
+export async function POST(request: Request) {
+  const { marketId } = await request.json()
+
+  // Add to queue instead of blocking
+  await indexQueue.add({ marketId })
+
+  return NextResponse.json({ success: true, message: 'Job queued' })
+}
+```
 ## Anti-Patterns
 
 - **Business logic in controllers** — extract to services.

@@ -1,7 +1,7 @@
 ---
 name: frontend-patterns
-description: Use this skill when designing, reviewing, or implementing React, JSX, or TSX components and UI architecture. Covers component composition, hooks correctness, state management, forms, rendering performance, accessibility, and styling patterns. Use coding-standards for the shared floor and security-review for input handling.
-triggers: [React, JSX, TSX, hooks, useState, useEffect, useMemo, form, component, render]
+description: Use this skill when designing, reviewing, or implementing React, JSX, or TSX components and UI architecture. Covers component composition, hooks correctness, state management, forms, rendering performance, error boundaries, accessibility, and styling patterns. Use coding-standards for the shared floor and security-review for input handling.
+triggers: [React, JSX, TSX, hooks, useState, useEffect, useMemo, form, component, render, error boundary, ErrorBoundary]
 origin: starter-pack
 ---
 
@@ -16,6 +16,7 @@ React-specific conventions layered on top of `coding-standards`. This is the det
 - Building forms with validation and error handling
 - Implementing state management (local, lifted, global store)
 - Optimizing render performance (memo, callbacks, lazy loading)
+- Handling render failures with error boundaries and fallback UI
 - Establishing component composition patterns (compound, render props, slots)
 - Setting up styling architecture (CSS modules, Tailwind, CSS-in-JS)
 
@@ -186,6 +187,53 @@ const HeavyChart = lazy(() => import('./HeavyChart'))
 - Component-level splitting is for > 50KB components used conditionally.
 - Check bundle with `rollup-plugin-visualizer` or `@next/bundle-analyzer`.
 
+## Error Boundary Pattern
+
+```typescript
+interface ErrorBoundaryState {
+  hasError: boolean
+  error: Error | null
+}
+
+export class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  ErrorBoundaryState
+> {
+  state: ErrorBoundaryState = {
+    hasError: false,
+    error: null
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error boundary caught:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="error-fallback">
+          <h2>Something went wrong</h2>
+          <p>{this.state.error?.message}</p>
+          <button onClick={() => this.setState({ hasError: false })}>
+            Try again
+          </button>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}
+
+// Usage
+<ErrorBoundary>
+  <App />
+</ErrorBoundary>
+```
 ## Accessibility (Quick Checklist)
 
 - All interactive elements are `<button>`, `<a>`, or have `role` + `tabIndex`.
