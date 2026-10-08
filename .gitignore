@@ -55,3 +55,7 @@ PENDIENTES.md
 # debilidades). Tiene que viajar SIEMPRE junto a SKIP_FILES en
 # .opencode/bin/lint-docs.js: si solo esta aqui, local escanea 225 y CI 224.
 docs/reports/2026-10-07_1313-ecc-vs-open.report.md
+
+# Analisis de la importacion de ECC (que entro, que no y por que). Mismo
+# contrato que lo anterior: SIEMPRE junto a SKIP_FILES en lint-docs.js.
+ANALISIS-ECC.md

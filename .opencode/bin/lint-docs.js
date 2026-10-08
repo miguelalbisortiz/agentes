@@ -65,9 +65,10 @@ const SKIP_DIRS = new Set([
 // only on the maintainer's machine, so skipping them is what keeps the local
 // count identical to the count on a clean clone (CI). Without this the battery
 // would report 225 here and 224 in CI — matched by basename, anywhere in the
-// tree. Both are also in .gitignore; the two always travel together.
+// tree. Every entry is also in .gitignore; both lists always travel together.
 const SKIP_FILES = new Set([
   'PENDIENTES.md',
+  'ANALISIS-ECC.md',
   '2026-10-07_1313-ecc-vs-open.report.md',
 ]);
 
