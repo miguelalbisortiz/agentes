@@ -2,14 +2,18 @@
     "$schema": "https://opencode.ai/config.json",
     "default_agent": "build",
     "share": "manual",
-    "autoupdate": false,
+    "update": "disable",
     "snapshot": false,
     "instructions": [
         ".opencode/AGENTS.md"
     ],
-    "permission": {
-        "skill": "allow"
-    },
+    "permissions": [
+        {
+            "action": "skill",
+            "resource": "*",
+            "effect": "allow"
+        }
+    ],
     "tool_output": {
         "max_lines": 60,
         "max_bytes": 4096
@@ -18,19 +22,21 @@
         "auto": true,
         "tail_turns": 4
     },
-    "plugin": [
+    "plugins": [
         "opencode-vibeguard",
         "opencode-pty",
         "@tarquinen/opencode-dcp"
     ],
     "mcp": {
-        "context7": {
-            "type": "local",
-            "command": [
-                "npx",
-                "-y",
-                "@upstash/context7-mcp@3.2.3"
-            ]
+        "servers": {
+            "context7": {
+                "type": "local",
+                "command": [
+                    "npx",
+                    "-y",
+                    "@upstash/context7-mcp@3.2.3"
+                ]
+            }
         }
     }
 }
