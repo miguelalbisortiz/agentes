@@ -59,3 +59,10 @@ docs/reports/2026-10-07_1313-ecc-vs-open.report.md
 # Analisis de la importacion de ECC (que entro, que no y por que). Mismo
 # contrato que lo anterior: SIEMPRE junto a SKIP_FILES en lint-docs.js.
 ANALISIS-ECC.md
+
+# Resultados de las corridas de evaluacion (Nivel 2). Se regeneran en cada
+# bateria y solo anaden ruido al repo. A diferencia de los tres anteriores
+# NO viaja junto a SKIP_FILES en .opencode/bin/lint-docs.js: esa lista solo
+# controla ficheros .md y aqui solo hay .json, de modo que no hay ningun
+# conteo de .md que igualar entre local y CI.
+evals/results/
