@@ -4,6 +4,10 @@ All notable changes to this starter pack are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- **CLI `opencode` upgrade to v2.0.32** — migrated pack to OpenCode 2.0 plugin/config shape: `autoupdate`→`update`, `permission`→`permissions` (array of rules), `plugin`→`plugins`, `mcp.context7`→`mcp.servers.context7`. `opencode-vibeguard` kept disabled for now (V1 only; needs replacement). `opencode-pty` kept but still V1-incompatible in practice. `snapshot` left disabled (deprecated, no replacement). `hookify` ported from V1 to V2 (`hookify.js`→`hookify.ts`) and now actually loads; SecretBlocker and DestructiveWarner are functional again.
+- **`redactor` plugin added** — hides secrets and PII in traffic to the model and rehydrates them to tools. In-memory map with FIFO cap (4096), block-on-missing-map. `hookify` now sanitizes `destructive.log` via the redactor when available (best-effort, never blocks).
+
 ### Full-stack Builder Agents (2026-09-21)
 
 Added 10 new agents and 10 new skills for complete application building, not just reviewing.

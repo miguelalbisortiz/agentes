@@ -164,8 +164,21 @@ function logDestructive(
     mkdirSync(logsDir, { recursive: true })
     const logPath = join(logsDir, "destructive.log")
     const ts = new Date().toISOString()
+    let cmd = command || ""
+    // Try to sanitize via redactor (best effort, must not break hookify)
+    try {
+      // dynamic import to avoid hard dependency / breakage if redactor missing
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const red = require("./redactor/engine")
+      if (red && typeof red.redact === "function") {
+        const cleaned = red.redact(cmd)
+        if (typeof cleaned === "string") cmd = cleaned
+      }
+    } catch {
+      // degrade gracefully
+    }
     const truncated =
-      command.length > 500 ? command.slice(0, 500) + "...[truncated]" : command
+      cmd.length > 500 ? cmd.slice(0, 500) + "...[truncated]" : cmd
     appendFileSync(
       logPath,
       "[" + ts + "] [" + label + "] [" + tool + "] " + truncated + "\n",

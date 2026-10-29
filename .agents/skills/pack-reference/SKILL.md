@@ -27,7 +27,7 @@ Starter pack portable de opencode. El "producto" son los agentes, los slash comm
 ├── .opencode/             PACK template (portable)
 │   ├── agents/            subagentes (description + mode + permission)
 │   ├── commands/          slash commands
-│   ├── plugins/           Local plugins (hookify.js = 2 hooks)
+│   ├── plugins/           Local plugins (hookify.ts = 2 hooks + redactor/)
 │   ├── bin/               CLIs nativos
 │   ├── examples/          3 downstream demos (node-api, python-data, react-app)
 │   ├── manual/            PACK docs (info del pack, NO del proyecto)
@@ -60,7 +60,7 @@ Starter pack portable de opencode. El "producto" son los agentes, los slash comm
 
 **npm** (en `.opencode/package.json`): `opencode-vibeguard`, `opencode-pty`, `@tarquinen/opencode-dcp` + `@opencode-ai/plugin` peer.
 
-**Local** (auto-cargado desde `.opencode/plugins/`): `hookify.js` con 2 hooks:
+**Local** (auto-cargado desde `.opencode/plugins/`): `hookify.ts` con 2 hooks + `redactor/`:
 - **SecretBlocker** (strict) — bloquea writes a `.env`/`*.key`/`*.pem`/`id_rsa*`/etc (allowlist para `.env.example`)
 - **DestructiveWarner** (soft) — loguea `rm -rf /`, `git push --force`, `DROP TABLE`, etc a `.opencode/logs/destructive.log` (gitignored). NO bloquea — user confirma via flujo normal.
 

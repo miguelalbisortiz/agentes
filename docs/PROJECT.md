@@ -100,7 +100,7 @@
 - **commands**: 65 slash commands (workflows + dispatchers)
 - **skills**: 21 knowledge skills (patterns, processes, security)
 - **bin**: 15 native CLIs (zero deps, CommonJS, cross-platform)
-- **plugins**: plugins (npm + local hookify.js)
+- **plugins**: plugins (npm + local hookify.ts + redactor/)
 
 <!-- conditional:dependencies -->
 ## Dependencies

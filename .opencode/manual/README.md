@@ -25,7 +25,7 @@ Detalles:
 - Slash commands: atajos recurrentes
 - MCPs activos: `context7` (docs) + `playwright` (browser)
 - Plugins npm: `opencode-vibeguard`, `opencode-pty`, `@tarquinen/opencode-dcp` (+ `@opencode-ai/plugin` peer)
-- Plugin local: `.opencode/plugins/hookify.js` con 2 hooks (SecretBlocker + DestructiveWarner). Auto-cargado, zero install
+- Plugin local: `.opencode/plugins/hookify.ts` con 2 hooks (SecretBlocker + DestructiveWarner, saneado por redactor). `.opencode/plugins/redactor/` oculta secretos/PII y los rehidrata a herramientas. Auto-cargado, zero install
 - CLIs nativos: cero dependencias, solo Node stdlib (ver `node .opencode/bin/counts.js --json`)
 
 ## Instalación

@@ -639,7 +639,7 @@ function detect() {
       { module: 'commands', desc: `${listDir(COMMANDS_DIR, f => f.endsWith('.md')).length} slash commands (workflows + dispatchers)` },
       { module: 'skills', desc: `${listDir(SKILLS_DIR).length} knowledge skills (patterns, processes, security)` },
       { module: 'bin', desc: `${listDir(BIN_DIR, f => f.endsWith('.js')).length} native CLIs (zero deps, CommonJS, cross-platform)` },
-      { module: 'plugins', desc: 'plugins (npm + local hookify.js)' },
+      { module: 'plugins', desc: 'plugins (npm + local hookify.ts + redactor)' },
     ];
   }
 
