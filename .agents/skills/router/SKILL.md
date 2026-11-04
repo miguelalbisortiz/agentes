@@ -277,6 +277,20 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | ADR, architecture decision, trade-off, record this decision, alternatives considered, consequences, docs/adr | `architecture-decision-records` |
 | onboarding, unfamiliar codebase, architecture map, entry points, project conventions, new repo, walk me through | `codebase-onboarding` |
 | "find a skill", "is there a skill for", extend capabilities, install skill | `find-skills` (global, `~/.agents/skills/`) |
+| kubernetes, k8s, helm, manifest, pod, deployment, ingress, rbac, networkpolicy, statefulset, hpa, gitops, argocd | `kubernetes-specialist` |
+| queue, event-driven, message broker, rabbitmq, kafka, redis streams, bullmq, sqs, dlq, dead letter, consumer, producer, idempotency | `message-queue-patterns` |
+| microservices, circuit breaker, service mesh, grpc, saga, cqrs, event sourcing, distributed transaction, service discovery, bff | `microservices-patterns` |
+| cache, caching, redis, memcached, CDN, HTTP cache, cache invalidation, cache warming, TTL, cache-aside, stampede | `caching-patterns` |
+| database migration, schema change, alembic, prisma migrate, drizzle kit, flyway, liquibase, go-migrate, zero-downtime migration, rollback migration | `database-migrations` |
+| postgres, postgresql, postgresql optimization, jsonb, pg array, window function, full-text search, vacuum, explain analyze, gin index, extension | `postgresql-optimization` |
+| python async, asyncio, fastapi async, background task, connection pool, aiohttp, asyncpg, sqlalchemy async, event loop | `python-async-patterns` |
+| monorepo, turborepo, nx, pnpm workspace, lerna, workspace boundary, build cache, task graph, package sharing | `monorepo-patterns` |
+| feature flag, feature toggle, A/B test, experiment, gradual rollout, kill switch, canary, launchdarkly, unleash | `feature-flags` |
+| typescript advanced, zod, trpc, branded types, discriminated union, template literal type, type-safe api, runtime validation, satisfies operator | `typescript-advanced-patterns` |
+| ripgrep, rg, ast-grep, search the codebase, find symbol, glob pattern, too many matches, context flooding | `file-search` |
+| .env, environment variables, config validation, secrets handling, dev/staging/prod settings, docker env, CI variables, config-as-code | `environment-config` |
+| skill quality, skill audit, orphan skill, skill token usage, skill lifecycle, pack maintenance, optimize skill | `skill-optimizer` |
+| polished architecture diagram, infra/cloud/network topology, data pipeline diagram, mermaid beautify, standalone HTML diagram, PNG/SVG export, trace motion | `archify` |
 
 ---
 
