@@ -23,9 +23,7 @@
         "tail_turns": 4
     },
     "plugins": [
-        "opencode-vibeguard",
-        "opencode-pty",
-        "@tarquinen/opencode-dcp"
+        "@tarquinen/opencode-dcp@3.2.0"
     ],
     "mcp": {
         "servers": {
@@ -35,6 +33,14 @@
                     "npx",
                     "-y",
                     "@upstash/context7-mcp@3.2.3"
+                ]
+            },
+            "anydoc": {
+                "type": "local",
+                "command": [
+                    "npx",
+                    "-y",
+                    "mcp-server-anydoc@1.0.0"
                 ]
             }
         }
