@@ -139,8 +139,8 @@
 
 ## See also
 
-- [Skills index](../.agents/skills/) — 45 starter-pack skills (see `.agents/skills/INDEX.md` for the full list)
-- [Commands index](../.opencode/commands/) — 70 starter-pack commands
+- [Skills index](../.agents/skills/) — 59 starter-pack skills (see `.agents/skills/INDEX.md` for the full list)
+- [Commands index](../.opencode/commands/) — 73 starter-pack commands
 - `/list-agents` — interactive catalog with filters
 
 ---

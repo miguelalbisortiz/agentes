@@ -98,4 +98,4 @@ Already documented: 12
 
 - `skill: environment-config` — env management patterns
 - `skill: security-review` — secrets handling
-- `command: /deps-audit` — dependency security
+- `command: /deps-health` - dependency security

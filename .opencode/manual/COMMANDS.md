@@ -109,6 +109,7 @@
 |---------|----------|-------|
 | `/update-codemaps` | Actualiza los codemaps para navegación del codebase. | doc-updater |
 | `/update-docs` | Actualiza la documentación por cambios recientes. | doc-updater |
+| `/api-docs` | Genera documentación de API desde el código: OpenAPI/Swagger, esquema GraphQL o tipos TS, con ejemplos de request/response. | build |
 
 ## "Quiero aprender / iterar con instintos"
 
@@ -132,6 +133,8 @@
 | `/setup-mcp` | Activa o desactiva MCPs opcionales (GitHub, Postgres…). Solo opt-in: **no** se cargan por defecto. Recoge los secretos y parchea `opencode.json`. | build |
 | `/mcp-on` | Activa un MCP opcional para este proyecto (context7, playwright, github…). Parchea `opencode.json` y requiere reinicio. | build |
 | `/mcp-off` | Desactiva un MCP activo (p. ej. `/mcp-off context7`). Inverso exacto de `/mcp-on`. | build |
+| `/env-sync` | Sincroniza `.env.example` con las variables realmente usadas en el código: detecta faltantes, sobrantes y sin documentar. | build |
+| `/deps-health` | Salud de dependencias en una pasada: audit de vulnerabilidades, paquetes outdated, imports no usados y duplicados. | build |
 
 ## "Quiero descubrir el pack"
 

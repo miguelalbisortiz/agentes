@@ -226,8 +226,10 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | "sanitize the fork" | `opensource-sanitizer` | — |
 | "package for open source release" | `opensource-packager` | — |
 | "analyze conversation for hooks" | `conversation-analyzer` | — |
-| "what did I learn" / pattern extraction | `learn` (skill) | — |
-
+| "what did I learn" / pattern extraction | `learn` (command) | — |
+| "save plan" / "resume plan" / "continue the plan" | `plan-persistence` (skill) | Plans live in `docs/plans/` |
+| "checkpoint" / "guarda el avance" / crash recovery | `checkpoint-mode` (skill) | Manual snapshot, no auto-commit |
+| "extract learnings from this session" | `project-learning` (skill) | Updates `docs/LEARNING.md` |
 | "sync .env.example with real env vars" | `env-sync` (command) | `environment-config` (skill) |
 
 ---
@@ -289,6 +291,7 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | typescript advanced, zod, trpc, branded types, discriminated union, template literal type, type-safe api, runtime validation, satisfies operator | `typescript-advanced-patterns` |
 | ripgrep, rg, ast-grep, search the codebase, find symbol, glob pattern, too many matches, context flooding | `file-search` |
 | .env, environment variables, config validation, secrets handling, dev/staging/prod settings, docker env, CI variables, config-as-code | `environment-config` |
+| test pyramid, test doubles, stub, spy, fake, AAA pattern, flaky test, testcontainers, e2e playwright, coverage anti-pattern | `testing-patterns` |
 | skill quality, skill audit, orphan skill, skill token usage, skill lifecycle, pack maintenance, optimize skill | `skill-optimizer` |
 | polished architecture diagram, infra/cloud/network topology, data pipeline diagram, mermaid beautify, standalone HTML diagram, PNG/SVG export, trace motion | `archify` |
 
@@ -351,7 +354,7 @@ Most agent invocations benefit from a paired skill:
 | `doc-updater` | (no skill needed) |
 | `refactor-cleaner` | `coding-standards` |
 | `docs-lookup` | (uses Context7 MCP) |
-| `debugging` / incident | `debugging-patterns`, `observability` |
+| `debugging-patterns` / incident | `debugging-patterns`, `observability` |
 
 ---
 
