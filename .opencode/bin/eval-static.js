@@ -210,23 +210,42 @@ function kOrphan() {
   try { skills = fs.readdirSync(skillsDir).filter(d => fs.existsSync(path.join(skillsDir, d, 'SKILL.md'))) } catch { skills = [] }
 
   const rd = (p) => read(p) || ''
-  const tierA = [
+
+  // Self-reference was this check's blind spot: every SKILL.md carries its own
+  // `name:` in the frontmatter, and an agent/command file may name itself. When
+  // all files are concatenated into one corpus, an artifact always finds
+  // itself, so a skill with no dispatch path still passed. Reachability is now
+  // evaluated per artifact, excluding the artifact's own file, and with word
+  // boundaries so `caching` no longer counts as a mention of `caching-patterns`.
+  const dispatch = [
     rd(path.join(skillsDir, 'router', 'SKILL.md')),
     rd(path.join(ROOT, '.opencode', 'AGENTS.md')),
     rd(path.join(ROOT, '.opencode', 'manual', 'ROUTE.md')),
-    ...commands.filter(c => CATALOG_COMMANDS.indexOf(c) === -1).map(c => rd(path.join(commandsDir, c + '.md'))),
-    ...agents.map(a => rd(path.join(agentsDir, a + '.md'))),
-    ...skills.map(s => rd(path.join(skillsDir, s, 'SKILL.md'))),
   ].join('\n')
+
+  const sources = [
+    ...commands.filter(c => CATALOG_COMMANDS.indexOf(c) === -1).map(c => ({ name: c, text: rd(path.join(commandsDir, c + '.md')) })),
+    ...agents.map(a => ({ name: a, text: rd(path.join(agentsDir, a + '.md')) })),
+    ...skills.map(s => ({ name: s, text: rd(path.join(skillsDir, s, 'SKILL.md')) })),
+  ]
+
   const tierB = [
     ...CATALOG_COMMANDS.map(c => rd(path.join(commandsDir, c + '.md'))),
     ...CATALOG_FILES.map(f => rd(path.join(ROOT, f))),
   ].join('\n')
 
+  const mentions = (text, name) => {
+    const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    return new RegExp('(^|[^A-Za-z0-9_-])' + esc + '($|[^A-Za-z0-9_-])').test(text)
+  }
+  const reachable = (name) =>
+    mentions(dispatch, name) ||
+    sources.some(s => s.name !== name && mentions(s.text, name))
+
   // Agents and skills need an automatic dispatch path. Commands do not: the
   // user types them, so appearing only in the commands manual is legitimate.
-  const scan = (names) => names.filter(n => tierA.indexOf(n) === -1 && tierB.indexOf(n) !== -1)
-  const dead = (names) => names.filter(n => tierA.indexOf(n) === -1 && tierB.indexOf(n) === -1)
+  const scan = (names) => names.filter(n => !reachable(n) && mentions(tierB, n))
+  const dead = (names) => names.filter(n => !reachable(n) && !mentions(tierB, n))
 
   const badAgents = scan(agents).concat(dead(agents))
   const badSkills = scan(skills).concat(dead(skills))

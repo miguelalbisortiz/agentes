@@ -110,7 +110,7 @@ For implementation work, ALWAYS layer with `planner` → `tdd-guide` → reviewe
 | "generate tests" / "write tests" | `testing-auto` | Auto-generate unit/integration/E2E |
 | "migrate framework" / "modernize" | `legacy-modernizer` | Framework/language migration |
 | "fix this build error" | `build-error-resolver` | Falls back to language-specific |
-| Language-specific build error | `{lang}-build-resolver` | cpp, csharp, dart, django, go, java, kotlin, python, pytorch, react, rust, swift |
+| Language-specific build error | `{lang}-build-resolver` | angular, cpp, csharp, dart, django, go, java, kotlin, python, pytorch, react, rust, swift |
 | "implement feature via autonomous loop" | `gan-generator` | Pairs with `gan-evaluator` |
 
 ## Review & Quality
@@ -143,6 +143,7 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | Stack | Agent |
 |-------|-------|
 | TypeScript / JS | `typescript-reviewer` |
+| Angular | `angular-reviewer` |
 | React / TSX | `react-reviewer` |
 | Vue 3 / Nuxt | `vue-reviewer` |
 | Svelte 5 / SvelteKit | `svelte-reviewer` |

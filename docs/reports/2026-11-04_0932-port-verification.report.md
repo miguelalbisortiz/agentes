@@ -57,9 +57,15 @@ Agentes fuera del router: 13, todos variantes `{lang}-build-resolver`, cubiertas
 
 Comandos sin fila en el router: 54. No es un defecto: son slash commands que el usuario teclea y que están documentados en `manual/COMMANDS.md`, el mismo criterio que aplica E5.
 
-## Hallazgo abierto (no corregido)
+## Hallazgo abierto — corregido en la misma pasada
 
-**E5 tiene un punto ciego.** `kOrphan` en `.opencode/bin/eval-static.js` concatena el texto de todos los `SKILL.md` en `tierA`, así que cada skill se encuentra a sí misma por el campo `name` del frontmatter. En la práctica E5 solo falla si un skill no tiene `name`, no si está desconectado. Esta pasada encontró 2 huérfanas reales que E5 daba por buenas. Corregirlo implica excluir la auto-referencia del corpus, y es un cambio de semántica del eval: queda a decisión del dueño del pack.
+**E5 tenía un punto ciego.** `kOrphan` en `.opencode/bin/eval-static.js` concatenaba el texto de todos los `SKILL.md` en `tierA`, así que cada skill se encontraba a sí misma por el campo `name` del frontmatter. En la práctica E5 solo fallaba si un skill no tenía `name`, no si estaba desconectado.
+
+Corregido: la alcanzabilidad se evalúa ahora por artefacto, excluyendo su propio archivo, y con límites de palabra para que `caching` no cuente como mención de `caching-patterns`.
+
+Efecto inmediato: la versión estricta destapó un huérfano más que el check viejo tapaba — `angular-reviewer`, que solo se mencionaba a sí mismo. Se cableó en `## Stack-specific Reviewers`, y `angular` se agregó a la lista de lenguajes de la fila `{lang}-build-resolver`.
+
+Prueba de que el check no es un no-op: se creó un skill `zz-orphan-probe` que solo se auto-referencia → E5 falló señalándolo; al borrarlo, 9/9 otra vez.
 
 ## Estado de los verificadores
 
