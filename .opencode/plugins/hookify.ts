@@ -150,6 +150,43 @@ function findDestructive(command: string | undefined): string | null {
   return null
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// Secret scrub for the audit log
+// ────────────────────────────────────────────────────────────────────────────
+// Inline and dependency-free on purpose: this used to call the `redactor`
+// plugin via require("./redactor/engine"), which was deleted on 2026-10-29.
+// The require sat in a try/catch, so it degraded to a silent no-op and every
+// destructive command was written to destructive.log verbatim — secrets
+// included. Keep this list self-contained; do not re-introduce a module
+// dependency here, or the audit trail loses redaction the day that module moves.
+
+const SCRUB_RULES: Array<[RegExp, string]> = [
+  // Provider-prefixed tokens (OpenAI/Anthropic, GitHub, Slack, GitLab, AWS)
+  [/\b(?:sk|pk|rk)-[A-Za-z0-9_-]{16,}/g, "***"],
+  [/\bgh[pousr]_[A-Za-z0-9]{20,}/g, "***"],
+  [/\bgithub_pat_[A-Za-z0-9_]{20,}/g, "***"],
+  [/\bxox[baprs]-[A-Za-z0-9-]{10,}/g, "***"],
+  [/\bglpat-[A-Za-z0-9_-]{16,}/g, "***"],
+  [/\bAKIA[0-9A-Z]{16}\b/g, "***"],
+  // key=value / key: value assignments (env vars, connection strings)
+  [
+    /\b(password|passwd|pwd|secret|token|api[_-]?key|access[_-]?key|client[_-]?secret|auth[_-]?token)(\s*[=:]\s*)(["']?)[^\s"']{4,}\3/gi,
+    "$1$2$3***$3",
+  ],
+  // Authorization headers
+  [/\b(Bearer|Basic)\s+[A-Za-z0-9._/+-]{8,}/gi, "$1 ***"],
+  // URLs with inline credentials: scheme://user:pass@host
+  [/([a-z][a-z0-9+.-]*:\/\/[^:/\s@]+):[^@\s/]+@/gi, "$1:***@"],
+]
+
+function scrubSecrets(text: string): string {
+  let out = text
+  for (const [pattern, replacement] of SCRUB_RULES) {
+    out = out.replace(pattern, replacement)
+  }
+  return out
+}
+
 /** Log under the PROJECT directory (ctx.location.directory), not process.cwd().
  *  cwd can be a sandbox or a worktree; the audit trail belongs with the repo. */
 function logDestructive(
@@ -164,19 +201,7 @@ function logDestructive(
     mkdirSync(logsDir, { recursive: true })
     const logPath = join(logsDir, "destructive.log")
     const ts = new Date().toISOString()
-    let cmd = command || ""
-    // Try to sanitize via redactor (best effort, must not break hookify)
-    try {
-      // dynamic import to avoid hard dependency / breakage if redactor missing
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const red = require("./redactor/engine")
-      if (red && typeof red.redact === "function") {
-        const cleaned = red.redact(cmd)
-        if (typeof cleaned === "string") cmd = cleaned
-      }
-    } catch {
-      // degrade gracefully
-    }
+    let cmd = scrubSecrets(command || "")
     const truncated =
       cmd.length > 500 ? cmd.slice(0, 500) + "...[truncated]" : cmd
     appendFileSync(
