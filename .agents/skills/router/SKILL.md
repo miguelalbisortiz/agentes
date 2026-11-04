@@ -89,6 +89,7 @@ For implementation work, ALWAYS layer with `planner` → `tdd-guide` → reviewe
 | "review the PRD" | `prd-reviewer` | `planner` |
 | "break down X into tasks" | `planner` | `task-decomposition` (skill) |
 | "migrate X to Y" | `migration-planner` | `planner` |
+| "review / design monorepo (Turborepo, Nx, pnpm)" | `monorepo-architect` | `monorepo-patterns` (skill) |
 | "generate spec for X" (autonomous loop) | `gan-planner` | `prd-agent` |
 
 ## Implementation & Build
@@ -129,6 +130,9 @@ For implementation work, ALWAYS layer with `planner` → `tdd-guide` → reviewe
 | "review ML code" | `mle-reviewer` | — |
 | "review healthcare code" | `healthcare-reviewer` | — |
 | "is this config correct" | `network-config-reviewer` | `network-architect` |
+| "review Dockerfile / docker-compose" | `docker-reviewer` | `docker-patterns` (skill) |
+| "review CI/CD pipeline" | `ci-cd-reviewer` | `github-actions` (skill) |
+| "review GraphQL schema / resolvers" | `graphql-reviewer` | `graphql-builder` |
 
 ## Stack-specific Reviewers
 
@@ -183,6 +187,7 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | "update docs" / "regenerate codemaps" | `doc-updater` | — |
 | "generate user manual" | `manual-writer` | After /verify + /audit-report PASS |
 | "find docs for library X" | `docs-lookup` | Uses Context7 MCP |
+| "generate API docs" (OpenAPI, GraphQL schema, TS types) | `api-docs` (command) | `code-explorer` |
 | "find existing skill for X" | `find-skills` (skill) | — |
 
 ## Audit & Verification
@@ -196,6 +201,7 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | "audit dependencies" | `dependency-audit` (skill) | — |
 | "validate API contract" | `api-contract-tester` (skill) | — |
 | "check performance budget" | `performance-budget` (skill) | — |
+| "check dependency health (audit + outdated + unused)" | `deps-health` (command) | `dependency-audit` (skill) |
 
 ## Domain Specialists
 
@@ -221,6 +227,8 @@ Use these INSTEAD of `code-reviewer` when the stack is known:
 | "package for open source release" | `opensource-packager` | — |
 | "analyze conversation for hooks" | `conversation-analyzer` | — |
 | "what did I learn" / pattern extraction | `learn` (skill) | — |
+
+| "sync .env.example with real env vars" | `env-sync` (command) | `environment-config` (skill) |
 
 ---
 
