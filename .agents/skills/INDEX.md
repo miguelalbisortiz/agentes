@@ -169,7 +169,7 @@ When a user request comes in, the primary agent loads the right skill based on t
 - **86** agents (.opencode/agents)
 - **70** commands (.opencode/commands)
 - **45** skills (.agents/skills)
-- **19** native CLIs (.opencode/bin)
-- **3** npm plugins + **1** local plugin(s)
+- **21** native CLIs (.opencode/bin)
+- **3** npm plugins + **0** local plugin(s)
 - **1** active MCP + **14** optional MCP(s)
 <!-- COUNTS-END -->
