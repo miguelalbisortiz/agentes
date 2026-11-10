@@ -124,6 +124,32 @@ function getOrphans(p) {
   return bad;
 }
 
+/** Entradas de dispatch (fila de tabla o viñeta) que siguen nombrando a un
+ *  agente que el perfil NO instaló. Es la regresión del 2026-11-10: borrar el
+ *  .md dejaba al router y a /pr-review apuntando a reviewers inexistentes. */
+function danglingAgentEntries(p, dropped) {
+  const esc = (n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const men = (t, n) => new RegExp('(^|[^A-Za-z0-9_-])' + esc(n) + '($|[^A-Za-z0-9_-])').test(t);
+  const kept = listMd(path.join(p, '.opencode', 'agents')).map(f => f.replace(/\.md$/, ''));
+  const files = [
+    path.join(p, '.agents', 'skills', 'router', 'SKILL.md'),
+    path.join(p, '.opencode', 'commands', 'route.md'),
+    path.join(p, '.opencode', 'commands', 'pr-review.md'),
+    path.join(p, '.opencode', 'agents', 'build-error-resolver.md'),
+    path.join(p, '.opencode', 'AGENTS.md'),
+  ].filter(f => fs.existsSync(f));
+  const bad = [];
+  for (const f of files) {
+    for (const line of readFile(f).split(/\r?\n/)) {
+      if (!/^[ \t]*(\||[-*][ \t]|[0-9]+\.[ \t])/.test(line)) continue;
+      if (!dropped.some(d => men(line, d))) continue;
+      if (kept.some(k => men(line, k))) continue;
+      bad.push(path.basename(f) + ': ' + line.trim().slice(0, 60));
+    }
+  }
+  return bad;
+}
+
 function testSmoke(p) {
   let out = '';
   try {
@@ -218,6 +244,13 @@ function t1() {
 
   if (r.indexOf('`supabase-patterns`') !== -1) ok('fila del router multi-stack intacta');
   else bad('se podo una fila que debia conservarse');
+
+  const dropped = listMd(path.join(PACK, '.opencode', 'agents'))
+    .map(f => f.replace(/\.md$/, ''))
+    .filter(n => !fs.existsSync(path.join(t1, '.opencode', 'agents', n + '.md')));
+  const dead = danglingAgentEntries(t1, dropped);
+  if (dead.length === 0) ok('0 entradas de dispatch a agentes no instalados (' + dropped.length + ' podados)');
+  else bad('referencias muertas: ' + dead.slice(0, 4).join(' | '));
 
   const nest = getNesting(t1);
   if (nest.length === 0) ok('sin anidados residuales (.opencode/.opencode)');

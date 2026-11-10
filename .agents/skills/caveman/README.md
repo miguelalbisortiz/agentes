@@ -22,12 +22,14 @@ Auto-clarity rule: caveman drops to normal prose for security warnings, irrevers
 ## How to invoke
 
 ```
-/caveman              # full mode (default)
-/caveman lite         # lighter compression
-/caveman ultra        # extreme compression
-/caveman wenyan       # classical Chinese
+/tone full            # full caveman (the skill's default)
+/tone lite            # lighter compression
+"caveman ultra"       # extreme compression, asked in the prompt
+"caveman wenyan"      # classical Chinese, asked in the prompt
 stop caveman          # back to normal prose
 ```
+
+There is no `/caveman` command in the pack: `/tone` is the command surface.
 
 ## Example output
 

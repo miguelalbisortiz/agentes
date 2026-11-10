@@ -197,6 +197,7 @@ Descartar un agente puede dejar referencias colgando. El instalador las limpia *
 |---|---|
 | Un comando apunta con `agent:` a un agente descartado | Se descarta también el comando |
 | El router despacha a un skill que ya no está | Se borra su fila en `router/SKILL.md` |
+| El router, `/route`, `/pr-review` o el fallback nombran un agente descartado | Se quita la entrada (fila de tabla o viñeta) que **solo** lo nombra — 80 líneas en una instalación Flutter. Las líneas mixtas se conservan: nombran agentes que sí entraron |
 | Un punto de despacho no sabe qué hacer si falta el agente | Cada punto documenta el fallback |
 
 Y no se deja a la buena fe. El `smoke-test` lo comprueba en **cada** instalación con la batería `[Stack filter integrity]`:

@@ -33,7 +33,9 @@
     },
     "compaction": {
         "auto": true,
-        "tail_turns": 4
+        "keep": {
+            "tokens": 8000
+        }
     },
     "mcp": {
         "servers": {

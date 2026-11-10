@@ -143,6 +143,62 @@ function countMd(dir) {
   try { return fs.readdirSync(dir).filter(f => f.endsWith('.md')).length; } catch { return 0; }
 }
 
+/** Nombres de agente (sin .md) de un directorio de agents. */
+function listAgentNames(dir) {
+  try { return fs.readdirSync(dir).filter(f => f.endsWith('.md')).map(f => f.slice(0, -3)); } catch { return []; }
+}
+
+/** Quita de las superficies de dispatch las entradas que solo nombran agentes
+ *  que el perfil no instalo. Devuelve cuantas lineas se fueron, en cuantos
+ *  archivos, y cuantas mixtas se conservaron. Respeta BOM y CRLF, igual que
+ *  la poda de filas del router. */
+function pruneAgentRefs(projectPath, dropped, kept) {
+  const agentsDir = path.join(projectPath, '.opencode', 'agents');
+  const cmdsDir = path.join(projectPath, '.opencode', 'commands');
+  const skillsDir = path.join(projectPath, '.agents', 'skills');
+  const surfaces = listAgentNames(agentsDir).map(n => path.join(agentsDir, n + '.md'));
+  try { for (const f of fs.readdirSync(cmdsDir).filter(x => x.endsWith('.md'))) surfaces.push(path.join(cmdsDir, f)); } catch { /* sin commands */ }
+  try {
+    for (const d of fs.readdirSync(skillsDir)) {
+      const p = path.join(skillsDir, d, 'SKILL.md');
+      if (fs.existsSync(p)) surfaces.push(p);
+    }
+  } catch { /* sin skills */ }
+  for (const rel of ['.opencode/AGENTS.md', '.opencode/manual/ROUTE.md']) {
+    const p = path.join(projectPath, rel);
+    if (fs.existsSync(p)) surfaces.push(p);
+  }
+
+  const mentions = (text, name) => new RegExp('(^|[^A-Za-z0-9_-])' + escRe(name) + '($|[^A-Za-z0-9_-])').test(text);
+  // Solo se borran filas de tabla y viñetas: son entradas de dispatch. Una
+  // frase de prosa puede explicar un flujo y se deja intacta.
+  const isEntry = (line) => /^[ \t]*\|/.test(line) || /^[ \t]*([-*]|[0-9]+\.)[ \t]/.test(line);
+
+  let removed = 0, files = 0, mixed = 0;
+  for (const f of surfaces) {
+    let buf;
+    try { buf = fs.readFileSync(f); } catch { continue; }
+    const hadBom = buf.length >= 3 && buf[0] === 0xEF && buf[1] === 0xBB && buf[2] === 0xBF;
+    let raw = buf.toString('utf8');
+    if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+    const eol = raw.includes('\r\n') ? '\r\n' : '\n';
+    const out = [];
+    let localRemoved = 0;
+    for (const line of raw.split(/\r?\n/)) {
+      if (!dropped.some(d => mentions(line, d))) { out.push(line); continue; }
+      if (kept.some(k => mentions(line, k))) { mixed++; out.push(line); continue; }
+      if (!isEntry(line)) { out.push(line); continue; }
+      localRemoved++;
+    }
+    if (localRemoved > 0) {
+      fs.writeFileSync(f, (hadBom ? '\uFEFF' : '') + out.join(eol), 'utf8');
+      removed += localRemoved;
+      files++;
+    }
+  }
+  return { removed, files, mixed };
+}
+
 /** `Get-ChildItem <dir> -Directory` - direct child directories. */
 function countDirs(dir) {
   try { return fs.readdirSync(dir, { withFileTypes: true }).filter(e => e.isDirectory()).length; } catch { return 0; }
@@ -821,6 +877,25 @@ function main() {
     }
   }
 
+  // --- Poda de referencias a agentes que no se instalaron ---
+  // Quitar el .md no basta: las tablas y viñetas del router, de /route, de
+  // /pr-review y del fallback siguen nombrando reviewers y resolvers de otros
+  // stacks, y el primary despacharia a un agente inexistente. Se quitan las
+  // lineas cuya UNICA mencion de agente es una podada y que son fila de tabla
+  // o viñeta. Las mixtas (nombran tambien agentes instalados) se conservan:
+  // borrarlas perderia capacidades reales, y AGENTS.md ya manda caer al
+  // generico cuando el agente no existe.
+  if (agentsToDrop.length > 0) {
+    const keptAgents = listAgentNames(agentsDir);
+    const refs = pruneAgentRefs(projectPath, agentsToDrop, keptAgents);
+    if (refs.removed > 0) {
+      console.log('  [OK] Referencias: ' + refs.removed + ' lineas a agentes no instalados quitadas de ' + refs.files + ' archivo(s)');
+    }
+    if (refs.mixed > 0) {
+      console.log('  [INFO] Referencias: ' + refs.mixed + ' lineas mixtas conservadas (nombran agentes instalados)');
+    }
+  }
+
   // --- Auto-limpieza de anidados ---
   // El bug del .ps1 (`Copy-Item <dir> -Dest <dir existente> -Recurse`) dejo
   // `.opencode/.opencode/` y `.agents/.agents/` en proyectos ya instalados.
@@ -973,10 +1048,22 @@ function main() {
   // no del proyecto de destino, y sus enlaces apuntan a docs/plans|audits|
   // sessions, que no se instalan. project-init --refresh lo rellena despues
   // con los ficheros reales del proyecto.
+  // Si el proyecto YA tiene PROJECT.md no se toca: pisarlo con el del pack
+  // reescribia Identity/Stack del proyecto con los del pack (bug del
+  // 2026-11-10, visible al reinstalar con --skip-docs, que se salta el
+  // refresh). Mismo criterio que README.md: el proyecto manda.
   const projectSrc = path.join(packPath, 'docs', 'PROJECT.md');
   const projectDest = path.join(projectPath, 'docs', 'PROJECT.md');
-  copyItemSafe(projectSrc, projectDest, 'docs/PROJECT.md', true);
-  if (fs.existsSync(projectDest)) {
+  const projectMdExisted = fs.existsSync(projectDest);
+  if (projectMdExisted) {
+    console.log('  [SKIP] docs/PROJECT.md (ya existe en destino)');
+    skipped++;
+  } else {
+    copyItemSafe(projectSrc, projectDest, 'docs/PROJECT.md', true);
+  }
+  // El recorte del historial solo aplica al que acaba de copiarse: el
+  // PROJECT.md existente no se reescribe ni para normalizar lineas.
+  if (!projectMdExisted && fs.existsSync(projectDest)) {
     try {
       let raw = readText(projectDest);
       if (raw === null) raw = '';

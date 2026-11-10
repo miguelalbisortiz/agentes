@@ -4,6 +4,12 @@ All notable changes to this starter pack are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- **Referencias a agentes que el perfil no instala** — quitar el `.md` podado no bastaba: `router`, `/route`, `/pr-review`, `/orchestrate` y `build-error-resolver` seguían nombrando reviewers y resolvers de otros stacks, y el primary despachaba a un agente inexistente. En una instalación Flutter quedaban 25 de 26 podados nombrados; ahora el instalador quita las entradas (fila de tabla o viñeta) cuya única mención de agente es una podada — 80 líneas en 12 archivos en ese caso — y deja las mixtas, que conservan capacidades reales. `installer-test` T1 lo vigila.
+- **`compaction.tail_turns` era V1** — OpenCode 2.x descarta la clave con un WARN y la ignora; el equivalente es `keep.tokens`. El pack y los proyectos generados usan ya la forma V2 (`auto: true`, `keep.tokens: 8000`).
+- **Reinstalar pisaba `docs/PROJECT.md`** — el instalador copiaba el del pack encima del proyecto, reescribiendo Identity, Stack y Entry Points con los del pack (se veía al reinstalar con `--skip-docs`, que se salta el refresh). Ahora, si el proyecto ya tiene el archivo, se omite igual que `README.md`.
+- **Caveman prometía un `/caveman` inexistente** — su `description` y su README citaban un comando que no está en el pack. Se alinean con `/tone`, que es la superficie real.
+
 ### Changed
 - **Instalación por perfil de proyecto** — `init-opencode.js` delega en `.opencode/bin/project-profile.js`: detecta *todos* los stacks del repo, copia solo los agentes y skills que aplican y genera `opencode.json` con los MCP, LSP y plugins que pide el perfil. `--dry-run` imprime el plan y no escribe nada.
 - **Plugins npm V1 retirados** — `@tarquinen/opencode-dcp`, `opencode-pty` y `opencode-vibeguard` no se ejecutan en OpenCode 2.x, así que salen de `opencode.json`, de `.opencode/package.json` y del árbol (`dcp.json`, `vibeguard.config.json`, `install-plugins.js`, `package-lock.json`). En un proyecto ya instalado el instalador los poda: quita esos plugins de su `opencode.json`, borra la clave `snapshot` (V1) y elimina los archivos de apoyo huérfanos. El pack queda con `hookify.ts` (local, V2) y sin dependencias npm.
