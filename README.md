@@ -323,12 +323,13 @@ Se corre desde la raíz del pack:
 
 | Chequeo | Comando | Estado |
 |---|---|---|
-| Prosa: enlaces rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` | **277 .md · 0 hallazgos** |
+| Prosa: enlaces rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` | **278 .md · 0 hallazgos** |
 | Los bloques `## Counts` reflejan lo real | `node .opencode/bin/counts.js --check` | **exit 0** |
 | Cableado: command → agent → skill (W1–W8) | `node .opencode/bin/wiring-test.js` | **8/8** |
-| Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` | **536 · 0 fallos** |
-| Salud general del pack | `node .opencode/bin/smoke-test.js` | **31/31** |
-| El instalador no rompe nada | `node .opencode/bin/installer-test.js` · `installer-test.ps1` | **48/48** |
+| Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` | **538 · 0 fallos** |
+| Salud general del pack | `node .opencode/bin/smoke-test.js` | **32/32** |
+| El instalador no rompe nada | `node .opencode/bin/installer-test.js` | **49/49** |
+| El instalador legado | `node .opencode/bin/installer-test.ps1` | **48/48** — sin perfil ni poda |
 | Invariantes de comportamiento | `node .opencode/bin/eval-static.js` | **9/9** |
 | Presupuesto de tokens | `node .opencode/bin/measure-tokens.js` | **33 %** · suelo 30 % PASS |
 

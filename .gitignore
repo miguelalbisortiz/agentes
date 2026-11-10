@@ -1,3 +1,6 @@
+# Scratch local: fixtures y probes de diagnostico, no son parte del pack
+.freebuff/
+
 # Dependencies (regenerable via npm install)
 node_modules/
 .opencode/node_modules/
