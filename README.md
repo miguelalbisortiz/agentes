@@ -327,8 +327,8 @@ Se corre desde la raíz del pack:
 | Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` | **536 · 0 fallos** |
 | Salud general del pack | `node .opencode/bin/smoke-test.js` | **31/31** |
 | El instalador no rompe nada | `node .opencode/bin/installer-test.js` · `installer-test.ps1` | **48/48** |
-| Invariantes de comportamiento | `node .opencode/bin/eval-static.js` | **8/9** — falla E7 (ver abajo) |
-| Presupuesto de tokens | `node .opencode/bin/measure-tokens.js` | **25 %** · suelo 30 % **FAIL** |
+| Invariantes de comportamiento | `node .opencode/bin/eval-static.js` | **9/9** |
+| Presupuesto de tokens | `node .opencode/bin/measure-tokens.js` | **33 %** · suelo 30 % PASS |
 
 ### Gate en CI
 
@@ -336,7 +336,7 @@ Se corre desde la raíz del pack:
 
 `measure-tokens` corre ahí **solo informativo** (`continue-on-error`). Sale en **verde** cuando se cumple el suelo del 30 % y en rojo si cae por debajo. **La meta del 40 % se reporta como `OPEN`, no como fallo**: un objetivo aspiracional que hace enrojar un comando que todo el mundo ejecuta en local, mientras la CI lo deja pasar, es una métrica sobre la que nadie actúa. El suelo real lo fija el caso `E7`.
 
-> **Pendiente (2026-11-10).** Al corregir el conteo de MCP (se leía `mcp.servers` como si fuera un solo servidor, y ahora con `context7` + `anydoc` cuenta 2 × ~400 tokens) el boot medido subió a ~2221 tokens y el ahorro quedó en **25 %**, por debajo del suelo del 30 %. Es una medición honesta de que `AGENTS.md` creció: el arreglo no se revierte y **E7 queda en rojo** hasta bajar el boot real (~158 tokens) o revisar el suelo con criterio.
+> **Cómo se sostiene el suelo (2026-11-10).** Con los plugins V1 fuera del pack, el ahorro máximo posible sin tocar `AGENTS.md` era del 24 %: los 350 tokens de plugins eran la mitad de la palanca. Al corregir el conteo de MCP — se leía `mcp.servers` como si fuera un servidor único y ahora cuenta los 2 reales — el boot subió a ~2221 y E7 se puso en rojo. No se maquilló el número: se comprimió `AGENTS.md` de 5682 a 4701 B (~310 tokens menos) y el ahorro volvió a **33 %**. La cuenta que fija el techo: cada MCP son ~400 tokens y el perfil decide cuántos hay, así que el suelo del 30 % exige que `AGENTS.md` quepa en ~5 KB cuando el proyecto arranca con dos MCPs.
 
 ### Las 9 invariantes
 
@@ -359,21 +359,21 @@ Los casos viven en [`evals/cases/static.json`](evals/cases/static.json) — son 
 `measure-tokens` compara contra la baseline histórica del PRD `2026-08-12-optimize-pack-token-consumption`. **La baseline no se reescribe** — actualizarla haría que la meta fuera auto-cumplible.
 
 ```text
-AGENTS.md   5682 bytes (~1421 tokens)
+AGENTS.md   4701 bytes (~1175 tokens)
 MCP         2 (context7, anydoc) ≈ 800 tokens
 plugins     ninguno (hookify es local y no añade tools)
-boot        ~2221 tokens   vs baseline ~2948
-SAVINGS     25%            suelo 30% FAIL · meta 40% OPEN (faltan ~452 tokens)
+boot        ~1975 tokens   vs baseline ~2948
+SAVINGS     33%            suelo 30% PASS · meta 40% OPEN (faltan ~206 tokens)
 ```
 
 **Lo que ese número no cubre.** OpenCode anuncia en cada paso del modelo la descripción de cada skill —`id + name + description`, nunca el cuerpo—, y esa lista **no está en `bootTokens`**:
 
 | Concepto | Coste | ¿Siempre? |
 |---|---:|---|
-| `AGENTS.md` + MCP + plugins | ~2 221 tok | ✅ sí (lo que mide el número de arriba) |
+| `AGENTS.md` + MCP + plugins | ~1 975 tok | ✅ sí (lo que mide el número de arriba) |
 | 59 descripciones de skills | ~3 878 tok | ✅ sí — se listan en cada paso |
 | 90 descripciones de agents | ~5 589 tok | ✅ sí |
-| **boot real** | **~11 688 tok** | |
+| **boot real** | **~11 442 tok** | |
 | Cuerpos `SKILL.md` | — | ❌ bajo demanda |
 | Router (`router` + `route`) | ~7 689 tok | ❌ solo al dispatchar |
 
