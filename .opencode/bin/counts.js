@@ -152,7 +152,9 @@ function findCountFiles(dir, out = []) {
   for (const e of entries) {
     const full = path.join(dir, e.name);
     if (e.isDirectory()) {
-      if (e.name === 'node_modules' || e.name === '.git') continue;
+      // .freebuff es scratch local (gitignored): sus fixtures instalan el pack
+      // y traen sus propios bloques ## Counts, que no son del pack.
+      if (e.name === 'node_modules' || e.name === '.git' || e.name === '.freebuff') continue;
       findCountFiles(full, out);
     } else if (e.name.endsWith('.md')) {
       try {

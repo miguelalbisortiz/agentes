@@ -4,19 +4,7 @@
     "share": "manual",
     "update": "disable",
     "snapshots": false,
-    "lsp": {
-        "dart": {
-            "command": [
-                "cmd",
-                "/c",
-                "dart",
-                "language-server"
-            ],
-            "extensions": [
-                ".dart"
-            ]
-        }
-    },
+    "lsp": true,
     "instructions": [
         ".opencode/AGENTS.md"
     ],

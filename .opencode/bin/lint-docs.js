@@ -59,6 +59,9 @@ const ROOT = dirFlag !== -1 && argv[dirFlag + 1]
 // Never descend here: build output, vendored code, copies, local archives.
 const SKIP_DIRS = new Set([
   'node_modules', '.git', 'backup', 'dist', 'build', '.next', 'agents-backup',
+  // Scratch local (gitignored): los fixtures instalan el pack y meten cientos
+  // de .md que no son del pack. Sin esto el conteo local deja de cuadrar con CI.
+  '.freebuff',
 ]);
 
 // Files that are gitignored working notes, not part of the pack. They exist
