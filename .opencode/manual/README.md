@@ -14,8 +14,8 @@
 - **73** commands (.opencode/commands)
 - **59** skills (.agents/skills)
 - **21** native CLIs (.opencode/bin)
-- **3** npm plugins + **0** local plugin(s)
-- **1** active MCP + **14** optional MCP(s)
+- **0** npm plugins + **1** local plugin(s)
+- **2** active MCPs + **14** optional MCP(s)
 <!-- COUNTS-END -->
 
 Detalles:
@@ -23,9 +23,9 @@ Detalles:
 - Sub-agentes: revisores, planners, resolvers, especialistas por stack
 - Skills portables: patrones de API, TDD, seguridad, error handling, testing, refactoring, debugging, `router`, etc.
 - Slash commands: atajos recurrentes
-- MCPs activos: `context7` (docs) + `playwright` (browser)
-- Plugins npm: `opencode-vibeguard`, `opencode-pty`, `@tarquinen/opencode-dcp` (+ `@opencode-ai/plugin` peer)
-- Plugin local: `.opencode/plugins/hookify.ts` con 2 hooks (SecretBlocker + DestructiveWarner, saneado por redactor). `.opencode/plugins/redactor/` oculta secretos/PII y los rehidrata a herramientas. Auto-cargado, zero install
+- MCPs: el pack trae `context7` + `anydoc`; el instalador enciende solo los que pide el perfil del proyecto (los que piden token se recomiendan con `/setup-mcp <name>`)
+- Plugins: solo locales de la API V2 (`.opencode/plugins/hookify.ts`); sin dependencias npm
+- Plugin local: `.opencode/plugins/hookify.ts` con 2 hooks (SecretBlocker + DestructiveWarner). Auto-cargado, zero install
 - CLIs nativos: cero dependencias, solo Node stdlib (ver `node .opencode/bin/counts.js --json`)
 
 ## Instalación
@@ -89,7 +89,6 @@ node .opencode/bin/setup-mcp.js               # wizard interactivo para activar 
 node .opencode/bin/scaffold-new-project.js    # scaffold <name>  (crea docs/{prds,plans,...} + PROJECT.md)
 node .opencode/bin/scaffold-new-skill.js      # scaffold <name>  (crea .agents/skills/<name>/SKILL.md)
 node .opencode/bin/scaffold-new-agent.js      # scaffold <name>  (crea .opencode/agents/<name>.md)
-node .opencode/bin/install-plugins.js         # postinstall npm (idempotente)
 ```
 
 ## 4 capas de memoria

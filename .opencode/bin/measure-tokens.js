@@ -136,14 +136,17 @@ function measureRouter() {
 function loadCurrent() {
   const agents = path.join(ROOT, ".opencode", "AGENTS.md")
   const opencode = readJson(path.join(ROOT, "opencode.json"))
-  const dcp = readJson(path.join(ROOT, ".opencode", "dcp.json"))
-  const vibeguard = readJson(path.join(ROOT, ".opencode", "vibeguard.config.json"))
 
-  const mcp = opencode && opencode.mcp ? Object.keys(opencode.mcp) : []
-  const plugins = opencode && Array.isArray(opencode.plugin) ? opencode.plugin : []
+  // V2: los servidores viven en mcp.servers (en V1 el mapa era plano)
+  const mcpMap = opencode && opencode.mcp ? (opencode.mcp.servers || opencode.mcp) : {}
+  const mcp = Object.keys(mcpMap)
+  const plugins = opencode && Array.isArray(opencode.plugins) ? opencode.plugins : []
 
-  const dcpManualMode = !!(dcp && dcp.manualMode && dcp.manualMode.enabled === true)
-  const vibeguardOn = !!(vibeguard && vibeguard.enabled === true)
+  // Los plugins npm V1 (dcp, vibeguard, pty) se retiraron del pack: no hay
+  // config que leer ni descriptores que pesar. Se conservan los campos para
+  // no romper el formato del reporte --json.
+  const dcpManualMode = false
+  const vibeguardOn = false
 
   return {
     agentsBytes: fileBytes(agents),
@@ -158,7 +161,9 @@ function loadCurrent() {
 function buildReport(cur) {
   const agentsTokens = estimateTokens(cur.agentsBytes)
   const mcpTokens = cur.mcpCount * 400 // ~400 tokens/tool descriptor
-  const pluginTokens = (cur.vibeguardOn ? 150 : 20) + (cur.dcpManualMode ? 30 : 150) + 50 // pty
+  // Sin plugins npm el unico plugin es hookify.ts (local): hooks, no tools,
+  // asi que no anade descriptores al prompt.
+  const pluginTokens = 0
   const bootTokens = agentsTokens + mcpTokens + pluginTokens
 
   const baseAgentsTokens = estimateTokens(BASELINE.agentsBytes)
@@ -261,9 +266,7 @@ function main() {
   console.log("CURRENT (after optimization)")
   console.log(`  AGENTS.md      : ${rep.current.agentsBytes} bytes (~${rep.current.agentsTokens} tokens)`)
   console.log(`  MCPs active    : ${rep.current.mcpCount} ${rep.current.mcpNames.length ? "(" + rep.current.mcpNames.join(", ") + ")" : "(none)"}`)
-  console.log(`  plugins        : ${rep.current.plugins.length}`)
-  console.log(`    vibeguard    : ${rep.current.vibeguardOn ? "ON" : "off"}`)
-  console.log(`    dcp          : ${rep.current.dcpManualMode ? "manual/conservative" : "auto"}`)
+  console.log(`  plugins npm    : ${rep.current.plugins.length}${rep.current.plugins.length ? " (" + rep.current.plugins.join(", ") + ")" : " (solo locales V2)"}`)
   console.log(`  estimated boot : ~${rep.current.bootTokens} tokens`)
   console.log("")
   console.log("BASELINE (before optimization)")

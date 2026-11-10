@@ -27,71 +27,52 @@
 
 ## Identity
 <!-- auto: name from package.json/pubspec/pyproject/Cargo/go.mod, type inferred from stack, desc from README -->
-
 - **Name**: open
+- **Repo**: https://github.com/miguelalbisortiz/agentes
 - **Type**: opencode-pack
-- **Description**: opencode starter pack — Optional plugins for the opencode starter pack. Run `node .opencode/bin/install-plugins.js` after cloning.
-- **Repo**: https://github.com/marchelero/open.git
-- **Primary language**: JavaScript/TypeScript
+- **Description**: **Pack portátil de opencode** — un equipo completo de agents, commands y skills que convierte a opencode en un flujo de desarrollo guiado por especificación y verificado en cada paso.
 
 ## Stack
 <!-- auto: detect from package.json, pubspec.yaml, pyproject.toml, Cargo.toml, go.mod, *.csproj, pom.xml -->
-
-- **Language**: JavaScript
-- **Framework**: —
-- **Runtime / Build**: node 18.0.0
-- **Package manager**: npm
-- **Database**: none detected
-- **Deployment**: not detected
+- **Language**: JavaScript/TypeScript
+- **Framework**: opencode (agents, commands, skills, plugins)
+- **Runtime / Build**: Node >=18.0.0
+- **Package manager**: ninguno (cero dependencias)
 
 ## Tooling
 <!-- auto: detect from .eslintrc, .prettierrc, vitest.config, jest.config, pytest.ini, .github/workflows, Dockerfile, .env.example -->
-
-- **Test runner**: —
-- **Coverage**: not detected
-- **Linter**: —
-- **Formatter**: —
-- **CI**: not detected
-- **Container**: —
-- **Env vars**: not detected
+- **Test runner**: (not detected)
+- **Coverage**: (not detected)
+- **Linter**: (not detected)
+- **Formatter**: (not detected)
+- **CI**: GitHub Actions (1)
+- **Container**: (not detected)
+- **Env vars**: (not detected)
 
 ## Build & Run
 <!-- auto+manual: detect from package.json scripts, Makefile, justfile, Cargo.toml bins. Override below if needed. -->
-
-- **Install**: `npm install`
-- **Dev**: `—`
-- **Test**: `—`
-- **Lint**: `—`
-- **Build**: `—`
-- **Deploy**: `—`
-
-<!-- Override the detected commands above. Refresh keeps your edits. -->
+- **Install**: `node init-opencode.js --project-path <ruta>`
+- **Dry run**: `node init-opencode.js --dry-run --project-path <ruta>`
+- **Perfil**: `node .opencode/bin/project-profile.js <ruta>`
+- **Tests**: `node .opencode/bin/smoke-test.js`
+- **Tests del instalador**: `node .opencode/bin/installer-test.js`
 
 ## Conventions
 <!-- auto+manual: detect from existing code (naming, imports, error style). Edit below to override. -->
-
-- **Naming**: —
-- **File structure**: —
-- **Error handling**: —
 - **Commits**: conventional commits
-- **Branching**: —
-- **PR review**: —
-
-<!-- Override auto-detected values below. Refresh keeps your edits. -->
+- **CI**: GitHub Actions (1)
 
 ## Entry Points
 <!-- auto: from package.json main/bin, common patterns (src/index.ts, app.ts, cmd/main.go, src/main.rs) -->
-
-- (no entry points detected)
+- `init-opencode.js`
+- `.opencode/bin/`
+- `.opencode/plugins/`
 
 ## Directory Layout
 <!-- auto: top 2 levels of common dirs (src, lib, app, test, docs, scripts) with one-line purpose -->
-
-`.opencode/agents/` — sub-agent definitions (72)
-`.opencode/commands/` — slash commands (65)
-`.agents/skills/` — knowledge skills (21)
-`.opencode/bin/` — native CLIs (15)
-`.opencode/plugins/` — local plugins
+- `.opencode/`
+- `.agents/`
+- `docs/`
 
 ## Domain Map
 <!-- auto: detect from top-level dirs and their contents; one-line per module/area -->
@@ -100,16 +81,12 @@
 - **commands**: 65 slash commands (workflows + dispatchers)
 - **skills**: 21 knowledge skills (patterns, processes, security)
 - **bin**: 15 native CLIs (zero deps, CommonJS, cross-platform)
-- **plugins**: plugins (npm + local hookify.ts + redactor/)
+- **plugins**: local `hookify.ts` (API V2, auto-cargado); sin plugins npm
 
 <!-- conditional:dependencies -->
 ## Dependencies
 <!-- auto: top 10 from package.json/requirements.txt/Cargo.toml, with rationale from README or comments -->
-
-- **@opencode-ai/plugin** `1.17.11`
-- **@tarquinen/opencode-dcp** `(any)`
-- **opencode-pty** `(any)`
-- **opencode-vibeguard** `(any)`
+- Sin dependencias npm: los plugins del pack son locales (API V2) y `node_modules/` no hace falta.
 
 ## Glossary
 <!-- manual: domain-specific terms. Helps sub-agents disambiguate "user" vs "account" vs "tenant" without re-deriving. -->

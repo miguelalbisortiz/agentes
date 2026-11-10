@@ -87,7 +87,26 @@ function readYAML(p) {
   return out;
 }
 
+// El pack no tiene package.json en la raiz a proposito (regla cero-deps): su
+// manifiesto vive en .opencode/package.json y los agents delatan el layout.
+const PACK_MANIFEST = path.join(CWD, '.opencode', 'package.json');
+
+function isPack() {
+  // Cualquier proyecto real acaba teniendo .opencode/ tras instalar el pack:
+  // lo que distingue al pack es su instalador en la raiz y la ausencia de
+  // manifiesto propio (package.json, pubspec.yaml, pyproject.toml, ...).
+  if (exists('package.json') || !exists('init-opencode.js')) return false;
+  return exists(path.join('.opencode', 'agents')) && exists(PACK_MANIFEST);
+}
+
+function manifest() {
+  if (exists('package.json')) return readJSON('package.json');
+  if (isPack()) return readJSON(PACK_MANIFEST);
+  return null;
+}
+
 function detectType() {
+  if (isPack()) return 'opencode-pack';
   if (exists('pubspec.yaml')) return 'flutter-app';
   if (exists('package.json')) {
     const pkg = readJSON('package.json');
@@ -107,6 +126,7 @@ function detectType() {
 }
 
 function detectName() {
+  if (isPack()) return path.basename(CWD);
   if (exists('package.json')) {
     const pkg = readJSON('package.json');
     if (pkg && pkg.name) return pkg.name;
@@ -171,6 +191,12 @@ function detectStack(type) {
                            exists('yarn.lock') ? 'yarn' :
                            exists('bun.lockb') ? 'bun' :
                            exists('bun.lock') ? 'bun' : 'npm';
+  } else if (isPack()) {
+    const pkg = manifest() || {};
+    stack.language = 'JavaScript/TypeScript';
+    stack.framework = 'opencode (agents, commands, skills, plugins)';
+    stack.runtime = pkg.engines && pkg.engines.node ? `Node ${pkg.engines.node}` : 'Node';
+    stack.package_manager = 'ninguno (cero dependencias)';
   } else if (exists('pubspec.yaml')) {
     const pub = readYAML('pubspec.yaml') || {};
     stack.language = 'Dart';
@@ -314,6 +340,13 @@ function parseEnvVars() {
 }
 
 function detectEntryPoints() {
+  if (isPack()) {
+    const eps = [];
+    if (exists('init-opencode.js')) eps.push('init-opencode.js');
+    if (exists(path.join('.opencode', 'bin'))) eps.push('.opencode/bin/');
+    if (exists(path.join('.opencode', 'plugins'))) eps.push('.opencode/plugins/');
+    return eps;
+  }
   const entries = [];
   const candidates = [
     'src/index.ts', 'src/index.js', 'src/main.ts', 'src/main.js',
@@ -353,6 +386,9 @@ function detectConventions() {
 }
 
 function listKeyDirs() {
+  if (isPack()) {
+    return ['.opencode', '.agents', 'docs'].filter(d => exists(d));
+  }
   const dirs = ['src', 'lib', 'app', 'pkg', 'cmd', 'internal', 'modules', 'components', 'pages', 'test', 'tests', 'docs'];
   return dirs.filter(d => exists(d));
 }
@@ -456,18 +492,188 @@ function simpleDiff(oldText, newText) {
   return diff.length ? diff.join('\n') : '(no changes)';
 }
 
-function preserveManualSections(oldContent, newContent) {
-  if (!oldContent) return newContent;
-  const sections = ['Non-Negotiables', 'Architecture Notes', 'Open Questions'];
-  let result = newContent;
-  for (const section of sections) {
-    const re = new RegExp(`(## ${section}\\s*\\n)([\\s\\S]*?)(?=\\n## |$)`, 'm');
-    const oldMatch = oldContent.match(re);
-    if (oldMatch) {
-      result = result.replace(re, `$1${oldMatch[2].trim()}\n\n`);
+// ---- refresco por marcador ----------------------------------------------
+// docs/PROJECT.md declara su propio contrato en la cabecera:
+//   <!-- auto:... -->       se regenera
+//   <!-- auto+manual -->    se refrescan los valores detectados, se conservan el resto
+//   <!-- manual -->         se conserva tal cual
+//   <!-- auto-managed -->   append-only (Recent Activity)
+// Antes esto reemplazaba el doc entero y se comia toda seccion que el template
+// no supiera emitir (Build & Run, Domain Map, Dependencies, Glossary, ...).
+const AUTO_MARK = /^<!--\s*(auto|auto\+manual)\b/i;
+const OVERRIDE_MARK = /^<!--\s*override\b/i;
+const DETAIL_MARK = /^<!--\s*auto\+manual\b/i;
+
+const PACK_BUILD_RUN = {
+  Install: '`node init-opencode.js --project-path <ruta>`',
+  'Dry run': '`node init-opencode.js --dry-run --project-path <ruta>`',
+  Perfil: '`node .opencode/bin/project-profile.js <ruta>`',
+  Tests: '`node .opencode/bin/smoke-test.js`',
+  'Tests del instalador': '`node .opencode/bin/installer-test.js`',
+};
+
+const PACK_DEPS = '- Sin dependencias npm: los plugins del pack son locales (API V2) y `node_modules/` no hace falta.';
+
+function repoLine() {
+  const cfg = read(path.join('.git', 'config'));
+  // Solo el remoto origin: el config puede tener otros (upstream, espejos) y
+  // el primero no es necesariamente el del proyecto.
+  const block = /\[remote "origin"\]([\s\S]*?)(?=\n\[|$)/.exec(cfg);
+  const m = block && /url\s*=\s*(\S+)/.exec(block[1]);
+  return m ? `- **Repo**: ${m[1].replace(/\.git$/, '')}` : null;
+}
+
+function splitDoc(text) {
+  const lines = text.split('\n');
+  const blocks = [];
+  let cur = { title: null, lines: [] };
+  for (const line of lines) {
+    const m = /^##\s+(.+?)\s*$/.exec(line);
+    if (m) { blocks.push(cur); cur = { title: m[1], lines: [line] }; }
+    else cur.lines.push(line);
+  }
+  blocks.push(cur);
+  return blocks;
+}
+
+function buildRunMap() {
+  if (isPack()) return PACK_BUILD_RUN;
+  const pkg = manifest();
+  const scripts = (pkg && pkg.scripts) || {};
+  const map = {};
+  map.Install = '`npm install`';
+  if (scripts.dev) map.Dev = '`npm run dev`';
+  if (scripts.start) map.Start = '`npm run start`';
+  if (scripts.test) map.Test = '`npm test`';
+  if (scripts.lint) map.Lint = '`npm run lint`';
+  if (scripts.build) map.Build = '`npm run build`';
+  return map;
+}
+
+function conventionsMap() {
+  const map = {};
+  const test = detectTestRunner();
+  const linter = detectLinter();
+  const formatter = detectFormatter();
+  const ci = detectCI();
+  if (test) map['Test runner'] = test;
+  if (linter) map.Linter = linter;
+  if (formatter) map.Formatter = formatter;
+  if (ci) map.CI = ci;
+  return map;
+}
+
+function dependenciesBody() {
+  if (isPack()) return PACK_DEPS;
+  const pkg = manifest();
+  if (!pkg) return null;
+  const deps = Object.entries(pkg.dependencies || {});
+  if (!deps.length) return '- Sin dependencias declaradas.';
+  return deps.slice(0, 10).map(([k, v]) => `- **${k}** \`${v}\``).join('\n');
+}
+
+// Refresca solo las claves que sabemos detectar y conserva las demas lineas.
+function keyedBody(oldLines, map) {
+  const detected = Object.keys(map);
+  if (!detected.length) return null;
+  const used = new Set();
+  const out = [];
+  for (const raw of oldLines) {
+    const line = raw.replace(/\s+$/, '');
+    const m = /^-\s+\*\*(.+?)\*\*\s*:\s*(.*)$/.exec(line.trim());
+    if (!m) continue;
+    const key = m[1];
+    const value = m[2].trim();
+    const bare = value.replace(/`/g, '').trim();
+    const placeholder = bare === '' || bare === '—' || bare === '-' || bare === '(not detected)';
+    if (Object.prototype.hasOwnProperty.call(map, key)) {
+      out.push(`- **${key}**: ${map[key]}`);
+      used.add(key);
+    } else if (!placeholder) {
+      out.push(line.trim());
     }
   }
-  return result;
+  for (const k of detected) if (!used.has(k)) out.push(`- **${k}**: ${map[k]}`);
+  return out.length ? out.join('\n') : null;
+}
+
+function mergeRefresh(oldText, generatedText) {
+  const gen = splitDoc(generatedText).filter(b => b.title);
+  // El remoto sale de .git/config: el template no lo puede adivinar y perderlo
+  // borraria un dato que el doc ya tenia.
+  const repo = repoLine();
+  if (repo) {
+    for (const b of gen) if (b.title === 'Identity') b.lines.splice(2, 0, repo);
+  }
+  const genByTitle = new Map(gen.map(b => [b.title, b.lines.slice(1).join('\n').trim()]));
+
+  const extras = { 'Build & Run': buildRunMap(), Conventions: conventionsMap() };
+  const depBody = dependenciesBody();
+  if (depBody) extras.Dependencies = depBody;
+
+  const old = splitDoc(oldText);
+  const seen = new Set();
+  const out = [];
+
+  for (const block of old) {
+    if (!block.title) { out.push(block.lines.join('\n')); continue; }
+    const heading = block.lines[0];
+    const body = block.lines.slice(1);
+
+    // Marcadores al inicio del cuerpo (auto:/manual/auto+manual/conditional).
+    const markers = [];
+    for (const l of body) {
+      if (/^\s*<!--/.test(l)) {
+        if (!OVERRIDE_MARK.test(l.trim())) markers.push(l.replace(/\s+$/, ''));
+        continue;
+      }
+      if (l.trim() === '') continue;
+      break;
+    }
+    const isAuto = markers.some(m => AUTO_MARK.test(m.trim()));
+
+    // Overrides del usuario bajo "<!-- Override ... -->" (secciones auto+manual).
+    const ovIdx = body.findIndex(l => OVERRIDE_MARK.test(l.trim()));
+    let overrideTail = null;
+    if (ovIdx >= 0) {
+      const tail = body.slice(ovIdx + 1).filter(l => l.trim() !== '');
+      if (tail.length) overrideTail = { marker: body[ovIdx].replace(/\s+$/, ''), lines: tail };
+    }
+
+    const rawBody = body.slice(markers.length, ovIdx >= 0 ? ovIdx : body.length);
+    const extra = extras[block.title];
+    const genString = genByTitle.get(block.title);
+
+    let newBody = null;
+    if (extra && typeof extra === 'object') newBody = keyedBody(rawBody, extra);
+    else if (typeof extra === 'string') newBody = extra;
+    else if (genString !== undefined) newBody = genString;
+
+    if (isAuto && newBody) {
+      seen.add(block.title);
+      const parts = [heading];
+      if (markers.length) parts.push(markers.join('\n'));
+      parts.push(newBody.trim());
+      if (ovIdx >= 0) {
+        parts.push(body[ovIdx].replace(/\s+$/, ''));
+        if (overrideTail) parts.push(overrideTail.lines.join('\n'));
+      }
+      parts.push('');
+      out.push(parts.join('\n'));
+    } else {
+      out.push(block.lines.join('\n'));
+    }
+  }
+
+  // Secciones auto que el doc aun no tiene (doc viejo + template nuevo).
+  for (const b of gen) {
+    if (seen.has(b.title) || !AUTO_MARK.test((b.lines[1] || '').trim())) continue;
+    if (['Identity', 'Stack', 'Tooling', 'Entry Points', 'Directory Layout'].includes(b.title)) {
+      out.push(b.lines.join('\n'));
+    }
+  }
+
+  return out.join('\n');
 }
 
 function daysSince(dateStr) {
@@ -481,7 +687,7 @@ function daysSince(dateStr) {
 
 const newContentRaw = generate();
 const oldContent = read(PROJECT_MD);
-const newContent = preserveManualSections(oldContent, newContentRaw);
+const newContent = oldContent ? mergeRefresh(oldContent, newContentRaw) : newContentRaw;
 
 // --status: show freshness + summary, no write
 if (STATUS_ONLY) {
@@ -533,6 +739,10 @@ if (oldContent === newContent) {
   }
   process.exit(0);
 }
+
+// Un proyecto sin docs/ no tiene donde escribir: el instalador la crea, pero
+// el script tambien debe poder correr solo sobre un repo cualquiera.
+fs.mkdirSync(path.dirname(PROJECT_MD), { recursive: true });
 
 if (oldContent) {
   fs.copyFileSync(PROJECT_MD, BACKUP_MD);

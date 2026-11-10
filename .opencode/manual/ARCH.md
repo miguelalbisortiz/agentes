@@ -162,8 +162,7 @@ El `permission.skill: "allow"` global en `opencode.json` permite a cada agente c
     │   ├── validate-frontmatter.js
     │   ├── build-agents-index.js
     │   ├── build-skills-index.js
-    │   ├── state.js
-    │   └── install-plugins.js
+    │   └── state.js
     ├── manual/                      documentación del pack (lo que estás leyendo)
     │   ├── README.md                punto de entrada (español)
     │   ├── START-HERE.md            5-minute orientation (inglés)
@@ -173,8 +172,7 @@ El `permission.skill: "allow"` global en `opencode.json` permite a cada agente c
     │   ├── ARCH.md                  este archivo
     │   └── SURFACES.md              regla vs skill vs MCP vs agente vs CLI
     ├── agent → agents               junction (backwards compat opencode 1.17.x)
-    ├── skill → ../.agents/skills    junction (skills viven en .agents/, junction preserva 1.17.x compat)
-    └── node_modules/                3 plugins npm (vibeguard, pty, dcp) + peer; 136MB, gitignored
+    └── skill → ../.agents/skills    junction (skills viven en .agents/, junction preserva 1.17.x compat)
 # CI recomendado: smoke-test + validate-frontmatter (workflow no incluido en el pack)
 # package.json (root) intencionalmente ausente (regla cero-deps)
 ```

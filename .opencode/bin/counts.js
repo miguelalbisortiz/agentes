@@ -50,6 +50,12 @@ function countJsFiles(dir) {
   return fs.readdirSync(dir).filter(f => f.endsWith('.js')).length;
 }
 
+// Los plugins de la API V2 se escriben en TypeScript (.ts); V1 solo aceptaba .js
+function countPluginFiles(dir) {
+  if (!fs.existsSync(dir)) return 0;
+  return fs.readdirSync(dir).filter(f => /\.(js|ts|mjs)$/.test(f)).length;
+}
+
 function readJsonSafe(p) {
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); }
   catch { return null; }
@@ -67,13 +73,14 @@ function compute() {
     npmPlugins = Object.keys(all).filter(k => /opencode/i.test(k) && k !== '@opencode-ai/plugin').length;
   }
 
-  // Local plugins = .js files in .opencode/plugins/
-  const localPlugins = countJsFiles(PLUGINS_DIR);
+  // Local plugins = .js/.ts files in .opencode/plugins/
+  const localPlugins = countPluginFiles(PLUGINS_DIR);
 
-  // Active MCPs = keys in root opencode.json mcp section
+  // Active MCPs = keys of the mcp section (V2 nests them under mcp.servers)
   const oc = readJsonSafe(ROOT_OPENCODE);
+  const mcpMap = oc && oc.mcp ? (oc.mcp.servers || oc.mcp) : null;
   let activeMcps = 0;
-  if (oc && oc.mcp && typeof oc.mcp === 'object') activeMcps = Object.keys(oc.mcp).length;
+  if (mcpMap && typeof mcpMap === 'object') activeMcps = Object.keys(mcpMap).length;
 
   // Optional MCPs = items in .opencode/mcp.optional.json optional_mcps array
   const mcpOpt = readJsonSafe(MCP_OPTIONAL);

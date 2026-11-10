@@ -58,13 +58,13 @@ Starter pack portable de opencode. El "producto" son los agentes, los slash comm
 
 ## Plugins
 
-**npm** (en `.opencode/package.json`): `opencode-vibeguard`, `opencode-pty`, `@tarquinen/opencode-dcp` + `@opencode-ai/plugin` peer.
+**npm**: ninguno. dcp, pty y vibeguard eran de la API V1 y se retiraron — en V2 cargaban sin ejecutar. `.opencode/package.json` queda sin dependencias.
 
-**Local** (auto-cargado desde `.opencode/plugins/`): `hookify.ts` con 2 hooks + `redactor/`:
+**Local** (auto-cargado desde `.opencode/plugins/`): `hookify.ts` con 2 hooks:
 - **SecretBlocker** (strict) — bloquea writes a `.env`/`*.key`/`*.pem`/`id_rsa*`/etc (allowlist para `.env.example`)
 - **DestructiveWarner** (soft) — loguea `rm -rf /`, `git push --force`, `DROP TABLE`, etc a `.opencode/logs/destructive.log` (gitignored). NO bloquea — user confirma via flujo normal.
 
-**Auto-install**: `cd .opencode && npm install` (postinstall corre `bin/install-plugins.js` idempotentemente). `package.json` y `package-lock.json` tracked; `node_modules/` gitignored.
+**Auto-install**: nada que instalar. `hookify.ts` se auto-carga y la config del proyecto la genera `init-opencode.js` a partir del perfil detectado.
 
 ## Skills y agentes custom del usuario
 

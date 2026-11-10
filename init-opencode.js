@@ -169,8 +169,10 @@ function countFilesDeep(dir) {
 
 function usage() {
   console.log('Uso: node init-opencode.js [--project-path <dir>] [--pack-path <dir>]');
-  console.log('                           [--stack <name>] [--all-agents]');
+  console.log('                           [--stack <name>] [--all-agents] [--dry-run]');
   console.log('                           [--skip-install] [--skip-docs] [--force]');
+  console.log('');
+  console.log('  --dry-run   imprime el plan de activacion del proyecto y no escribe nada');
 }
 
 // ---------------------------------------------------------------------------
@@ -178,9 +180,9 @@ function usage() {
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const opts = { projectPath: '', packPath: '', stack: '', allAgents: false, skipInstall: false, skipDocs: false };
+  const opts = { projectPath: '', packPath: '', stack: '', allAgents: false, skipInstall: false, skipDocs: false, dryRun: false };
   const valueFlags = { '--project-path': 'projectPath', '--pack-path': 'packPath', '--stack': 'stack' };
-  const boolFlags = { '--all-agents': 'allAgents', '--skip-install': 'skipInstall', '--skip-docs': 'skipDocs', '--force': true };
+  const boolFlags = { '--all-agents': 'allAgents', '--skip-install': 'skipInstall', '--skip-docs': 'skipDocs', '--dry-run': 'dryRun', '--force': true };
 
   for (let i = 0; i < argv.length; i++) {
     let arg = argv[i];
@@ -453,9 +455,141 @@ function spawnNodeQuiet(args, cwd) {
 function mcpNamesOf(file) {
   try {
     const cfg = JSON.parse(readText(file) || '');
-    if (cfg && cfg.mcp && typeof cfg.mcp === 'object' && !Array.isArray(cfg.mcp)) return Object.keys(cfg.mcp);
+    if (!cfg || !cfg.mcp || typeof cfg.mcp !== 'object' || Array.isArray(cfg.mcp)) return [];
+    // Forma V2: mcp.servers. Forma V1 (legada): los servidores cuelgan de mcp.
+    if (cfg.mcp.servers && typeof cfg.mcp.servers === 'object') return Object.keys(cfg.mcp.servers);
+    return Object.keys(cfg.mcp).filter(k => k !== 'timeout');
   } catch { /* sin config o JSON roto */ }
   return [];
+}
+
+function readJsonSafe(file) {
+  try { return JSON.parse(readText(file) || 'null'); } catch { return null; }
+}
+
+/** Definiciones de los MCP que el plan enciende: del propio pack (context7) o
+ *  del catalogo opcional. Los que piden credenciales nunca llegan aqui. */
+function resolveMcpServers(packPath, plan) {
+  const packCfg = readJsonSafe(path.join(packPath, 'opencode.json')) || {};
+  const defaults = (packCfg.mcp && packCfg.mcp.servers) ? packCfg.mcp.servers : {};
+  const catalog = (readJsonSafe(path.join(packPath, '.opencode', 'mcp.optional.json')) || {}).optional_mcps || [];
+  const out = {};
+  for (const entry of plan.mcp.enabled) {
+    if (defaults[entry.name]) { out[entry.name] = defaults[entry.name]; continue; }
+    const opt = catalog.find((o) => o.name === entry.name);
+    if (opt) out[entry.name] = { type: 'local', command: opt.command.slice() };
+  }
+  return out;
+}
+
+/** Forma V2: `lsp: true` habilita los servidores integrados; el objeto solo se
+ *  usa cuando hay overrides para el stack detectado. */
+function buildLspConfig(plan) {
+  const ids = Object.keys(plan.lsp.servers || {});
+  if (ids.length === 0) return plan.lsp.enableBuiltins ? true : null;
+  return plan.lsp.servers;
+}
+
+/** Plugins npm de la etapa V1: en OpenCode 2.x cargan y no ejecutan. */
+const V1_PLUGINS = ['@tarquinen/opencode-dcp', 'opencode-pty', 'opencode-vibeguard'];
+
+/**
+ * Limpia los restos de la etapa V1 en un proyecto ya instalado: plugins
+ * muertos en opencode.json, la clave `snapshot` (V1) y sus archivos de apoyo.
+ * Solo toca artefactos conocidos del pack; lo demas del proyecto no se mira.
+ */
+function pruneV1Artifacts(projectPath, cfg) {
+  const removed = [];
+  const isV1 = (p) => V1_PLUGINS.some((v) => p === v || String(p).startsWith(v + '@'));
+
+  if (cfg && Array.isArray(cfg.plugins)) {
+    const kept = cfg.plugins.filter((p) => !isV1(String(p)));
+    if (kept.length !== cfg.plugins.length) {
+      removed.push((cfg.plugins.length - kept.length) + ' plugin(s) V1 de opencode.json');
+      if (kept.length) cfg.plugins = kept;
+      else delete cfg.plugins;
+    }
+  }
+  if (cfg && Object.prototype.hasOwnProperty.call(cfg, 'snapshot')) {
+    delete cfg.snapshot;
+    removed.push('clave snapshot (V1)');
+  }
+
+  for (const rel of ['.opencode/dcp.json', '.opencode/vibeguard.config.json']) {
+    const p = path.join(projectPath, rel);
+    if (fs.existsSync(p)) {
+      try { fs.unlinkSync(p); removed.push(rel); } catch { /* en uso */ }
+    }
+  }
+
+  // Un lock sin dependencias declaradas solo describe plugins que ya no existen.
+  const pkg = readJsonSafe(path.join(projectPath, '.opencode', 'package.json'));
+  const depsCount = pkg
+    ? Object.keys(pkg.dependencies || {}).length + Object.keys(pkg.devDependencies || {}).length
+    : 0;
+  const lockPath = path.join(projectPath, '.opencode', 'package-lock.json');
+  if (depsCount === 0 && fs.existsSync(lockPath)) {
+    try { fs.unlinkSync(lockPath); removed.push('.opencode/package-lock.json'); } catch { /* en uso */ }
+  }
+  return removed;
+}
+
+/**
+ * Escribe la configuracion del proyecto a partir del plan.
+ * MCP, LSP y plugins son el alcance por proyecto: se sustituyen por lo que el
+ * plan decidio. El resto de claves del pack se conservan y, si el proyecto ya
+ * tenia config, lo suyo manda (solo se rellenan claves ausentes).
+ */
+function applyProfileConfig(packPath, projectPath, plan) {
+  const destPath = path.join(projectPath, 'opencode.json');
+  const packCfg = readJsonSafe(path.join(packPath, 'opencode.json')) || {};
+  const generated = {};
+  for (const key of Object.keys(packCfg)) {
+    if (key === 'mcp' || key === 'lsp' || key === 'plugins' || key === 'plugin' || key === 'snapshot') continue;
+    generated[key] = packCfg[key];
+  }
+  generated.snapshots = packCfg.snapshots !== undefined ? packCfg.snapshots : false;
+
+  const servers = resolveMcpServers(packPath, plan);
+  generated.mcp = { servers };
+  const lsp = buildLspConfig(plan);
+  if (lsp !== null) generated.lsp = lsp;
+  if (plan.plugins.install.length > 0) generated.plugins = plan.plugins.install.slice();
+
+  const lspIds = Object.keys(plan.lsp.servers || {});
+  const detail = Object.keys(servers).length + ' MCP, LSP ' +
+    (lspIds.length ? lspIds.join('+') : 'builtins') + ', ' +
+    (plan.plugins.install.length || 'ningun') + ' plugin(s) npm';
+
+  const existing = readJsonSafe(destPath);
+  const pruned = pruneV1Artifacts(projectPath, existing);
+  const pruneNote = pruned.length ? ' | limpiado: ' + pruned.join(', ') : '';
+
+  if (!existing) {
+    fs.writeFileSync(destPath, JSON.stringify(generated, null, 2) + '\n', 'utf8');
+    return { ok: true, detail: 'creado desde el perfil (' + detail + ')' + pruneNote };
+  }
+
+  const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+  let changed = pruned.length > 0;
+  for (const key of Object.keys(generated)) {
+    if (!(key in existing)) { existing[key] = generated[key]; changed = true; continue; }
+    if (key === 'mcp' && isObj(existing.mcp) && isObj(generated.mcp)) {
+      if (!isObj(existing.mcp.servers)) { existing.mcp.servers = generated.mcp.servers; changed = true; continue; }
+      for (const name of Object.keys(generated.mcp.servers)) {
+        if (!(name in existing.mcp.servers)) { existing.mcp.servers[name] = generated.mcp.servers[name]; changed = true; }
+      }
+      continue;
+    }
+    if (key === 'lsp' && isObj(existing.lsp) && isObj(generated.lsp)) {
+      for (const id of Object.keys(generated.lsp)) {
+        if (!(id in existing.lsp)) { existing.lsp[id] = generated.lsp[id]; changed = true; }
+      }
+    }
+  }
+  if (!changed) return { ok: true, detail: 'sin cambios (el proyecto ya cubre el perfil)' };
+  fs.writeFileSync(destPath, JSON.stringify(existing, null, 2) + '\n', 'utf8');
+  return { ok: true, detail: 'fusionado desde el perfil (' + detail + ')' + pruneNote };
 }
 
 // ---------------------------------------------------------------------------
@@ -485,49 +619,49 @@ function main() {
   }
   // Verificar que el proyecto destino existe
   if (!fs.existsSync(projectPath)) {
-    console.log('[INFO] Creando directorio del proyecto: ' + projectPath);
-    fs.mkdirSync(projectPath, { recursive: true });
+    if (opts.dryRun) {
+      console.log('[DRY-RUN] el directorio no existe (no lo creo): ' + projectPath);
+    } else {
+      console.log('[INFO] Creando directorio del proyecto: ' + projectPath);
+      fs.mkdirSync(projectPath, { recursive: true });
+    }
   }
 
   // ============================================================
-  // DETECCION DE STACK + FILTRO DE AGENTES
+  // DETECCION DE STACK + PLAN DE ACTIVACION
   // ============================================================
-  // El pack maestro conserva TODOS los agentes. Aqui se decide con cuantos
-  // arranca el proyecto: el nucleo spec-driven es identico para todos,
-  // solo se descartan reviewers/resolvers de otros lenguajes.
-  let agentsToDrop = [];
-  let skillsToDrop = [];
-  let detectedStack = '';
+  // project-profile.js decide todo: stacks (union si el repo es multi-lenguaje),
+  // agentes, skills, MCP, LSP y plugins. El instalador solo aplica el plan.
+  const profiler = require(path.join(packPath, '.opencode', 'bin', 'project-profile.js'));
+  const profilePlan = profiler.plan({
+    projectDir: projectPath,
+    stack: opts.stack || '',
+    allAgents: opts.allAgents,
+    agentsPool: STACK_AGENTS,
+    keepByStack: STACK_KEEP,
+    jsOnlySkills: JS_ONLY_SKILLS,
+    packDir: packPath,
+  });
+
+  const agentsToDrop = profilePlan.agentsToDrop;
+  const skillsToDrop = profilePlan.skillsToDrop;
+  const detectedStack = opts.allAgents ? 'all' : (profilePlan.stacks.join('+') || 'unknown');
 
   if (opts.allAgents) {
-    detectedStack = 'all';
     console.log('[INFO] --all-agents: se copian todos los agentes (sin filtro de stack).');
-  } else {
-    if (!opts.stack) opts.stack = detectStack(projectPath);
-    detectedStack = opts.stack || 'unknown';
+  } else if (agentsToDrop.length > 0) {
+    console.log('[STACK] Detectado: ' + detectedStack + '  |  agentes de lenguaje que NO aplican: ' + agentsToDrop.length);
+    console.log('        (nucleo spec-driven completo: prd, plan, tasks, verify, audit, trace, security, testing)');
+  } else if (detectedStack === 'unknown') {
+    console.log('[STACK] No detecte stack en el proyecto -> copio todos los agentes.');
+    console.log('        Usa --stack flutter para filtrar, o --all-agents para forzar la biblioteca completa.');
+  }
 
-    if (opts.stack && STACK_KEEP[opts.stack]) {
-      const keep = STACK_KEEP[opts.stack];
-      agentsToDrop = STACK_AGENTS.filter(a => keep.indexOf(a) === -1);
-    } else {
-      // Stack desconocido -> conservar todo antes que filtrar de mas
-      agentsToDrop = [];
-    }
-
-    // Skills: mismo criterio conservador. Stack desconocido o node -> todo.
-    if (opts.stack && STACK_SKILLS[opts.stack]) {
-      skillsToDrop = STACK_SKILLS[opts.stack].slice();
-    } else {
-      skillsToDrop = [];
-    }
-
-    if (agentsToDrop.length > 0) {
-      console.log('[STACK] Detectado: ' + detectedStack + '  |  agentes de lenguaje que NO aplican: ' + agentsToDrop.length);
-      console.log('        (nucleo spec-driven completo: prd, plan, tasks, verify, audit, trace, security, testing)');
-    } else if (detectedStack === 'unknown') {
-      console.log('[STACK] No detecte stack en el proyecto -> copio todos los agentes.');
-      console.log('        Usa --stack flutter para filtrar, o --all-agents para forzar la biblioteca completa.');
-    }
+  if (opts.dryRun) {
+    profiler.render(profilePlan);
+    console.log('');
+    console.log('[DRY-RUN] Plan calculado. No se ha copiado ni modificado nada.');
+    return;
   }
 
   console.log('');
@@ -548,7 +682,7 @@ function main() {
   console.log('  - ' + pkSkills + ' skills');
   console.log('  - ' + (pkMcpNames.length ? pkMcpNames.length + ' MCPs (' + pkMcpNames.join(', ') + ')' : 'MCPs: sin configurar'));
   console.log('  - 16+ CLI scripts');
-  console.log('  - Plugins (vibeguard, pty, dcp)');
+    console.log('  - Plugins: solo API V2 (hookify local); los V1 quedan excluidos');
   console.log('  - Manual completo');
   if (agentsToDrop.length > 0) {
     console.log("  - Filtro de stack '" + detectedStack + "': " + agentsToDrop.length + ' agentes de lenguaje NO se copian');
@@ -564,8 +698,9 @@ function main() {
   console.log('[1/7] Archivos raiz...');
   console.log(DASH);
 
-  mergeJsonConservative(path.join(packPath, 'opencode.json'), path.join(projectPath, 'opencode.json'),
-    'opencode.json (MCP activo: context7; el resto, opt-in)');
+  const configResult = applyProfileConfig(packPath, projectPath, profilePlan);
+  console.log('  [' + (configResult.ok ? 'OK' : 'WARN') + '] opencode.json ' + configResult.detail);
+  copied++;
   mergeJsonConservative(path.join(packPath, 'skills-lock.json'), path.join(projectPath, 'skills-lock.json'),
     'skills-lock.json');
   mergeGitignore(path.join(packPath, '.gitignore'), path.join(projectPath, '.gitignore'));
@@ -863,7 +998,7 @@ function main() {
   // ============================================================
   // FASE 6: INSTALAR DEPENDENCIAS NPM
   // ============================================================
-  if (!opts.skipInstall) {
+  if (!opts.skipInstall && profilePlan.plugins.install.length > 0) {
     console.log('');
     console.log(DASH);
     console.log('[6/7] Instalando plugins npm...');
@@ -897,6 +1032,7 @@ function main() {
     console.log(DASH);
     console.log('[6/7] Instalacion npm (OMITIDA)');
     console.log(DASH);
+    if (!opts.skipInstall) console.log('  [SKIP] el plan no instala plugins npm (solo plugins locales V2)');
   }
 
   // ============================================================
@@ -972,9 +1108,13 @@ function main() {
     console.log('    - ' + finAgents + ' agents ' + filterText);
     console.log('    - ' + finCommands + ' slash commands');
     console.log('    - ' + finSkills + ' skills (stripe, clerk, supabase, docker, vercel, etc.)');
-    console.log('    - ' + finMcpNames.length + ' MCPs' + (finMcpNames.length ? ' (' + finMcpNames.join(', ') + ')' : ''));
+    console.log('    - ' + finMcpNames.length + ' MCP' + (finMcpNames.length ? 's (' + finMcpNames.join(', ') + ')' : 's'));
+    const lspIds = Object.keys(profilePlan.lsp.servers || {});
+    console.log('    - LSP: builtins ' + (profilePlan.lsp.enableBuiltins ? 'on' : 'off') +
+      (lspIds.length ? ' + ' + lspIds.join(', ') : ' (sin overrides)'));
+    console.log('    - Plugins: ' + (profilePlan.plugins.local.length ? profilePlan.plugins.local.join(', ') + ' (local, V2)' : 'ninguno') +
+      (profilePlan.plugins.install.length ? ' + ' + profilePlan.plugins.install.join(', ') : ''));
     console.log('    - CLI scripts de validacion y utilidades');
-    console.log('    - Plugins (vibeguard, pty, dcp)');
     console.log('    - Manual completo');
     console.log('    - Templates y estructura docs');
     console.log('');

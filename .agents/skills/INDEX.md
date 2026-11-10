@@ -46,7 +46,7 @@
 | `python-async-patterns` | python async, asyncio, fastapi, background tasks, connection pooling, async database... | 9.6KB | Use this skill when working with Python async/await, FastAPI, background tasks, connection poolin... |
 | `railway-deploy` | — | 2.0KB | Use when deploying to Railway, provisioning databases, configuring services, or shipping full-sta... |
 | `refactoring-patterns` | refactor, refactoring, extract method, extract function, inline, rename... | 14.5KB | Use this skill when restructuring existing code without changing its behavior. Covers the Fowler ... |
-| `router` | — | 27.0KB | Use when the primary agent must dispatch a subagent and/or load a knowledge skill for any non-Q&A... |
+| `router` | — | 27.1KB | Use when the primary agent must dispatch a subagent and/or load a knowledge skill for any non-Q&A... |
 | `skill-optimizer` | — | 4.9KB |  |
 | `stripe-integration` | — | 4.2KB | Use when working with the Stripe API: checkout sessions, subscriptions, billing portal, customer ... |
 | `supabase-patterns` | — | 3.5KB | Use when working with Supabase (database, auth, realtime, storage, Edge Functions), the Supabase ... |
@@ -184,6 +184,6 @@ When a user request comes in, the primary agent loads the right skill based on t
 - **73** commands (.opencode/commands)
 - **59** skills (.agents/skills)
 - **21** native CLIs (.opencode/bin)
-- **3** npm plugins + **0** local plugin(s)
-- **1** active MCP + **14** optional MCP(s)
+- **0** npm plugins + **1** local plugin(s)
+- **2** active MCPs + **14** optional MCP(s)
 <!-- COUNTS-END -->

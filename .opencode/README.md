@@ -12,8 +12,8 @@ Pack portable de opencode. Cópialo a cualquier proyecto, reinicia opencode y em
 - **73** commands (.opencode/commands)
 - **59** skills (.agents/skills)
 - **21** native CLIs (.opencode/bin)
-- **3** npm plugins + **0** local plugin(s)
-- **1** active MCP + **14** optional MCP(s)
+- **0** npm plugins + **1** local plugin(s)
+- **2** active MCPs + **14** optional MCP(s)
 <!-- COUNTS-END -->
 
 > Las cifras exactas (agentes, commands, skills, plugins, MCPs, CLIs) están en el bloque `## Counts` de abajo. Se regenera con `node .opencode/bin/counts.js --update .opencode/README.md .opencode/manual/README.md .agents/skills/INDEX.md`.
@@ -34,17 +34,11 @@ cd /ruta/a/tu/proyecto && opencode .
 
 ## Copiar a otro proyecto
 
-Después de copiar el pack, **corré esto una vez** en el proyecto destino:
-
-```bash
-cd .opencode && npm install
-```
-
-Baja los plugins (vibeguard, pty, dcp) + `@opencode-ai/plugin` peer. Sin esto opencode puede colgarse al boot porque los plugins no cargan. El script `install-plugins.js` es idempotente — si `node_modules/` ya existe, skip.
+Después de copiar el pack **no hay nada que instalar**: los plugins del pack son locales y de la API V2 (`hookify.ts` se auto-carga desde `.opencode/plugins/`) y la config la genera el instalador según el perfil del proyecto. Sin dependencias npm ni `node_modules/`.
 
 ### Si opencode se cuelga al boot
 
-1. `cd .opencode && npm install` — ¿lo corriste? Sin esto, sin plugins.
+1. `opencode --version` — necesitas la 2.x; en 1.x los plugins locales V2 no se ejecutan.
 2. `opencode debug config` — verifica config mergeada (plugins, MCPs, instructions)
 3. `opencode debug skill` — verifica skill discovery
 4. Node 20+ recomendado (Node 18 funciona con warnings `EBADENGINE`)

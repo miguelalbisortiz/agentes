@@ -23,8 +23,8 @@ Sobre el ecosistema de desarrollo de software con IA, este pack no aplica una pr
 - **73** commands (.opencode/commands)
 - **59** skills (.agents/skills)
 - **21** native CLIs (.opencode/bin)
-- **3** npm plugins + **0** local plugin(s)
-- **1** active MCP + **14** optional MCP(s)
+- **0** npm plugins + **1** local plugin(s)
+- **2** active MCPs + **14** optional MCP(s)
 <!-- COUNTS-END -->
 
 ## Qué hace
@@ -242,7 +242,7 @@ El instalador **no pregunta nada**: se lanza y corre solo hasta el final.
 
 ### Qué hace
 
-Antes de copiar nada **detecta el stack** del proyecto mirando sus ficheros de configuración (`pubspec.yaml` → flutter, `package.json` → node, `pyproject.toml` → python, `Cargo.toml` → rust, `go.mod` → go...) y descarta los agents de lenguajes que no aplican. Si no reconoce el stack, instala la biblioteca completa.
+Antes de copiar nada **detecta los stacks** del proyecto mirando sus ficheros de configuración (`pubspec.yaml` → flutter, `package.json` → node, `pyproject.toml` → python, `Cargo.toml` → rust, `go.mod` → go...) y descarta los agents de lenguajes que no aplican. Un repo multi-lenguaje conserva la unión de sus stacks; si no reconoce ninguno, instala la biblioteca completa. Con `--dry-run` imprime el plan (agentes, MCP, LSP y plugins) y no escribe nada.
 
 Luego ejecuta 7 fases en orden:
 
@@ -253,7 +253,7 @@ Luego ejecuta 7 fases en orden:
 | 3 | `.agents/` | Skills y el router que decide cuál se carga |
 | 4 | `docs/` | Crea la estructura de documentación — lo omite con `--skip-docs` |
 | 5 | Documentación | README y `docs/PROJECT.md` del pack |
-| 6 | Plugins npm | Instala los plugins del pack — lo omite con `-SkipInstall` |
+| 6 | Plugins npm | Instala los plugins npm que pida el plan — hoy el pack solo trae plugins locales V2, así que se omite |
 | 7 | Verificación | Recuenta agents, commands y skills, y comprueba los MCPs |
 
 Termina con un resumen que imprime el **recuento real instalado**.
@@ -285,6 +285,7 @@ Cada flag de `init-opencode.js` con su equivalente en el `.ps1`:
 | `--stack <nombre>` | `-Stack <nombre>` | Fuerza el stack; si se omite, se detecta automáticamente |
 | `--all-agents` | `-AllAgents` | Instala la biblioteca completa sin filtrar por stack |
 | `--skip-install` | `-SkipInstall` | Omite la instalación de plugins npm |
+| `--dry-run` | — | Imprime el plan del proyecto y no escribe ni modifica nada |
 | `--skip-docs` | `-SkipDocs` | Omite la estructura de `docs/` |
 
 `--force` / `-Force` se aceptan por compatibilidad, pero no cambian nada: el instalador nunca pregunta y siempre sobreescribe.
