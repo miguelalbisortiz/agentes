@@ -37,9 +37,9 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 | **Commands** | *Qué escribes tú*: `/prd`, `/spec-lint`, `/plan`, `/tasks`, `/verify`... El `AGENTS.md` global obliga a pasos verificables. |
 | **Skills** | *Conocimiento que se carga solo cuando hace falta* — patrones, checklists, marcos. No ocupan contexto permanente. |
 | **CLIs** | *La máquina que valida*: frontmatter, prosa, cableado, smoke-test, conteos, instalador, presupuesto de tokens y las invariantes de comportamiento. |
-| **MCPs / plugins** | Conexiones externas: `context7` activo por defecto, 14 más en opt-in (`supabase`, `vercel`, `stripe`, `playwright`...) — cada uno se enciende con `/mcp-on`. |
+| **MCP / LSP / plugins** | Se eligen **por proyecto**: `context7` siempre, `playwright` si el repo tiene E2E, LSP con los builtins de OpenCode 2 más el override del lenguaje detectado, y el plugin local `hookify.ts`. Los MCP que piden credenciales se **recomiendan**, nunca se encienden solos. |
 
-La lista completa de los **70 comandos**, agrupados por intención, está en [`.opencode/manual/COMMANDS.md`](.opencode/manual/COMMANDS.md); el mapa de los **86 agents** por intención, en [`.opencode/manual/ROUTE.md`](.opencode/manual/ROUTE.md).
+La lista completa de los **73 comandos**, agrupados por intención, está en [`.opencode/manual/COMMANDS.md`](.opencode/manual/COMMANDS.md); el mapa de los **90 agents** por intención, en [`.opencode/manual/ROUTE.md`](.opencode/manual/ROUTE.md).
 
 ## Cómo empezar
 
@@ -150,9 +150,18 @@ Hay tres capas, y manda una distinta de lo que suena:
 | **`router` skill** | decide qué agent o skill encaja — se carga **bajo demanda** |
 | **`/orchestrate`** | el conductor del ciclo multi-agente, **no** el jefe. Para tareas simples manda la conducta 8 y respondes directo |
 
-## El equipo se adapta a tu proyecto
+## El pack se adapta a tu proyecto
 
-SDD es un **estándar**, no una plantilla con el mismo equipo para todos: el proceso es idéntico en cualquier proyecto, y **quién trabaja en él se decide según el stack**. Eso es exactamente lo que hace el filtro al instalar.
+SDD es un **estándar**, no una plantilla con el mismo equipo para todos: el proceso es idéntico en cualquier proyecto, y **qué se instala se decide mirando el repo**. Lo decide un único motor, [`.opencode/bin/project-profile.js`](.opencode/bin/project-profile.js), que emite un plan —agents, skills, MCP, LSP y plugins— y el instalador se limita a aplicarlo.
+
+El plan se puede ver **sin escribir nada**:
+
+```bash
+node init-opencode.js --dry-run --project-path C:\mi-proyecto   # plan completo
+node .opencode/bin/project-profile.js C:\mi-proyecto            # solo el perfil
+```
+
+**Multi-stack**: un repo Next + FastAPI cuenta como `node+python` y recibe la unión de ambos. Si no reconoce ningún stack, no poda nada.
 
 **Siempre entra** — el núcleo spec-driven, que no depende de ningún lenguaje:
 
@@ -170,6 +179,15 @@ y con ellos los agents de proceso: `prd-agent`, `planner`, `tdd-guide`, `code-re
 | Go, Rust, Java, Kotlin, C#, C++, PHP, Swift | los de su lenguaje | el resto |
 
 Los skills también se ajustan, pero con criterio conservador: solo los estrictamente JS/TS (`drizzle-patterns`, `turso-libsql`, `clerk-auth`) se descartan fuera de Node. El resto son multi-stack o los usan agents de otros procesos.
+
+### Lo que no es un agente también se decide
+
+| Qué | Cómo se decide |
+|---|---|
+| **MCP** | `context7` siempre (no pide credenciales); `playwright` solo si el repo tiene E2E configurado; los que necesitan token se listan como recomendados (`/setup-mcp <name>`) y **no se encienden solos**, porque arrancarían rotos |
+| **LSP** | `lsp: true` (builtins de OpenCode 2) más un override del lenguaje detectado **solo si el binario está en el PATH**; en Windows el comando va envuelto en `cmd /c` |
+| **Plugins** | Solo API V2: `hookify.ts` local se auto-carga sin instalar nada. dcp, pty y vibeguard eran V1 — cargaban sin ejecutar — y ya no se instalan |
+| **Config** | El instalador **genera** `opencode.json` desde el plan y conserva lo que ya tuvieras: tus claves, tus MCP y tus plugins propios se respetan |
 
 ### Nada queda suelto
 
@@ -268,7 +286,8 @@ Termina con un resumen que imprime el **recuento real instalado**.
 | `.opencode/AGENTS.md` | Reglas globales de comportamiento |
 | `.agents/skills/` | Skills + router |
 | `docs/` | Estructura de documentación |
-| `opencode.json` | **Fusionado**: conserva lo tuyo y añade los MCPs del pack |
+| `opencode.json` | **Generado desde el perfil** y fusionado con lo tuyo: MCP, LSP y plugins del plan, sin pisar tus claves |
+| `.opencode/.stack` | Marcador del perfil aplicado (`flutter`, `node`, `node+python`...) |
 | `.gitignore` | **Fusionado**: conserva tus reglas y añade las del pack |
 | `skills-lock.json` | **Fusionado**: estado de las skills |
 
@@ -285,7 +304,7 @@ Cada flag de `init-opencode.js` con su equivalente en el `.ps1`:
 | `--stack <nombre>` | `-Stack <nombre>` | Fuerza el stack; si se omite, se detecta automáticamente |
 | `--all-agents` | `-AllAgents` | Instala la biblioteca completa sin filtrar por stack |
 | `--skip-install` | `-SkipInstall` | Omite la instalación de plugins npm |
-| `--dry-run` | — | Imprime el plan del proyecto y no escribe ni modifica nada |
+| `--dry-run` | — *(solo Node)* | Imprime el plan del proyecto y no escribe ni modifica nada |
 | `--skip-docs` | `-SkipDocs` | Omite la estructura de `docs/` |
 
 `--force` / `-Force` se aceptan por compatibilidad, pero no cambian nada: el instalador nunca pregunta y siempre sobreescribe.
@@ -302,20 +321,22 @@ Se corre desde la raíz del pack:
 
 | Chequeo | Comando | Estado |
 |---|---|---|
-| Prosa: enlaces rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` | **224 .md · 0 hallazgos** |
+| Prosa: enlaces rotos y mojibake (R1–R7) | `node .opencode/bin/lint-docs.js` | **277 .md · 0 hallazgos** |
 | Los bloques `## Counts` reflejan lo real | `node .opencode/bin/counts.js --check` | **exit 0** |
 | Cableado: command → agent → skill (W1–W8) | `node .opencode/bin/wiring-test.js` | **8/8** |
-| Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` | **477 / 0 / 0** |
+| Frontmatter de agents, skills y commands | `node .opencode/bin/validate-frontmatter.js` | **536 · 0 fallos** |
 | Salud general del pack | `node .opencode/bin/smoke-test.js` | **31/31** |
-| El instalador no rompe nada | `powershell -File .opencode/bin/installer-test.ps1` | **48/48** |
-| Invariantes de comportamiento | `node .opencode/bin/eval-static.js` | **9/9** |
-| Presupuesto de tokens | `node .opencode/bin/measure-tokens.js` | **35 %** · suelo 30 % PASS |
+| El instalador no rompe nada | `node .opencode/bin/installer-test.js` · `installer-test.ps1` | **48/48** |
+| Invariantes de comportamiento | `node .opencode/bin/eval-static.js` | **8/9** — falla E7 (ver abajo) |
+| Presupuesto de tokens | `node .opencode/bin/measure-tokens.js` | **25 %** · suelo 30 % **FAIL** |
 
 ### Gate en CI
 
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) corre **en cada push y en cada pull request** en **dos jobs**: `verify` (Windows, con **ambos** instaladores) y `linux` (Ubuntu, con el instalador Node). Un cambio que rompa cualquier chequeo **no llega**.
 
-`measure-tokens` corre ahí **solo informativo** (`continue-on-error`). Sale en **verde** cuando se cumple el suelo del 30 % — que hoy se cumple (35 %) — y solo se pone en rojo si cae por debajo. **La meta del 40 % se reporta como `OPEN`, no como fallo**: un objetivo aspiracional que hace enrojar un comando que todo el mundo ejecuta en local, mientras la CI lo deja pasar, es una métrica sobre la que nadie actúa. El suelo real lo fija el caso `E7`.
+`measure-tokens` corre ahí **solo informativo** (`continue-on-error`). Sale en **verde** cuando se cumple el suelo del 30 % y en rojo si cae por debajo. **La meta del 40 % se reporta como `OPEN`, no como fallo**: un objetivo aspiracional que hace enrojar un comando que todo el mundo ejecuta en local, mientras la CI lo deja pasar, es una métrica sobre la que nadie actúa. El suelo real lo fija el caso `E7`.
+
+> **Pendiente (2026-11-10).** Al corregir el conteo de MCP (se leía `mcp.servers` como si fuera un solo servidor, y ahora con `context7` + `anydoc` cuenta 2 × ~400 tokens) el boot medido subió a ~2221 tokens y el ahorro quedó en **25 %**, por debajo del suelo del 30 %. Es una medición honesta de que `AGENTS.md` creció: el arreglo no se revierte y **E7 queda en rojo** hasta bajar el boot real (~158 tokens) o revisar el suelo con criterio.
 
 ### Las 9 invariantes
 
@@ -339,18 +360,20 @@ Los casos viven en [`evals/cases/static.json`](evals/cases/static.json) — son 
 
 ```text
 AGENTS.md   5682 bytes (~1421 tokens)
-boot        ~1921 tokens   vs baseline ~2948
-SAVINGS     35%            suelo 30% PASS · meta 40% OPEN (faltan ~152 tokens)
+MCP         2 (context7, anydoc) ≈ 800 tokens
+plugins     ninguno (hookify es local y no añade tools)
+boot        ~2221 tokens   vs baseline ~2948
+SAVINGS     25%            suelo 30% FAIL · meta 40% OPEN (faltan ~452 tokens)
 ```
 
 **Lo que ese número no cubre.** OpenCode anuncia en cada paso del modelo la descripción de cada skill —`id + name + description`, nunca el cuerpo—, y esa lista **no está en `bootTokens`**:
 
 | Concepto | Coste | ¿Siempre? |
 |---|---:|---|
-| `AGENTS.md` + MCP + plugins | ~1 921 tok | ✅ sí (lo que mide el número de arriba) |
-| 45 descripciones de skills | ~2 870 tok | ✅ sí — se listan en cada paso |
-| 86 descripciones de agents | ~5 229 tok | ✅ sí |
-| **boot real** | **~10 020 tok** | |
+| `AGENTS.md` + MCP + plugins | ~2 221 tok | ✅ sí (lo que mide el número de arriba) |
+| 59 descripciones de skills | ~3 878 tok | ✅ sí — se listan en cada paso |
+| 90 descripciones de agents | ~5 589 tok | ✅ sí |
+| **boot real** | **~11 688 tok** | |
 | Cuerpos `SKILL.md` | — | ❌ bajo demanda |
 | Router (`router` + `route`) | ~7 689 tok | ❌ solo al dispatchar |
 
@@ -363,7 +386,7 @@ No se pliega a `savingsPct` porque **la baseline no tiene su propio catálogo**:
 ├── README.md                  Este documento
 ├── init-opencode.js           Instalador (Windows / Linux / macOS)
 ├── init-opencode.ps1          Instalador alternativo para Windows
-├── opencode.json              Configuración (plugins, MCPs)
+├── opencode.json              Configuración del pack (MCP, LSP, sin plugins npm)
 ├── skills-lock.json           Estado de las skills
 ├── .gitignore                 Reglas de exclusión
 ├── .github/workflows/ci.yml   Gate de CI
@@ -382,7 +405,3 @@ No se pliega a `savingsPct` porque **la baseline no tiene su propio catálogo**:
 ```
 
 Los ficheros `AGENTS_INDEX.md`, `skills/INDEX.md` y los bloques `## Counts` son **autogenerados**: se regeneran en cada instalación, así que nunca llevan cifras falsas.
-
-## Créditos
-
-Derivado de [marchelero/open](https://github.com/marchelero/open).
