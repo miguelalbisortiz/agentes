@@ -793,15 +793,22 @@ function main() {
   // Lo lee smoke-test.js para exigir el umbral de agents correcto:
   // filtrado por stack (~50) vs pack maestro (~85).
   const stackMarkerFile = path.join(projectPath, '.opencode', '.stack');
+  // Lista de agentes podados: la lee smoke-test.js para poder comprobar, DENTRO
+  // de cada instalacion, que ninguna superficie de dispatch sigue nombrándolos.
+  const prunedMarkerFile = path.join(projectPath, '.opencode', '.pruned-agents');
   if (agentsToDrop.length > 0) {
     try {
       fs.mkdirSync(path.dirname(stackMarkerFile), { recursive: true });
       fs.writeFileSync(stackMarkerFile, detectedStack, 'ascii'); // -NoNewline -Encoding ascii
+      fs.writeFileSync(prunedMarkerFile, agentsToDrop.slice().sort().join('\n') + '\n', 'utf8');
     } catch (e) {
       console.log('  [WARN] No pude escribir .stack: ' + firstLine(e.message));
     }
-  } else if (fs.existsSync(stackMarkerFile)) {
-    try { fs.rmSync(stackMarkerFile, { force: true }); } catch { /* best effort */ }
+  } else {
+    for (const f of [stackMarkerFile, prunedMarkerFile]) {
+      if (!fs.existsSync(f)) continue;
+      try { fs.rmSync(f, { force: true }); } catch { /* best effort */ }
+    }
   }
 
   // --- Poda de comandos huerfanos ---

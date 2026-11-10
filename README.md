@@ -203,7 +203,7 @@ Descartar un agente puede dejar referencias colgando. El instalador las limpia *
 Y no se deja a la buena fe. El `smoke-test` lo comprueba en **cada** instalación con la batería `[Stack filter integrity]`:
 
 - **`no orphan commands`** — el `agent:` de cada comando apunta a un agente instalado.
-- **`dispatch points document the stack fallback`** — todos los puntos de despacho explican qué hacer cuando un agente no existe.
+- **`no dispatch entry names a pruned agent`** — ninguno de los agentes que el perfil descartó aparece en una fila o viñeta de dispatch. Lee la lista que el instalador deja en `.opencode/.pruned-agents`; si el chequeo encuentra una, falla y dice el archivo y la línea.
 
 `installer-test` lo repite además en los escenarios reales de instalación. **Si algo quedara suelto, el test falla** en lugar de dejarlo pasar.
 
@@ -289,6 +289,7 @@ Termina con un resumen que imprime el **recuento real instalado**.
 | `docs/` | Estructura de documentación |
 | `opencode.json` | **Generado desde el perfil** y fusionado con lo tuyo: MCP, LSP y plugins del plan, sin pisar tus claves |
 | `.opencode/.stack` | Marcador del perfil aplicado (`flutter`, `node`, `node+python`...) |
+| `.opencode/.pruned-agents` | Agentes que el perfil descartó; lo usa el `smoke-test` del proyecto para comprobar que ninguna superficie de dispatch los nombra |
 | `.gitignore` | **Fusionado**: conserva tus reglas y añade las del pack |
 | `skills-lock.json` | **Fusionado**: estado de las skills |
 

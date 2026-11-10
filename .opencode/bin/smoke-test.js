@@ -217,6 +217,55 @@ check('dispatch points document the stack fallback', () => {
   return true;
 });
 
+check('no dispatch entry names a pruned agent', () => {
+  // El instalador deja aqui los agentes que descarto por stack. Sin este
+  // archivo (pack maestro, o --all-agents) no hay nada que comprobar.
+  if (!fs.existsSync('.opencode/.pruned-agents')) {
+    // Sin lista no hay nada que comprobar: pack maestro o instalacion --all-agents.
+    // Si hay .stack pero no lista, la instalacion es vieja: avisar sin romper.
+    return fs.existsSync('.opencode/.stack')
+      ? { warn: 'falta .opencode/.pruned-agents; reinstala para habilitar el chequeo' }
+      : true;
+  }
+  const pruned = readFile('.opencode/.pruned-agents').split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  if (!pruned.length) return true;
+
+  const kept = new Set(
+    fs.existsSync('.opencode/agents')
+      ? fs.readdirSync('.opencode/agents').filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''))
+      : []
+  );
+  const SURFACES = [
+    '.agents/skills/router/SKILL.md',
+    ...(fs.existsSync('.opencode/commands')
+      ? fs.readdirSync('.opencode/commands').filter((f) => f.endsWith('.md')).map((f) => '.opencode/commands/' + f)
+      : []),
+    ...(fs.existsSync('.opencode/agents')
+      ? fs.readdirSync('.opencode/agents').filter((f) => f.endsWith('.md')).map((f) => '.opencode/agents/' + f)
+      : []),
+    '.opencode/AGENTS.md',
+    '.opencode/manual/ROUTE.md',
+  ];
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const mentions = (t, n) => new RegExp('(^|[^A-Za-z0-9_-])' + esc(n) + '($|[^A-Za-z0-9_-])').test(t);
+  // Misma regla que el instalador: solo cuentan las entradas de dispatch (fila
+  // de tabla o vineta) cuya unica mencion de agente es una podada.
+  const isEntry = (l) => /^[ \t]*\|/.test(l) || /^[ \t]*([-*]|[0-9]+\.)[ \t]/.test(l);
+
+  const bad = [];
+  for (const f of SURFACES) {
+    if (!fs.existsSync(f)) continue;
+    for (const line of (readFile(f) || '').split(/\r?\n/)) {
+      if (!isEntry(line)) continue;
+      if (!pruned.some((n) => mentions(line, n))) continue;
+      if ([...kept].some((k) => mentions(line, k))) continue;
+      bad.push(f + ': ' + line.trim().slice(0, 60));
+    }
+  }
+  if (bad.length) throw new Error(bad.slice(0, 3).join(' | '));
+  return true;
+});
+
 console.log('');
 console.log('[No broken paths in pack]');
 function findBrokenRefs() {
