@@ -1,5 +1,5 @@
 ---
-description: "Switch communication density of the primary agent (caveman mode). `/tone lite` = professional but tight (default), `/tone full` = ultra-compressed caveman. Use when the user wants to control token consumption per turn."
+description: "Switch communication density of the primary agent (caveman mode). `/tone lite` = professional but tight (default), `/tone full` = ultra-compressed caveman. Shorthand for `/caveman lite|full`, which also covers ultra and the wenyan levels."
 agent: build
 ---
 
@@ -11,6 +11,8 @@ Set the primary agent's communication level for the rest of the session.
 
 - `/tone lite` — professional but tight: no filler/hedging, full sentences, articles kept. **Default.**
 - `/tone full` — classic caveman: drop articles, fragments OK, short synonyms. ~75% fewer tokens.
+
+Both write the same session state as `/caveman`. For `ultra` or the wenyan levels, use `/caveman <level>`.
 
 ## Behavior
 

@@ -10,8 +10,8 @@ Six intensity levels:
 
 | Level | What change |
 |-------|-------------|
-| `lite` | Drop filler/hedging. Sentences stay full. Professional but tight. |
-| `full` | Default. Drop articles, fragments OK, short synonyms. |
+| `lite` | Default. Drop filler/hedging. Sentences stay full. Professional but tight. |
+| `full` | Drop articles, fragments OK, short synonyms. |
 | `ultra` | Bare fragments. Abbreviations (DB, auth, fn). Arrows for causality. |
 | `wenyan-lite` | Classical Chinese register, light compression. |
 | `wenyan-full` | Maximum 文言文. 80-90% character reduction. |
@@ -22,14 +22,16 @@ Auto-clarity rule: caveman drops to normal prose for security warnings, irrevers
 ## How to invoke
 
 ```
-/tone full            # full caveman (the skill's default)
-/tone lite            # lighter compression
-"caveman ultra"       # extreme compression, asked in the prompt
-"caveman wenyan"      # classical Chinese, asked in the prompt
-stop caveman          # back to normal prose
+/caveman              # report the current level
+/caveman lite         # default: tight prose, full sentences
+/caveman full         # classic caveman, ~75% fewer tokens
+/caveman ultra        # extreme compression
+/caveman wenyan-full  # classical Chinese
+/caveman off          # back to normal prose
+/tone lite|full       # shorthand for the same two levels
 ```
 
-There is no `/caveman` command in the pack: `/tone` is the command surface.
+`/caveman` is the full surface; `/tone` is the older alias for the `lite`/`full` pair and writes the same session state.
 
 ## Example output
 

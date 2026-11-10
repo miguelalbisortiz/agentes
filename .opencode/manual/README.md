@@ -11,7 +11,7 @@
 > Regenerate: `node .opencode/bin/counts.js --update <files...>`
 
 - **90** agents (.opencode/agents)
-- **73** commands (.opencode/commands)
+- **74** commands (.opencode/commands)
 - **59** skills (.agents/skills)
 - **21** native CLIs (.opencode/bin)
 - **0** npm plugins + **1** local plugin(s)

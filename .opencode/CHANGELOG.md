@@ -4,6 +4,10 @@ All notable changes to this starter pack are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- **Comando `/caveman`** — superficie completa del skill `caveman`: `lite` (por defecto), `full`, `ultra`, `wenyan-lite`, `wenyan-full`, `wenyan-ultra` y `off`. Sin argumento reporta el nivel actual. `/tone` queda como atajo de los dos niveles más usados (`lite`/`full`) y escribe el mismo estado de sesión, así que la promesa de la `description` del skill por fin existe: antes citaba un `/caveman` que no estaba en el pack.
+- **Nivel por defecto unificado en `lite`** — `AGENTS.md` y `/tone` ya lo decían y el skill decía `full`. Ahora coinciden los tres, con la escalada a `full` de una sola respuesta en tareas multi-paso.
+
 ### Fixed
 - **Referencias a agentes que el perfil no instala** — quitar el `.md` podado no bastaba: `router`, `/route`, `/pr-review`, `/orchestrate` y `build-error-resolver` seguían nombrando reviewers y resolvers de otros stacks, y el primary despachaba a un agente inexistente. En una instalación Flutter quedaban 25 de 26 podados nombrados; ahora el instalador quita las entradas (fila de tabla o viñeta) cuya única mención de agente es una podada — 80 líneas en 12 archivos en ese caso — y deja las mixtas, que conservan capacidades reales. `installer-test` T1 lo vigila.
 - **`compaction.tail_turns` era V1** — OpenCode 2.x descarta la clave con un WARN y la ignora; el equivalente es `keep.tokens`. El pack y los proyectos generados usan ya la forma V2 (`auto: true`, `keep.tokens: 8000`).

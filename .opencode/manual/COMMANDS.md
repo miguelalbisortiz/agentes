@@ -92,7 +92,8 @@
 | `/session-start` | Lee la Capa 1+2 de memoria y reporta un resumen compacto. Auto en señales de cierre. | build |
 | `/session-end` | Escribe snapshot, actualiza `LATEST.md`, refresca `PROJECT.md`, extrae 1-3 instintos. | build |
 | `/context-budget` | Audita el presupuesto de contexto: skills, agentes, comandos, sessions. | build |
-| `/tone` | Densidad de comunicación del agente primario: `/tone lite` (por defecto, sobrio) o `/tone full` (caveman ultra-comprimido). Para controlar el consumo de tokens por turno. | build |
+| `/caveman` | Fija el nivel de compresión del skill `caveman` para toda la sesión: `lite` (por defecto), `full`, `ultra`, `wenyan-lite|full|ultra`, `off`. Sin argumento reporta el nivel actual. | build |
+| `/tone` | Atajo de los dos niveles más usados: `/tone lite` (por defecto, sobrio) o `/tone full` (caveman ultra-comprimido). Escribe el mismo estado que `/caveman`. | build |
 | `/project-init` | Inicializa, refresca o comprueba `docs/PROJECT.md`. Útil al empezar un proyecto, si está obsoleto o antes de una tarea no trivial. | build |
 | `/project-status` | Check freshness de `docs/PROJECT.md` sin escribir. Exit 0/1 (CI-friendly). | build |
 | `/refresh-project` | Regenera `docs/PROJECT.md` desde los archivos del proyecto. Soporta `--status`, `--auto`, `--dry-run`, `--check`. | build |

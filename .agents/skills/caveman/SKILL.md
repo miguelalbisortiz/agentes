@@ -2,7 +2,7 @@
 name: caveman
 description: >
   Use when user asks to cut token usage, talk like caveman, requests "less tokens" or "be brief",
-  or runs /tone. Provides ultra-compressed communication mode (lite / full default /
+  or runs /caveman or /tone. Provides ultra-compressed communication mode (lite default /
   ultra / wenyan-lite / wenyan-full / wenyan-ultra) that cuts token usage ~75% while
   preserving full technical accuracy. Auto-triggers when token efficiency is requested.
 ---
@@ -13,7 +13,7 @@ Respond terse like smart caveman. All technical substance stay. Only fluff die.
 
 ACTIVE EVERY RESPONSE. No revert after many turns. No filler drift. Still active if unsure. Off only: "stop caveman" / "normal mode".
 
-Default: **full**. Switch: `/tone lite` or `/tone full`; ask for `ultra` / `wenyan` in the prompt when you want it.
+Default: **lite** (full sentences, no filler), auto-escalating to **full** for a single response on multi-step requests. Switch with `/caveman lite|full|ultra|wenyan-lite|wenyan-full|wenyan-ultra|off`; `/tone lite` and `/tone full` are the same two levels.
 
 ## Rules
 

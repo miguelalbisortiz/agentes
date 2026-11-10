@@ -20,7 +20,7 @@ Sobre el ecosistema de desarrollo de software con IA, este pack no aplica una pr
 > Regenerate: `node .opencode/bin/counts.js --update <files...>`
 
 - **90** agents (.opencode/agents)
-- **73** commands (.opencode/commands)
+- **74** commands (.opencode/commands)
 - **59** skills (.agents/skills)
 - **21** native CLIs (.opencode/bin)
 - **0** npm plugins + **1** local plugin(s)
@@ -39,7 +39,7 @@ Especificar antes de construir, y demostrar con evidencia que lo construido cump
 | **CLIs** | *La máquina que valida*: frontmatter, prosa, cableado, smoke-test, conteos, instalador, presupuesto de tokens y las invariantes de comportamiento. |
 | **MCP / LSP / plugins** | Se eligen **por proyecto**: `context7` siempre, `playwright` si el repo tiene E2E, LSP con los builtins de OpenCode 2 más el override del lenguaje detectado, y el plugin local `hookify.ts`. Los MCP que piden credenciales se **recomiendan**, nunca se encienden solos. |
 
-La lista completa de los **73 comandos**, agrupados por intención, está en [`.opencode/manual/COMMANDS.md`](.opencode/manual/COMMANDS.md); el mapa de los **90 agents** por intención, en [`.opencode/manual/ROUTE.md`](.opencode/manual/ROUTE.md).
+La lista completa de los **74 comandos**, agrupados por intención, está en [`.opencode/manual/COMMANDS.md`](.opencode/manual/COMMANDS.md); el mapa de los **90 agents** por intención, en [`.opencode/manual/ROUTE.md`](.opencode/manual/ROUTE.md).
 
 ## Cómo empezar
 
